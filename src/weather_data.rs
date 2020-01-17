@@ -1,5 +1,6 @@
-use chrono::{FixedOffset, TimeZone, Utc};
+use chrono::{FixedOffset, NaiveDate, TimeZone};
 use serde::{Deserialize, Serialize};
+use std::collections::BTreeMap;
 
 #[derive(Serialize, Deserialize, Debug)]
 pub struct Coord {
@@ -57,7 +58,7 @@ impl WeatherData {
         let sunrise = fo.timestamp(self.sys.sunrise, 0);
         let sunset = fo.timestamp(self.sys.sunset, 0);
         format!(
-            "Current conditions {} {}\n{}\n{}\n{}\n{}\n{}",
+            "Current conditions {} {}\n{}\n{}\n{}\n{}\n{}\n{}\n{}",
             if let Some(country) = &self.sys.country {
                 format!("{} {}", self.name, country)
             } else {
@@ -77,6 +78,8 @@ impl WeatherData {
                 (self.wind.speed * 3600. / 1609.344)
             ),
             format!("\tConditions: {}", self.weather[0].description),
+            format!("\tSunrise: {}", sunrise),
+            format!("\tSunset: {}", sunset)
         )
     }
 }
@@ -111,8 +114,6 @@ pub struct ForecastEntry {
 #[derive(Deserialize, Serialize, Debug)]
 pub struct CityEntry {
     pub name: String,
-    pub coord: Coord,
-    pub country: String,
     pub timezone: i32,
     pub sunrise: i64,
     pub sunset: i64,
@@ -129,7 +130,7 @@ impl ForecastEntry {
         let fo = FixedOffset::east(timezone);
         let dt = fo.timestamp(self.dt, 0);
         format!(
-            "Forecast: {}, {:0.2} F / {:0.2} C, max: {:0.2} F / {:0.2} C, min: {:0.2} F / {:0.2} C ",
+            "Forecast: {}, {:0.2} F / {:0.2} C, max: {:0.2} F / {:0.2} C, min: {:0.2} F / {:0.2} C {}",
             dt,
             fahr(self.main.temp),
             celc(self.main.temp),
@@ -137,6 +138,46 @@ impl ForecastEntry {
             celc(self.main.temp_max),
             fahr(self.main.temp_min),
             celc(self.main.temp_min),
+            dt.date().naive_local(),
         )
+    }
+}
+
+impl WeatherForecast {
+    pub fn get_high_low(&self) -> BTreeMap<NaiveDate, (f64, f64)> {
+        let fo = FixedOffset::east(self.city.timezone);
+        self.list.iter().fold(BTreeMap::new(), |mut hmap, entry| {
+            let date = fo.timestamp(entry.dt, 0).date().naive_local();
+            let temp = entry.main.temp;
+            let high = entry.main.temp_max;
+            let low = entry.main.temp_min;
+            match hmap.get(&date) {
+                Some((high, low)) => {
+                    let high = if temp > *high { temp } else { *high };
+                    let low = if temp < *low { temp } else { *low };
+                    hmap.insert(date, (high, low));
+                }
+                None => {
+                    hmap.insert(date, (high, low));
+                }
+            }
+            hmap
+        })
+    }
+
+    pub fn get_forecast_str(&self) -> String {
+        let lines: Vec<_> = self
+            .get_high_low()
+            .into_iter()
+            .map(|(d, (h, l))| {
+                format!(
+                    "\t{} {:30} {:30}",
+                    d,
+                    format!("High: {:0.2} F / {:0.2} C", fahr(h), celc(h),),
+                    format!("Low: {:0.2} F / {:0.2} C", fahr(l), celc(l),),
+                )
+            })
+            .collect();
+        lines.join("\n")
     }
 }

@@ -11,12 +11,9 @@ async fn main() -> Result<(), Error> {
     let config = Config::init_config()?;
 
     let (data, forecast) = WeatherOpts::parse_opts(&config).await?;
-    println!("{:?}", data);
     println!("{}", data.get_current_conditions());
-    println!("{:?}", forecast.city);
-    for l in &forecast.list {
-        println!("{}", l.get_forecast_entry(forecast.city.timezone));
-    }
+    println!("\nForecast:");
+    println!("{}", forecast.get_forecast_str());
     Ok(())
 }
 

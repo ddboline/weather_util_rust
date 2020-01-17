@@ -1,5 +1,4 @@
 use anyhow::{format_err, Error};
-use derive_more::Display;
 use reqwest::Url;
 use structopt::StructOpt;
 
