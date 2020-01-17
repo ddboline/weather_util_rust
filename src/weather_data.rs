@@ -1,6 +1,9 @@
-use chrono::{FixedOffset, NaiveDate, TimeZone};
+use chrono::{DateTime, FixedOffset, NaiveDate, Utc};
 use serde::{Deserialize, Serialize};
 use std::collections::BTreeMap;
+
+use crate::temperature::Temperature;
+use crate::timestamp;
 
 #[derive(Serialize, Deserialize, Debug)]
 pub struct Coord {
@@ -16,10 +19,10 @@ pub struct WeatherCond {
 
 #[derive(Serialize, Deserialize, Debug)]
 pub struct WeatherMain {
-    pub temp: f64,
-    pub feels_like: f64,
-    pub temp_min: f64,
-    pub temp_max: f64,
+    pub temp: Temperature,
+    pub feels_like: Temperature,
+    pub temp_min: Temperature,
+    pub temp_max: Temperature,
     pub pressure: f64,
     pub humidity: i64,
 }
@@ -33,8 +36,10 @@ pub struct Wind {
 #[derive(Deserialize, Serialize, Debug)]
 pub struct Sys {
     pub country: Option<String>,
-    pub sunrise: i64,
-    pub sunset: i64,
+    #[serde(with = "timestamp")]
+    pub sunrise: DateTime<Utc>,
+    #[serde(with = "timestamp")]
+    pub sunset: DateTime<Utc>,
 }
 
 #[derive(Deserialize, Serialize, Debug)]
@@ -45,7 +50,8 @@ pub struct WeatherData {
     pub main: WeatherMain,
     pub visibility: Option<f64>,
     pub wind: Wind,
-    pub dt: i64,
+    #[serde(with = "timestamp")]
+    pub dt: DateTime<Utc>,
     pub sys: Sys,
     pub timezone: i32,
     pub name: String,
@@ -54,9 +60,9 @@ pub struct WeatherData {
 impl WeatherData {
     pub fn get_current_conditions(&self) -> String {
         let fo = FixedOffset::east(self.timezone);
-        let dt = fo.timestamp(self.dt, 0);
-        let sunrise = fo.timestamp(self.sys.sunrise, 0);
-        let sunset = fo.timestamp(self.sys.sunset, 0);
+        let dt = self.dt.with_timezone(&fo);
+        let sunrise = self.sys.sunrise.with_timezone(&fo);
+        let sunset = self.sys.sunset.with_timezone(&fo);
         format!(
             "Current conditions {} {}\n{}\n{}\n{}\n{}\n{}\n{}\n{}",
             if let Some(country) = &self.sys.country {
@@ -68,8 +74,8 @@ impl WeatherData {
             format!("Last Updated {}", dt,),
             format!(
                 "\tTemperature: {:0.2} F ({:0.2} C)",
-                fahr(self.main.temp),
-                celc(self.main.temp),
+                self.main.temp.fahr(),
+                self.main.temp.celc(),
             ),
             format!("\tRelative Humidity: {}%", self.main.humidity),
             format!(
@@ -84,30 +90,22 @@ impl WeatherData {
     }
 }
 
-fn celc(temp: f64) -> f64 {
-    temp - 273.15
-}
-
-fn fahr(temp: f64) -> f64 {
-    temp * 1.8 - 459.67
-}
-
 #[derive(Deserialize, Serialize, Debug)]
 pub struct ForecastMain {
-    pub temp: f64,
+    pub temp: Temperature,
     pub feels_like: f64,
-    pub temp_min: f64,
-    pub temp_max: f64,
+    pub temp_min: Temperature,
+    pub temp_max: Temperature,
     pub pressure: i64,
     pub sea_level: i64,
     pub grnd_level: i64,
     pub humidity: i64,
-    pub temp_kf: f64,
 }
 
 #[derive(Deserialize, Serialize, Debug)]
 pub struct ForecastEntry {
-    pub dt: i64,
+    #[serde(with = "timestamp")]
+    pub dt: DateTime<Utc>,
     pub main: ForecastMain,
 }
 
@@ -115,8 +113,10 @@ pub struct ForecastEntry {
 pub struct CityEntry {
     pub name: String,
     pub timezone: i32,
-    pub sunrise: i64,
-    pub sunset: i64,
+    #[serde(with = "timestamp")]
+    pub sunrise: DateTime<Utc>,
+    #[serde(with = "timestamp")]
+    pub sunset: DateTime<Utc>,
 }
 
 #[derive(Deserialize, Serialize, Debug)]
@@ -128,26 +128,26 @@ pub struct WeatherForecast {
 impl ForecastEntry {
     pub fn get_forecast_entry(&self, timezone: i32) -> String {
         let fo = FixedOffset::east(timezone);
-        let dt = fo.timestamp(self.dt, 0);
+        let dt = self.dt.with_timezone(&fo);
         format!(
             "Forecast: {}, {:0.2} F / {:0.2} C, max: {:0.2} F / {:0.2} C, min: {:0.2} F / {:0.2} C {}",
             dt,
-            fahr(self.main.temp),
-            celc(self.main.temp),
-            fahr(self.main.temp_max),
-            celc(self.main.temp_max),
-            fahr(self.main.temp_min),
-            celc(self.main.temp_min),
+            self.main.temp.fahr(),
+            self.main.temp.celc(),
+            self.main.temp_max.fahr(),
+            self.main.temp_max.celc(),
+            self.main.temp_min.fahr(),
+            self.main.temp_min.celc(),
             dt.date().naive_local(),
         )
     }
 }
 
 impl WeatherForecast {
-    pub fn get_high_low(&self) -> BTreeMap<NaiveDate, (f64, f64)> {
+    pub fn get_high_low(&self) -> BTreeMap<NaiveDate, (Temperature, Temperature)> {
         let fo = FixedOffset::east(self.city.timezone);
         self.list.iter().fold(BTreeMap::new(), |mut hmap, entry| {
-            let date = fo.timestamp(entry.dt, 0).date().naive_local();
+            let date = entry.dt.with_timezone(&fo).date().naive_local();
             let temp = entry.main.temp;
             let high = entry.main.temp_max;
             let low = entry.main.temp_min;
@@ -173,8 +173,8 @@ impl WeatherForecast {
                 format!(
                     "\t{} {:30} {:30}",
                     d,
-                    format!("High: {:0.2} F / {:0.2} C", fahr(h), celc(h),),
-                    format!("Low: {:0.2} F / {:0.2} C", fahr(l), celc(l),),
+                    format!("High: {:0.2} F / {:0.2} C", h.fahr(), h.celc(),),
+                    format!("Low: {:0.2} F / {:0.2} C", l.fahr(), l.celc(),),
                 )
             })
             .collect();

@@ -1,10 +1,7 @@
-pub mod config;
-pub mod weather_data;
-pub mod weather_opts;
-
 use anyhow::Error;
-use config::Config;
-use weather_opts::WeatherOpts;
+
+use weather_util_rust::config::Config;
+use weather_util_rust::weather_opts::WeatherOpts;
 
 #[tokio::main]
 async fn main() -> Result<(), Error> {
