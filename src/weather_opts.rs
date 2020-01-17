@@ -21,7 +21,7 @@ pub struct WeatherOpts {
 
 impl WeatherOpts {
     pub async fn parse_opts(config: &Config) -> Result<(WeatherData, WeatherForecast), Error> {
-        let opts = WeatherOpts::from_args();
+        let opts = Self::from_args();
 
         let options = if let Some(zipcode) = opts.zipcode {
             let country_code = opts.country_code.unwrap_or_else(|| "us".to_string());
