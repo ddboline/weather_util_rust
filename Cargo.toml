@@ -19,6 +19,6 @@ derive_more = "0.99"
 rayon = "1.3"
 
 [[bin]]
-name = "weather-util"
+name = "weather-util-rust"
 path = "src/main.rs"
 doc = false
