@@ -17,16 +17,16 @@ impl Temperature {
         assert!(t >= -FAHRENHEIT_OFFSET);
         Self((t + FAHRENHEIT_OFFSET) / FAHRENHEIT_FACTOR)
     }
-    pub fn celcius(&self) -> f64 {
+    pub fn celcius(self) -> f64 {
         self.0 - FREEZING_POINT_KELVIN
     }
-    pub fn celc(&self) -> f64 {
+    pub fn celc(self) -> f64 {
         self.celcius()
     }
-    pub fn fahrenheit(&self) -> f64 {
+    pub fn fahrenheit(self) -> f64 {
         self.0 * FAHRENHEIT_FACTOR - FAHRENHEIT_OFFSET
     }
-    pub fn fahr(&self) -> f64 {
+    pub fn fahr(self) -> f64 {
         self.fahrenheit()
     }
 }
