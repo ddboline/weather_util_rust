@@ -45,6 +45,6 @@ impl<'de> Deserialize<'de> for Temperature {
     where
         D: Deserializer<'de>,
     {
-        f64::deserialize(deserializer).map(Temperature)
+        f64::deserialize(deserializer).map(Self)
     }
 }

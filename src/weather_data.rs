@@ -111,7 +111,6 @@ pub struct ForecastEntry {
 
 #[derive(Deserialize, Serialize, Debug)]
 pub struct CityEntry {
-    pub name: String,
     pub timezone: i32,
     #[serde(with = "timestamp")]
     pub sunrise: DateTime<Utc>,
@@ -148,14 +147,17 @@ impl WeatherForecast {
         let fo = FixedOffset::east(self.city.timezone);
         self.list.iter().fold(BTreeMap::new(), |mut hmap, entry| {
             let date = entry.dt.with_timezone(&fo).date().naive_local();
-            let temp = entry.main.temp;
             let high = entry.main.temp_max;
             let low = entry.main.temp_min;
+
             match hmap.get(&date) {
-                Some((high, low)) => {
-                    let high = if temp > *high { temp } else { *high };
-                    let low = if temp < *low { temp } else { *low };
-                    hmap.insert(date, (high, low));
+                Some((h, l)) => {
+                    let high = if high > *h { high } else { *h };
+                    let low = if low < *l { low } else { *l };
+
+                    if (high, low) != (*h, *l) {
+                        hmap.insert(date, (high, low));
+                    }
                 }
                 None => {
                     hmap.insert(date, (high, low));
