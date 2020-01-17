@@ -21,7 +21,7 @@ cleanup:
 package:
 	docker run --cidfile $(cidfile) -v `pwd`/target:/weather_util_rust/target weather_util_rust/build_rust:ubuntu18.04 \
         /weather_util_rust/scripts/build_deb_docker.sh $(version) $(release)
-	docker cp `cat $(cidfile)`:/weather_util_rust/weather-util_$(version)-$(release)_amd64.deb .
+	docker cp `cat $(cidfile)`:/weather_util_rust/weather-util-rust_$(version)-$(release)_amd64.deb .
 	docker rm `cat $(cidfile)`
 	rm $(cidfile)
 
