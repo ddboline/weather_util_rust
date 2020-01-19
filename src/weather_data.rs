@@ -30,7 +30,7 @@ pub struct WeatherMain {
 #[derive(Deserialize, Serialize, Debug)]
 pub struct Wind {
     pub speed: f64,
-    pub deg: f64,
+    pub deg: Option<f64>,
 }
 
 #[derive(Deserialize, Serialize, Debug)]
@@ -81,7 +81,7 @@ impl WeatherData {
             format!(
                 "\tWind: {} degrees at {:0.2} mph",
                 self.wind.deg,
-                (self.wind.speed * 3600. / 1609.344)
+                (self.wind.speed.unwrap_or(0.0) * 3600. / 1609.344)
             ),
             format!("\tConditions: {}", self.weather[0].description),
             format!("\tSunrise: {}", sunrise),
