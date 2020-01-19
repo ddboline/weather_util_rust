@@ -80,8 +80,8 @@ impl WeatherData {
             format!("\tRelative Humidity: {}%", self.main.humidity),
             format!(
                 "\tWind: {} degrees at {:0.2} mph",
-                self.wind.deg,
-                (self.wind.speed.unwrap_or(0.0) * 3600. / 1609.344)
+                self.wind.deg.unwrap_or(0.0),
+                (self.wind.speed * 3600. / 1609.344)
             ),
             format!("\tConditions: {}", self.weather[0].description),
             format!("\tSunrise: {}", sunrise),
@@ -150,18 +150,15 @@ impl WeatherForecast {
             let high = entry.main.temp_max;
             let low = entry.main.temp_min;
 
-            match hmap.get(&date) {
-                Some((h, l)) => {
-                    let high = if high > *h { high } else { *h };
-                    let low = if low < *l { low } else { *l };
+            if let Some((h, l)) = hmap.get(&date) {
+                let high = if high > *h { high } else { *h };
+                let low = if low < *l { low } else { *l };
 
-                    if (high, low) != (*h, *l) {
-                        hmap.insert(date, (high, low));
-                    }
-                }
-                None => {
+                if (high, low) != (*h, *l) {
                     hmap.insert(date, (high, low));
                 }
+            } else {
+                hmap.insert(date, (high, low));
             }
             hmap
         })
