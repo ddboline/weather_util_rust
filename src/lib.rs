@@ -9,8 +9,19 @@
 #![allow(clippy::similar_names)]
 #![allow(clippy::shadow_unrelated)]
 
+/// Configuration data
 pub mod config;
+/// Latitude
+pub mod latitude;
+/// Longitude
+pub mod longitude;
+/// Temperature module: conversions between Kelvin, Ceclius and Fahrenheit
 pub mod temperature;
+/// Serialize/Deserialize Unix Timetstamp to/from DateTime
 pub mod timestamp;
+/// Representation of Weather Data from openweathermap.org
 pub mod weather_data;
+/// Representation of Weather Forecast from openweathermap.org
+pub mod weather_forecast;
+/// CLI App Options and implementation
 pub mod weather_opts;

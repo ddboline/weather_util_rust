@@ -4,13 +4,15 @@ use serde::{Deserialize, Serialize};
 use std::collections::BTreeMap;
 use std::io::Write;
 
+use crate::latitude::Latitude;
+use crate::longitude::Longitude;
 use crate::temperature::Temperature;
 use crate::timestamp;
 
 #[derive(Serialize, Deserialize, Debug)]
 pub struct Coord {
-    pub lon: f64,
-    pub lat: f64,
+    pub lon: Longitude,
+    pub lat: Latitude,
 }
 
 #[derive(Serialize, Deserialize, Debug)]
@@ -60,6 +62,27 @@ pub struct WeatherData {
 }
 
 impl WeatherData {
+    /// Write out formatted information about current conditions for a mutable buffer.
+    /// ```
+    /// use weather_util_rust::weather_data::WeatherData;
+    /// # use anyhow::Error;
+    /// # use std::io::{stdout, Write, Read};
+    /// # use std::fs::File;
+    /// # fn main() -> Result<(), Error> {
+    /// # let mut buf = String::new();
+    /// # let mut f = File::open("tests/weather.json")?;
+    /// # f.read_to_string(&mut buf)?;
+    /// let data: WeatherData = serde_json::from_str(&buf)?;
+    ///
+    /// let mut buf = Vec::new();
+    /// data.get_current_conditions(&mut buf)?;
+    ///
+    /// let buf = String::from_utf8(buf)?;
+    /// assert!(buf.starts_with("Current conditions Astoria US 40.76"));
+    /// assert!(buf.contains("Temperature: 41.05 F (5.03 C)"));
+    /// # Ok(())
+    /// # }
+    /// ```
     pub fn get_current_conditions<T: Write>(&self, buf: &mut T) -> Result<(), Error> {
         let fo = FixedOffset::east(self.timezone);
         let dt = self.dt.with_timezone(&fo);
@@ -77,8 +100,8 @@ impl WeatherData {
             format!("Last Updated {}", dt,),
             format!(
                 "\tTemperature: {:0.2} F ({:0.2} C)",
-                self.main.temp.fahr(),
-                self.main.temp.celc(),
+                self.main.temp.fahrenheit(),
+                self.main.temp.celcius(),
             ),
             format!("\tRelative Humidity: {}%", self.main.humidity),
             format!(
@@ -92,80 +115,5 @@ impl WeatherData {
         )
         .map(|_| ())
         .map_err(Into::into)
-    }
-}
-
-#[derive(Deserialize, Serialize, Debug)]
-pub struct ForecastMain {
-    pub temp: Temperature,
-    pub feels_like: f64,
-    pub temp_min: Temperature,
-    pub temp_max: Temperature,
-    pub pressure: i64,
-    pub sea_level: i64,
-    pub grnd_level: i64,
-    pub humidity: i64,
-}
-
-#[derive(Deserialize, Serialize, Debug)]
-pub struct ForecastEntry {
-    #[serde(with = "timestamp")]
-    pub dt: DateTime<Utc>,
-    pub main: ForecastMain,
-}
-
-#[derive(Deserialize, Serialize, Debug)]
-pub struct CityEntry {
-    pub timezone: i32,
-    #[serde(with = "timestamp")]
-    pub sunrise: DateTime<Utc>,
-    #[serde(with = "timestamp")]
-    pub sunset: DateTime<Utc>,
-}
-
-#[derive(Deserialize, Serialize, Debug)]
-pub struct WeatherForecast {
-    pub list: Vec<ForecastEntry>,
-    pub city: CityEntry,
-}
-
-impl WeatherForecast {
-    pub fn get_high_low(&self) -> BTreeMap<NaiveDate, (Temperature, Temperature)> {
-        let fo = FixedOffset::east(self.city.timezone);
-        self.list.iter().fold(BTreeMap::new(), |mut hmap, entry| {
-            let date = entry.dt.with_timezone(&fo).date().naive_local();
-            let high = entry.main.temp_max;
-            let low = entry.main.temp_min;
-
-            if let Some((h, l)) = hmap.get(&date) {
-                let high = if high > *h { high } else { *h };
-                let low = if low < *l { low } else { *l };
-
-                if (high, low) != (*h, *l) {
-                    hmap.insert(date, (high, low));
-                }
-            } else {
-                hmap.insert(date, (high, low));
-            }
-            hmap
-        })
-    }
-
-    pub fn get_forecast<T: Write>(&self, buf: &mut T) -> Result<(), Error> {
-        writeln!(buf, "\nForecast:")?;
-        self.get_high_low()
-            .into_iter()
-            .map(|(d, (h, l))| {
-                writeln!(
-                    buf,
-                    "\t{} {:30} {:30}",
-                    d,
-                    format!("High: {:0.2} F / {:0.2} C", h.fahr(), h.celc(),),
-                    format!("Low: {:0.2} F / {:0.2} C", l.fahr(), l.celc(),),
-                )
-                .map(|_| ())
-                .map_err(Into::into)
-            })
-            .collect()
     }
 }

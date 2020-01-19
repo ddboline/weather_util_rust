@@ -14,5 +14,3 @@ async fn main() -> Result<(), Error> {
     forecast.get_forecast(&mut stdout.lock())?;
     Ok(())
 }
-
-// ?zip={zip code},{country code}
