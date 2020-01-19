@@ -1,6 +1,8 @@
+use anyhow::Error;
 use chrono::{DateTime, FixedOffset, NaiveDate, Utc};
 use serde::{Deserialize, Serialize};
 use std::collections::BTreeMap;
+use std::io::Write;
 
 use crate::temperature::Temperature;
 use crate::timestamp;
@@ -58,12 +60,13 @@ pub struct WeatherData {
 }
 
 impl WeatherData {
-    pub fn get_current_conditions(&self) -> String {
+    pub fn get_current_conditions<T: Write>(&self, buf: &mut T) -> Result<(), Error> {
         let fo = FixedOffset::east(self.timezone);
         let dt = self.dt.with_timezone(&fo);
         let sunrise = self.sys.sunrise.with_timezone(&fo);
         let sunset = self.sys.sunset.with_timezone(&fo);
-        format!(
+        writeln!(
+            buf,
             "Current conditions {} {}\n{}\n{}\n{}\n{}\n{}\n{}\n{}",
             if let Some(country) = &self.sys.country {
                 format!("{} {}", self.name, country)
@@ -87,6 +90,8 @@ impl WeatherData {
             format!("\tSunrise: {}", sunrise),
             format!("\tSunset: {}", sunset)
         )
+        .map(|_| ())
+        .map_err(Into::into)
     }
 }
 
@@ -124,24 +129,6 @@ pub struct WeatherForecast {
     pub city: CityEntry,
 }
 
-impl ForecastEntry {
-    pub fn get_forecast_entry(&self, timezone: i32) -> String {
-        let fo = FixedOffset::east(timezone);
-        let dt = self.dt.with_timezone(&fo);
-        format!(
-            "Forecast: {}, {:0.2} F / {:0.2} C, max: {:0.2} F / {:0.2} C, min: {:0.2} F / {:0.2} C {}",
-            dt,
-            self.main.temp.fahr(),
-            self.main.temp.celc(),
-            self.main.temp_max.fahr(),
-            self.main.temp_max.celc(),
-            self.main.temp_min.fahr(),
-            self.main.temp_min.celc(),
-            dt.date().naive_local(),
-        )
-    }
-}
-
 impl WeatherForecast {
     pub fn get_high_low(&self) -> BTreeMap<NaiveDate, (Temperature, Temperature)> {
         let fo = FixedOffset::east(self.city.timezone);
@@ -164,19 +151,21 @@ impl WeatherForecast {
         })
     }
 
-    pub fn get_forecast_str(&self) -> String {
-        let lines: Vec<_> = self
-            .get_high_low()
+    pub fn get_forecast<T: Write>(&self, buf: &mut T) -> Result<(), Error> {
+        writeln!(buf, "\nForecast:")?;
+        self.get_high_low()
             .into_iter()
             .map(|(d, (h, l))| {
-                format!(
+                writeln!(
+                    buf,
                     "\t{} {:30} {:30}",
                     d,
                     format!("High: {:0.2} F / {:0.2} C", h.fahr(), h.celc(),),
                     format!("Low: {:0.2} F / {:0.2} C", l.fahr(), l.celc(),),
                 )
+                .map(|_| ())
+                .map_err(Into::into)
             })
-            .collect();
-        lines.join("\n")
+            .collect()
     }
 }

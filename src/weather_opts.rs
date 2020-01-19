@@ -1,4 +1,5 @@
 use anyhow::{format_err, Error};
+use futures::future::join;
 use reqwest::Url;
 use structopt::StructOpt;
 
@@ -44,8 +45,14 @@ impl WeatherOpts {
             return Err(format_err!("Invalid options"));
         };
 
-        let data: WeatherData = run_api(config, "weather", &options).await?;
-        let forecast: WeatherForecast = run_api(config, "forecast", &options).await?;
+        let (data, forecast) = join(
+            run_api(config, "weather", &options),
+            run_api(config, "forecast", &options),
+        )
+        .await;
+
+        let data: WeatherData = data?;
+        let forecast: WeatherForecast = forecast?;
 
         Ok((data, forecast))
     }
