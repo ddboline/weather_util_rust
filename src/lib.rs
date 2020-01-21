@@ -9,6 +9,27 @@
 #![allow(clippy::similar_names)]
 #![allow(clippy::shadow_unrelated)]
 
+//! Utility to retreive and format weather data from openweathermap.org
+//!
+//! ```bash
+//! Please specify one of zipcode(country_code), city_name, or lat and lon.
+//!
+//! USAGE:
+//! weather-util-rust [OPTIONS]
+//!
+//! FLAGS:
+//! -h, --help       Prints help information
+//! -V, --version    Prints version information
+//!
+//! OPTIONS:
+//! -k, --api-key <api-key>              Api key (optional but either this or API_KEY environemnt variable must exist)
+//!     --city-name <city-name>          City Name (optional)
+//! -c, --country-code <country-code>    Country Code (optional), if not specified `us` will be assumed
+//!     --lat <lat>                      Latitude (must also specify Longitude)
+//!     --lon <lon>                      Longitude (must also specify Latitude)
+//! -z, --zipcode <zipcode>              Zipcode (optional)
+//!
+
 /// Configuration data
 pub mod config;
 /// Latitude
@@ -17,7 +38,7 @@ pub mod latitude;
 pub mod longitude;
 /// Temperature module: conversions between Kelvin, Ceclius and Fahrenheit
 pub mod temperature;
-/// Serialize/Deserialize Unix Timetstamp to/from DateTime
+/// Serialize/Deserialize Unix Timetstamp to/from `DateTime`
 pub mod timestamp;
 /// Representation of Weather Data from openweathermap.org
 pub mod weather_data;

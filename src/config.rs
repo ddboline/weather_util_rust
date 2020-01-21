@@ -4,18 +4,45 @@ use std::ops::Deref;
 use std::path::Path;
 use std::sync::Arc;
 
+use crate::latitude::Latitude;
+use crate::longitude::Longitude;
+
 /// Configuration data
 #[derive(Default, Debug)]
 pub struct ConfigInner {
     /// openweathermap.org api key
-    pub api_key: String,
+    pub api_key: Option<String>,
     /// openweathermap.org api endpoint
-    pub api_endpoint: String,
+    pub api_endpoint: Option<String>,
+    /// optional default zipcode
+    pub zipcode: Option<u64>,
+    /// optional default country code
+    pub country_code: Option<String>,
+    /// optional default city name
+    pub city_name: Option<String>,
+    /// optional default latitude
+    pub lat: Option<Latitude>,
+    /// optional default longitude
+    pub lon: Option<Longitude>,
 }
 
 /// Configuration struct
 #[derive(Default, Debug, Clone)]
 pub struct Config(Arc<ConfigInner>);
+
+macro_rules! set_config_ok {
+    ($s:ident, $id:ident) => {
+        $s.$id = var(&stringify!($id).to_uppercase()).ok();
+    };
+}
+
+macro_rules! set_config_parse {
+    ($s:ident, $id:ident) => {
+        $s.$id = var(&stringify!($id).to_uppercase())
+            .ok()
+            .and_then(|x| x.parse().ok());
+    };
+}
 
 impl Config {
     pub fn new() -> Self {
@@ -41,35 +68,39 @@ impl Config {
     /// # set_var("API_KEY", "api_key_value");
     /// # set_var("API_ENDPOINT", "api.openweathermap.org");
     /// let config = Config::init_config()?;
-    /// assert_eq!(config.api_key, var("API_KEY")?);
-    /// assert_eq!(config.api_endpoint, var("API_ENDPOINT")?);
+    /// assert_eq!(config.api_key, var("API_KEY").ok());
+    /// assert_eq!(config.api_endpoint, var("API_ENDPOINT").ok());
     /// # Ok(())
     /// # }
     /// ```
     pub fn init_config() -> Result<Self, Error> {
-        let fname = "config.env";
-        let home_dir = var("HOME").map_err(|e| format_err!("No HOME variable {}", e))?;
-        let default_fname = format!("{}/.config/weather_util/config.env", home_dir);
-        let env_file = if Path::new(fname).exists() {
-            fname.to_string()
+        let fname = Path::new("config.env");
+        let config_dir = dirs::config_dir().ok_or_else(|| format_err!("No CONFIG directory"))?;
+        let default_fname = config_dir.join("weather_util").join("config.env");
+
+        let env_file = if fname.exists() {
+            fname
         } else {
-            default_fname
+            &default_fname
         };
 
         dotenv::dotenv().ok();
 
-        if Path::new(&env_file).exists() {
-            dotenv::from_path(&env_file).ok();
-        } else if Path::new("config.env").exists() {
-            dotenv::from_filename("config.env").ok();
+        if env_file.exists() {
+            dotenv::from_path(env_file).ok();
         }
 
-        let inner = ConfigInner {
-            api_key: var("API_KEY")?,
-            api_endpoint: var("API_ENDPOINT")?,
-        };
+        let mut conf = ConfigInner::default();
 
-        Ok(Self(Arc::new(inner)))
+        set_config_ok!(conf, api_key);
+        set_config_ok!(conf, api_endpoint);
+        set_config_parse!(conf, zipcode);
+        set_config_ok!(conf, country_code);
+        set_config_ok!(conf, city_name);
+        set_config_parse!(conf, lat);
+        set_config_parse!(conf, lon);
+
+        Ok(Self(Arc::new(conf)))
     }
 }
 
