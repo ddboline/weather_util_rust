@@ -111,3 +111,25 @@ impl WeatherApi {
         })
     }
 }
+
+#[cfg(test)]
+mod tests {
+    use anyhow::Error;
+    use futures::future::join;
+
+    use crate::weather_api::WeatherApi;
+
+    #[tokio::test]
+    async fn test_process_opts() -> Result<(), Error> {
+        let api_key = "95337ed3a8a87acae620d673fae85b11";
+        let api_endpoint = "api.openweathermap.org";
+
+        let api = WeatherApi::new(api_key, api_endpoint).with_zipcode(11106);
+
+        let (data, forecast) = join(api.get_weather_data(), api.get_weather_forecast()).await;
+        let (data, forecast) = (data?, forecast?);
+        assert!(data.name == "Astoria", format!("{:?}", data));
+        assert!(forecast.city.timezone == -18000, format!("{:?}", forecast));
+        Ok(())
+    }
+}
