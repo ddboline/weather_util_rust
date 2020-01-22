@@ -3,6 +3,16 @@ name = "weather_util_rust"
 version = "0.1.5"
 authors = ["Daniel Boline <ddboline@gmail.com>"]
 edition = "2018"
+license-file = "LICENSE"
+description = "CLI tool to pull weather data from openweathermap.org, intended to replace the debian package weather-util"
+homepage = "https://github.com/ddboline/weather_util_rust"
+repository = "https://github.com/ddboline/weather_util_rust"
+keywords = ["WEATHER"]
+readme = "README.md"
+exclude = [
+    ".github/*",
+    ".gitignore",
+]
 
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 

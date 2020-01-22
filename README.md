@@ -1,5 +1,5 @@
 # weather_util_rust
-This little repo uses the public api from openweathermap.org to replace the debian package weather-util.
+CLI tool to pull weather data from openweathermap.org, intended to replace the debian package `weather-util`.
 
 Usage:
 
