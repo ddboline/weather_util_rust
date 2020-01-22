@@ -1,11 +1,13 @@
 # weather_util_rust
 CLI tool to pull weather data from openweathermap.org, intended to replace the debian package `weather-util`.
 
+You will need to obtain an api key by signing up at openweathermap.org.
+
 Usage:
 
 ```bash
 weather_util_rust 0.1.3
-Utility to retreive and format weather data from openweathermap.org
+Utility to retrieve and format weather data from openweathermap.org
 
 USAGE:
     weather-util-rust [OPTIONS]
