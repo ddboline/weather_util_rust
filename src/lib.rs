@@ -40,9 +40,15 @@ pub mod longitude;
 pub mod temperature;
 /// Serialize/Deserialize Unix Timetstamp to/from `DateTime`
 pub mod timestamp;
+/// Reqwest Client
+pub mod weather_api;
 /// Representation of Weather Data from openweathermap.org
 pub mod weather_data;
 /// Representation of Weather Forecast from openweathermap.org
 pub mod weather_forecast;
 /// CLI App Options and implementation
 pub mod weather_opts;
+
+use anyhow::{format_err, Error};
+use log::error;
+use retry::{delay::jitter, delay::Exponential, retry};

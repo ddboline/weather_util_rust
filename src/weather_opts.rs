@@ -1,18 +1,19 @@
 use anyhow::{format_err, Error};
 use futures::future::join;
 use reqwest::Url;
-use structopt::StructOpt;
 use std::io::stdout;
+use structopt::StructOpt;
 
 use crate::config::Config;
 use crate::latitude::Latitude;
 use crate::longitude::Longitude;
+use crate::weather_api::WeatherApi;
 use crate::weather_data::WeatherData;
 use crate::weather_forecast::WeatherForecast;
 
 /// Utility to retreive and format weather data from openweathermap.org
 ///
-/// Please specify one of zipcode(country_code), city_name, or lat and lon.
+/// Please specify one of `zipcode(country_code)`, `city_name`, or `lat` and `lon`.
 #[derive(StructOpt, Default)]
 pub struct WeatherOpts {
     /// Zipcode (optional)
@@ -45,6 +46,64 @@ macro_rules! set_default {
 }
 
 impl WeatherOpts {
+    /// Parse options from stdin, requires `Config` instance.
+    pub async fn parse_opts(config: &Config) -> Result<(), Error> {
+        let mut opts = Self::from_args();
+        opts.apply_defaults(config);
+        opts.run_opts(config).await?;
+        Ok(())
+    }
+
+    fn get_api(&self, config: &Config) -> Result<WeatherApi, Error> {
+        let api_key = self
+            .api_key
+            .as_ref()
+            .ok_or_else(|| format_err!(Self::api_help_msg()))?;
+        let api_endpoint = config
+            .api_endpoint
+            .clone()
+            .unwrap_or_else(|| "api.openweathermap.org".to_string());
+
+        let api = WeatherApi::new(api_key, &api_endpoint);
+        let api = if let Some(zipcode) = self.zipcode {
+            api.with_zipcode(zipcode)
+        } else if let Some(country_code) = &self.country_code {
+            api.with_country_code(country_code)
+        } else if let Some(city_name) = &self.city_name {
+            api.with_city_name(city_name)
+        } else if self.lat.is_some() && self.lon.is_some() {
+            let lat = self.lat.unwrap();
+            let lon = self.lon.unwrap();
+            api.with_lat_lon(lat, lon)
+        } else {
+            Self::clap().print_help()?;
+            return Err(format_err!(
+                "\n\nERROR: You must specify at least one option"
+            ));
+        };
+        Ok(api)
+    }
+
+    async fn run_opts(&self, config: &Config) -> Result<(), Error> {
+        let api = self.get_api(config)?;
+
+        let data = api.get_weather_data();
+        let (data, forecast) = if self.forecast {
+            let forecast = api.get_weather_forecast();
+            let (data, forecast) = join(data, forecast).await;
+            (data?, Some(forecast?))
+        } else {
+            (data.await?, None)
+        };
+
+        let stdout = stdout();
+        data.get_current_conditions(&mut stdout.lock())?;
+        if let Some(forecast) = forecast {
+            forecast.get_forecast(&mut stdout.lock())?;
+        }
+        Ok(())
+    }
+
     fn apply_defaults(&mut self, config: &Config) {
         if self.api_key.is_none() {
             set_default!(self, config, api_key);
@@ -64,19 +123,6 @@ impl WeatherOpts {
         }
     }
 
-    /// Return `WeatherData` and `WeatherForecast` by parsing Stdin
-    pub async fn parse_opts(config: &Config) -> Result<(), Error> {
-        let mut opts = Self::from_args();
-        opts.apply_defaults(config);
-        let (data, forecast) = opts.process_opts(config).await?;
-        let stdout = stdout();
-        data.get_current_conditions(&mut stdout.lock())?;
-        if opts.forecast {
-            forecast.get_forecast(&mut stdout.lock())?;
-        }
-        Ok(())
-    }
-
     fn api_help_msg() -> String {
         let config_dir = dirs::config_dir().expect("This shouldn't happen");
         format!(
@@ -84,74 +130,6 @@ impl WeatherOpts {
             config_dir.join("weather_util").join("config.env").to_string_lossy()
         )
     }
-
-    /// Process `WeatherOpts` options
-    pub async fn process_opts(
-        &self,
-        config: &Config,
-    ) -> Result<(WeatherData, WeatherForecast), Error> {
-        let api_key = config
-            .api_key
-            .as_ref()
-            .ok_or_else(|| format_err!(Self::api_help_msg()))?;
-        let api_endpoint = config
-            .api_endpoint
-            .clone()
-            .unwrap_or_else(|| "api.openweathermap.org".to_string());
-
-        let options = self.get_options(api_key)?;
-        let (data, forecast) = join(
-            run_api(&api_endpoint, "weather", &options),
-            run_api(&api_endpoint, "forecast", &options),
-        )
-        .await;
-
-        let data: WeatherData = data?;
-        let forecast: WeatherForecast = forecast?;
-
-        Ok((data, forecast))
-    }
-
-    fn get_options(&self, api_key: &str) -> Result<Vec<(&'static str, String)>, Error> {
-        let options = if let Some(zipcode) = self.zipcode {
-            let country_code = self
-                .country_code
-                .clone()
-                .unwrap_or_else(|| "us".to_string());
-            vec![
-                ("zip", zipcode.to_string()),
-                ("country_code", country_code),
-                ("APPID", api_key.to_string()),
-            ]
-        } else if let Some(city_name) = self.city_name.clone() {
-            vec![("q", city_name), ("APPID", api_key.to_string())]
-        } else if self.lat.is_some() & self.lon.is_some() {
-            let lat = self.lat.unwrap().to_string();
-            let lon = self.lon.unwrap().to_string();
-            vec![("lat", lat), ("lon", lon), ("APPID", api_key.to_string())]
-        } else {
-            Self::clap().print_help()?;
-            return Err(format_err!(
-                "\n\nERROR: You must specify at least one option"
-            ));
-        };
-        Ok(options)
-    }
-}
-
-async fn run_api<T: serde::de::DeserializeOwned>(
-    api_endpoint: &str,
-    command: &str,
-    options: &[(&'static str, String)],
-) -> Result<T, Error> {
-    let base_url = format!("https://{}/data/2.5/{}", api_endpoint, command);
-    let url = Url::parse_with_params(&base_url, options)?;
-    let res = reqwest::get(url).await?;
-    let text = res.text().await?;
-    serde_json::from_str(&text).map_err(|e| {
-        println!("{}", text);
-        e.into()
-    })
 }
 
 #[cfg(test)]

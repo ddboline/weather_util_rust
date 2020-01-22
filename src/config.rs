@@ -50,7 +50,9 @@ impl Config {
     }
 
     /// Pull in configuration data using `[dotenv](https://crates.io/dotenv)`.
+    ///
     /// If a .env file exists in the current directory, pull in any ENV variables in it.
+    ///
     /// Next, if a config file exists in the current directory named config.env,
     /// or if a config file exists at `${HOME}/.config/weather_util/config.env`,
     /// set ENV variables using it.
