@@ -31,7 +31,7 @@ pub struct WeatherOpts {
     /// Longitude (must also specify Latitude)
     #[structopt(long)]
     lon: Option<Longitude>,
-    /// Api key (optional but either this or API_KEY environemnt variable must exist)
+    /// Api key (optional but either this or API_KEY environment variable must exist)
     #[structopt(short = "k", long)]
     api_key: Option<String>,
     /// Print forecast

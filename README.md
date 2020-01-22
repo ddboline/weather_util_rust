@@ -17,6 +17,7 @@ FLAGS:
     -V, --version    Prints version information
 
 OPTIONS:
+    -k, --api-key <api-key>              Api key (optional but either this or API_KEY environment variable must exist)
         --city-name <city-name>          City Name
     -c, --country-code <country-code>    Country Code (optional), if not specified `us` will be assumed
         --lat <lat>                      Latitude (must also specify Longitude)
