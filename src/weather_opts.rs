@@ -36,6 +36,7 @@ pub struct WeatherOpts {
     #[structopt(short = "k", long)]
     api_key: Option<String>,
     /// Print forecast
+    #[serde(default)]
     #[structopt(short, long)]
     forecast: bool,
 }
