@@ -136,25 +136,3 @@ impl WeatherOpts {
         )
     }
 }
-
-#[cfg(test)]
-mod tests {
-    use anyhow::Error;
-
-    use crate::config::Config;
-    use crate::weather_opts::WeatherOpts;
-
-    #[tokio::test]
-    #[ignore]
-    async fn test_process_opts() -> Result<(), Error> {
-        let opts = WeatherOpts {
-            zipcode: Some(11106),
-            ..WeatherOpts::default()
-        };
-        let config = Config::init_config()?;
-        let (data, forecast) = opts.process_opts(&config).await?;
-        assert!(data.name == "Astoria", format!("{:?}", data));
-        assert!(forecast.city.timezone == -18000, format!("{:?}", forecast));
-        Ok(())
-    }
-}
