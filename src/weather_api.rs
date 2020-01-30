@@ -31,14 +31,24 @@ impl WeatherApi {
         }
     }
 
-    /// Create `WeatherApi` instance using existing `Client`, specifying api_key, api_endpoint and api_path
-    pub fn with_client(client: Client, api_key: &str, api_endpoint: &str, api_path: &str) -> Self {
+    pub fn with_key(self, api_key: &str) -> Self {
         Self {
-            client,
             api_key: api_key.into(),
+            ..self
+        }
+    }
+
+    pub fn with_endpoint(self, api_endpoint: &str) -> Self {
+        Self {
             api_endpoint: api_endpoint.into(),
+            ..self
+        }
+    }
+
+    pub fn with_path(self, api_path: &str) -> Self {
+        Self {
             api_path: api_path.into(),
-            ..Self::default()
+            ..self
         }
     }
 
