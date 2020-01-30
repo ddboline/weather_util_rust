@@ -60,12 +60,19 @@ impl WeatherOpts {
         let api_key = self
             .api_key
             .as_ref()
+            .map(|x| x.as_str())
             .ok_or_else(|| format_err!(Self::api_help_msg()))?;
         let api_endpoint = config
             .api_endpoint
-            .clone()
-            .unwrap_or_else(|| "api.openweathermap.org".to_string());
-        let api = WeatherApi::new(api_key, &api_endpoint);
+            .as_ref()
+            .map(|x| x.as_str())
+            .unwrap_or("api.openweathermap.org");
+        let api_path = config
+            .api_path
+            .as_ref()
+            .map(|x| x.as_str())
+            .unwrap_or("data/2.5/");
+        let api = WeatherApi::new(api_key, api_endpoint, api_path);
         self.set_opts(api)
     }
 

@@ -12,6 +12,7 @@ pub struct WeatherApi {
     client: Client,
     api_key: String,
     api_endpoint: String,
+    api_path: String,
     zipcode: Option<u64>,
     country_code: Option<String>,
     city_name: Option<String>,
@@ -20,11 +21,12 @@ pub struct WeatherApi {
 
 impl WeatherApi {
     /// Create `WeatherApi` instance specifying api_key and api_endpoint
-    pub fn new(api_key: &str, api_endpoint: &str) -> Self {
+    pub fn new(api_key: &str, api_endpoint: &str, api_path: &str) -> Self {
         Self {
             client: Client::new(),
             api_key: api_key.into(),
             api_endpoint: api_endpoint.into(),
+            api_path: api_path.into(),
             ..Self::default()
         }
     }
@@ -101,7 +103,7 @@ impl WeatherApi {
         command: &str,
         options: &[(&'static str, String)],
     ) -> Result<T, Error> {
-        let base_url = format!("https://{}/data/2.5/{}", self.api_endpoint, command);
+        let base_url = format!("https://{}/{}{}", self.api_endpoint, self.api_path, command);
         let url = Url::parse_with_params(&base_url, options)?;
         let res = self.client.get(url).send().await?;
         let text = res.text().await?;

@@ -14,6 +14,8 @@ pub struct ConfigInner {
     pub api_key: Option<String>,
     /// openweathermap.org api endpoint
     pub api_endpoint: Option<String>,
+    /// Api path (default is `data/2.5/`)
+    pub api_path: Option<String>,
     /// optional default zipcode
     pub zipcode: Option<u64>,
     /// optional default country code
@@ -96,6 +98,7 @@ impl Config {
 
         set_config_ok!(conf, api_key);
         set_config_ok!(conf, api_endpoint);
+        set_config_ok!(conf, api_path);
         set_config_parse!(conf, zipcode);
         set_config_ok!(conf, country_code);
         set_config_ok!(conf, city_name);
