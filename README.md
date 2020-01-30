@@ -6,7 +6,7 @@ You will need to obtain an api key by signing up at openweathermap.org.
 Usage:
 
 ```bash
-weather_util_rust 0.1.3
+weather_util_rust
 Utility to retrieve and format weather data from openweathermap.org
 
 USAGE:

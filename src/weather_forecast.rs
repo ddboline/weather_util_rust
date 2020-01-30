@@ -9,7 +9,7 @@ use crate::longitude::Longitude;
 use crate::temperature::Temperature;
 use crate::timestamp;
 
-#[derive(Deserialize, Serialize, Debug)]
+#[derive(Deserialize, Serialize, Debug, Clone)]
 pub struct ForecastMain {
     pub temp: Temperature,
     pub feels_like: f64,
@@ -21,14 +21,14 @@ pub struct ForecastMain {
     pub humidity: i64,
 }
 
-#[derive(Deserialize, Serialize, Debug)]
+#[derive(Deserialize, Serialize, Debug, Clone)]
 pub struct ForecastEntry {
     #[serde(with = "timestamp")]
     pub dt: DateTime<Utc>,
     pub main: ForecastMain,
 }
 
-#[derive(Deserialize, Serialize, Debug)]
+#[derive(Deserialize, Serialize, Debug, Clone)]
 pub struct CityEntry {
     pub timezone: i32,
     #[serde(with = "timestamp")]
@@ -37,7 +37,7 @@ pub struct CityEntry {
     pub sunset: DateTime<Utc>,
 }
 
-#[derive(Deserialize, Serialize, Debug)]
+#[derive(Deserialize, Serialize, Debug, Clone)]
 pub struct WeatherForecast {
     pub list: Vec<ForecastEntry>,
     pub city: CityEntry,

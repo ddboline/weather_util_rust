@@ -7,7 +7,7 @@ use crate::weather_data::WeatherData;
 use crate::weather_forecast::WeatherForecast;
 
 /// `WeatherApi` contains a `reqwest` Client and all the metadata required to query the openweathermap.org api.
-#[derive(Default)]
+#[derive(Default, Clone)]
 pub struct WeatherApi {
     client: Client,
     api_key: String,

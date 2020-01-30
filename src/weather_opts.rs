@@ -1,6 +1,7 @@
 use anyhow::{format_err, Error};
 use futures::future::join;
 use reqwest::Url;
+use serde::{Deserialize, Serialize};
 use std::io::stdout;
 use structopt::StructOpt;
 
@@ -14,7 +15,7 @@ use crate::weather_forecast::WeatherForecast;
 /// Utility to retreive and format weather data from openweathermap.org
 ///
 /// Please specify one of `zipcode(country_code)`, `city_name`, or `lat` and `lon`.
-#[derive(StructOpt, Default)]
+#[derive(StructOpt, Default, Serialize, Deserialize)]
 pub struct WeatherOpts {
     /// Zipcode (optional)
     #[structopt(short, long)]
@@ -63,8 +64,12 @@ impl WeatherOpts {
             .api_endpoint
             .clone()
             .unwrap_or_else(|| "api.openweathermap.org".to_string());
-
         let api = WeatherApi::new(api_key, &api_endpoint);
+        self.set_opts(api)
+    }
+
+    /// Extract options from WeatherOpts and apply to WeatherApi
+    pub fn set_opts(&self, api: WeatherApi) -> Result<WeatherApi, Error> {
         let api = if let Some(zipcode) = self.zipcode {
             api.with_zipcode(zipcode)
         } else if let Some(country_code) = &self.country_code {
