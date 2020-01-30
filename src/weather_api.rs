@@ -110,6 +110,13 @@ impl WeatherApi {
             e.into()
         })
     }
+
+    pub fn weather_api_hash(&self) -> String {
+        format!(
+            "zipcode:{:?},country_code:{:?},city_name:{:?},lat_lon:{:?}",
+            self.zipcode, self.country_code, self.city_name, self.lat_lon
+        )
+    }
 }
 
 #[cfg(test)]
