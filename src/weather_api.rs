@@ -143,8 +143,9 @@ mod tests {
     async fn test_process_opts() -> Result<(), Error> {
         let api_key = "95337ed3a8a87acae620d673fae85b11";
         let api_endpoint = "api.openweathermap.org";
+        let api_path = "data/2.5/";
 
-        let api = WeatherApi::new(api_key, api_endpoint).with_zipcode(11106);
+        let api = WeatherApi::new(api_key, api_endpoint, api_path).with_zipcode(11106);
 
         let (data, forecast) = join(api.get_weather_data(), api.get_weather_forecast()).await;
         let (data, forecast) = (data?, forecast?);
