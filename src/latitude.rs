@@ -23,7 +23,7 @@ impl Serialize for Latitude {
     where
         S: Serializer,
     {
-        serializer.serialize_f64(&self.0)
+        serializer.serialize_f64(self.0)
     }
 }
 
