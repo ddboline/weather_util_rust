@@ -6,7 +6,7 @@ pub fn serialize<S>(date: &DateTime<Utc>, serializer: S) -> Result<S::Ok, S::Err
 where
     S: Serializer,
 {
-    serializer.serialize_i64(&date.timestamp())
+    serializer.serialize_i64(date.timestamp())
 }
 
 ///! deserialize function required by `#[serde(with=timestamp)]`
