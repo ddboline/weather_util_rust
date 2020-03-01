@@ -1,10 +1,10 @@
 use anyhow::{format_err, Error};
 use reqwest::{Client, Url};
 
-use crate::latitude::Latitude;
-use crate::longitude::Longitude;
-use crate::weather_data::WeatherData;
-use crate::weather_forecast::WeatherForecast;
+use crate::{
+    latitude::Latitude, longitude::Longitude, weather_data::WeatherData,
+    weather_forecast::WeatherForecast,
+};
 
 /// `WeatherApi` contains a `reqwest` Client and all the metadata required to query the openweathermap.org api.
 #[derive(Default, Clone)]

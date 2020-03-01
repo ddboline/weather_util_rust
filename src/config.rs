@@ -1,11 +1,7 @@
 use anyhow::{format_err, Error};
-use std::env::var;
-use std::ops::Deref;
-use std::path::Path;
-use std::sync::Arc;
+use std::{env::var, ops::Deref, path::Path, sync::Arc};
 
-use crate::latitude::Latitude;
-use crate::longitude::Longitude;
+use crate::{latitude::Latitude, longitude::Longitude};
 
 /// Configuration data
 #[derive(Default, Debug)]

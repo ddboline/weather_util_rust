@@ -5,12 +5,10 @@ use serde::{Deserialize, Serialize};
 use std::io::stdout;
 use structopt::StructOpt;
 
-use crate::config::Config;
-use crate::latitude::Latitude;
-use crate::longitude::Longitude;
-use crate::weather_api::WeatherApi;
-use crate::weather_data::WeatherData;
-use crate::weather_forecast::WeatherForecast;
+use crate::{
+    config::Config, latitude::Latitude, longitude::Longitude, weather_api::WeatherApi,
+    weather_data::WeatherData, weather_forecast::WeatherForecast,
+};
 
 /// Utility to retreive and format weather data from openweathermap.org
 ///
