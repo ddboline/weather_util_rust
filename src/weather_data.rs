@@ -1,13 +1,9 @@
 use anyhow::Error;
 use chrono::{DateTime, FixedOffset, NaiveDate, Utc};
 use serde::{Deserialize, Serialize};
-use std::collections::BTreeMap;
-use std::io::Write;
+use std::{collections::BTreeMap, io::Write};
 
-use crate::latitude::Latitude;
-use crate::longitude::Longitude;
-use crate::temperature::Temperature;
-use crate::timestamp;
+use crate::{latitude::Latitude, longitude::Longitude, temperature::Temperature, timestamp};
 
 #[derive(Serialize, Deserialize, Debug, Clone)]
 pub struct Coord {

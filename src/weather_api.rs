@@ -3,10 +3,10 @@ use reqwest::{Client, Url};
 use std::fmt;
 use std::hash::{Hash, Hasher};
 
-use crate::latitude::Latitude;
-use crate::longitude::Longitude;
-use crate::weather_data::WeatherData;
-use crate::weather_forecast::WeatherForecast;
+use crate::{
+    latitude::Latitude, longitude::Longitude, weather_data::WeatherData,
+    weather_forecast::WeatherForecast,
+};
 
 #[derive(Clone, Debug)]
 pub enum WeatherLocation {

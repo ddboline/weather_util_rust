@@ -1,7 +1,6 @@
 use anyhow::Error;
 
-use weather_util_rust::config::Config;
-use weather_util_rust::weather_opts::WeatherOpts;
+use weather_util_rust::{config::Config, weather_opts::WeatherOpts};
 
 #[tokio::main]
 async fn main() -> Result<(), Error> {

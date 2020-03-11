@@ -52,4 +52,7 @@ pub mod weather_opts;
 
 use anyhow::{format_err, Error};
 use log::error;
-use retry::{delay::jitter, delay::Exponential, retry};
+use retry::{
+    delay::{jitter, Exponential},
+    retry,
+};
