@@ -60,28 +60,28 @@ impl WeatherOpts {
         let api_key = self
             .api_key
             .as_ref()
-            .map(|x| x.as_str())
+            .map(String::as_str)
             .ok_or_else(|| format_err!(Self::api_help_msg()))?;
         let api_endpoint = config
             .api_endpoint
             .as_ref()
-            .map(|x| x.as_str())
-            .unwrap_or("api.openweathermap.org");
+            .map_or("api.openweathermap.org", String::as_str);
         let api_path = config
             .api_path
             .as_ref()
-            .map(|x| x.as_str())
-            .unwrap_or("data/2.5/");
+            .map_or("data/2.5/", String::as_str);
         let api = WeatherApi::new(api_key, api_endpoint, api_path);
         self.set_opts(api)
     }
 
-    /// Extract options from WeatherOpts and apply to WeatherApi
+    /// Extract options from `WeatherOpts` and apply to `WeatherApi`
     pub fn set_opts(&self, api: WeatherApi) -> Result<WeatherApi, Error> {
         let api = if let Some(zipcode) = self.zipcode {
-            api.with_zipcode(zipcode)
-        } else if let Some(country_code) = &self.country_code {
-            api.with_country_code(country_code)
+            if let Some(country_code) = &self.country_code {
+                api.with_zipcode_country_code(zipcode, country_code)
+            } else {
+                api.with_zipcode(zipcode)
+            }
         } else if let Some(city_name) = &self.city_name {
             api.with_city_name(city_name)
         } else if self.lat.is_some() && self.lon.is_some() {

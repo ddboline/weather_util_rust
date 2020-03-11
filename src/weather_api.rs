@@ -1,10 +1,40 @@
 use anyhow::{format_err, Error};
 use reqwest::{Client, Url};
+use std::fmt;
+use std::hash::{Hash, Hasher};
 
 use crate::latitude::Latitude;
 use crate::longitude::Longitude;
 use crate::weather_data::WeatherData;
 use crate::weather_forecast::WeatherForecast;
+
+#[derive(Clone, Debug)]
+pub enum WeatherLocation {
+    ZipCode {
+        zipcode: u64,
+        country_code: Option<String>,
+    },
+    CityName(String),
+    LatLon {
+        latitude: Latitude,
+        longitude: Longitude,
+    },
+}
+
+impl Hash for WeatherLocation {
+    fn hash<H: Hasher>(&self, state: &mut H) {
+        format!("{:?}", self).hash(state);
+    }
+}
+
+impl Default for WeatherLocation {
+    fn default() -> Self {
+        Self::ZipCode {
+            zipcode: 10001,
+            country_code: None,
+        }
+    }
+}
 
 /// `WeatherApi` contains a `reqwest` Client and all the metadata required to query the openweathermap.org api.
 #[derive(Default, Clone)]
@@ -13,14 +43,27 @@ pub struct WeatherApi {
     api_key: String,
     api_endpoint: String,
     api_path: String,
-    zipcode: Option<u64>,
-    country_code: Option<String>,
-    city_name: Option<String>,
-    lat_lon: Option<(Latitude, Longitude)>,
+    location: WeatherLocation,
+}
+
+impl fmt::Debug for WeatherApi {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        write!(
+            f,
+            "{:?}{}{}",
+            self.location, self.api_key, self.api_endpoint
+        )
+    }
+}
+
+impl Hash for WeatherApi {
+    fn hash<H: Hasher>(&self, state: &mut H) {
+        format!("{:?}", self).hash(state);
+    }
 }
 
 impl WeatherApi {
-    /// Create `WeatherApi` instance specifying api_key, api_endpoint and api_path
+    /// Create `WeatherApi` instance specifying `api_key`, `api_endpoint` and `api_path`
     pub fn new(api_key: &str, api_endpoint: &str, api_path: &str) -> Self {
         Self {
             client: Client::new(),
@@ -54,28 +97,38 @@ impl WeatherApi {
 
     pub fn with_zipcode(self, zipcode: u64) -> Self {
         Self {
-            zipcode: Some(zipcode),
+            location: WeatherLocation::ZipCode {
+                zipcode,
+                country_code: None,
+            },
             ..self
         }
     }
 
-    pub fn with_country_code(self, country_code: &str) -> Self {
+    pub fn with_zipcode_country_code(self, zipcode: u64, country_code: &str) -> Self {
+        let country_code = Some(country_code.to_string());
         Self {
-            country_code: Some(country_code.into()),
+            location: WeatherLocation::ZipCode {
+                zipcode,
+                country_code,
+            },
             ..self
         }
     }
 
     pub fn with_city_name(self, city_name: &str) -> Self {
         Self {
-            city_name: Some(city_name.into()),
+            location: WeatherLocation::CityName(city_name.to_string()),
             ..self
         }
     }
 
-    pub fn with_lat_lon(self, lat: Latitude, lon: Longitude) -> Self {
+    pub fn with_lat_lon(self, latitude: Latitude, longitude: Longitude) -> Self {
         Self {
-            lat_lon: Some((lat, lon)),
+            location: WeatherLocation::LatLon {
+                latitude,
+                longitude,
+            },
             ..self
         }
     }
@@ -93,28 +146,30 @@ impl WeatherApi {
     }
 
     fn get_options(&self) -> Result<Vec<(&'static str, String)>, Error> {
-        let options = if let Some(zipcode) = self.zipcode {
-            let country_code = self
-                .country_code
-                .clone()
-                .unwrap_or_else(|| "us".to_string());
-            vec![
-                ("zip", zipcode.to_string()),
-                ("country_code", country_code),
+        let options = match &self.location {
+            WeatherLocation::ZipCode {
+                zipcode,
+                country_code,
+            } => {
+                let country_code = country_code.clone().unwrap_or_else(|| "us".to_string());
+                vec![
+                    ("zip", zipcode.to_string()),
+                    ("country_code", country_code),
+                    ("APPID", self.api_key.to_string()),
+                ]
+            }
+            WeatherLocation::CityName(city_name) => {
+                let city_name = city_name.clone();
+                vec![("q", city_name), ("APPID", self.api_key.to_string())]
+            }
+            WeatherLocation::LatLon {
+                latitude,
+                longitude,
+            } => vec![
+                ("lat", latitude.to_string()),
+                ("lon", longitude.to_string()),
                 ("APPID", self.api_key.to_string()),
-            ]
-        } else if let Some(city_name) = self.city_name.clone() {
-            vec![("q", city_name), ("APPID", self.api_key.to_string())]
-        } else if let Some((lat, lon)) = self.lat_lon {
-            vec![
-                ("lat", lat.to_string()),
-                ("lon", lon.to_string()),
-                ("APPID", self.api_key.to_string()),
-            ]
-        } else {
-            return Err(format_err!(
-                "\n\nERROR: You must specify at least one option"
-            ));
+            ],
         };
         Ok(options)
     }
@@ -132,13 +187,6 @@ impl WeatherApi {
             println!("{}", text);
             e.into()
         })
-    }
-
-    pub fn weather_api_hash(&self) -> String {
-        format!(
-            "zipcode:{:?},country_code:{:?},city_name:{:?},lat_lon:{:?}",
-            self.zipcode, self.country_code, self.city_name, self.lat_lon
-        )
     }
 }
 
@@ -160,7 +208,11 @@ mod tests {
         let (data, forecast) = join(api.get_weather_data(), api.get_weather_forecast()).await;
         let (data, forecast) = (data?, forecast?);
         assert!(data.name == "Astoria", format!("{:?}", data));
-        assert!(forecast.city.timezone == -18000, format!("{:?}", forecast));
+        println!("{}", forecast.city.timezone);
+        assert!(
+            forecast.city.timezone == -18000 || forecast.city.timezone == -14400,
+            format!("{:?}", forecast)
+        );
         Ok(())
     }
 }
