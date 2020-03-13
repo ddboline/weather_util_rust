@@ -64,10 +64,7 @@ impl WeatherOpts {
             .api_endpoint
             .as_ref()
             .map_or("api.openweathermap.org", String::as_str);
-        let api_path = config
-            .api_path
-            .as_ref()
-            .map_or("data/2.5/", String::as_str);
+        let api_path = config.api_path.as_ref().map_or("data/2.5/", String::as_str);
         let api = WeatherApi::new(api_key, api_endpoint, api_path);
         self.set_opts(api)
     }

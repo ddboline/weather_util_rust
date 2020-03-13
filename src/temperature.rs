@@ -1,6 +1,6 @@
 use anyhow::{format_err, Error};
-use derive_more::From;
-use serde::{self, Deserialize, Deserializer, Serialize, Serializer};
+use derive_more::{Into, From};
+use serde::{Serialize, Deserialize};
 use std::convert::TryFrom;
 
 const FREEZING_POINT_KELVIN: f64 = 273.15;
@@ -8,7 +8,8 @@ const FAHRENHEIT_OFFSET: f64 = 459.67;
 const FAHRENHEIT_FACTOR: f64 = 1.8;
 
 /// Temperature struct, data is stored as Kelvin
-#[derive(Debug, PartialEq, Copy, Clone, PartialOrd)]
+#[derive(Into, Debug, PartialEq, Copy, Clone, PartialOrd, Serialize, Deserialize)]
+#[serde(into = "f64", try_from = "f64")]
 pub struct Temperature(f64);
 
 impl TryFrom<f64> for Temperature {
@@ -56,23 +57,5 @@ impl Temperature {
     }
     pub fn fahrenheit(self) -> f64 {
         self.0 * FAHRENHEIT_FACTOR - FAHRENHEIT_OFFSET
-    }
-}
-
-impl Serialize for Temperature {
-    fn serialize<S>(&self, serializer: S) -> Result<S::Ok, S::Error>
-    where
-        S: Serializer,
-    {
-        serializer.serialize_f64(self.0)
-    }
-}
-
-impl<'de> Deserialize<'de> for Temperature {
-    fn deserialize<D>(deserializer: D) -> Result<Self, D::Error>
-    where
-        D: Deserializer<'de>,
-    {
-        f64::deserialize(deserializer).map(Self)
     }
 }
