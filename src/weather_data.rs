@@ -5,7 +5,7 @@ use std::{collections::BTreeMap, io::Write};
 
 use crate::{
     latitude::Latitude, longitude::Longitude, pressure::Pressure, temperature::Temperature,
-    timestamp, humidity::Humidity,
+    timestamp, humidity::Humidity, speed::Speed,
 };
 
 #[derive(Serialize, Deserialize, Debug, Clone)]
@@ -32,7 +32,7 @@ pub struct WeatherMain {
 
 #[derive(Deserialize, Serialize, Debug, Clone)]
 pub struct Wind {
-    pub speed: f64,
+    pub speed: Speed,
     pub deg: Option<f64>,
 }
 
@@ -106,7 +106,7 @@ impl WeatherData {
             format!(
                 "\tWind: {} degrees at {:0.2} mph",
                 self.wind.deg.unwrap_or(0.0),
-                (self.wind.speed * 3600. / 1609.344)
+                (self.wind.speed.mph())
             ),
             format!("\tConditions: {}", self.weather[0].description),
             format!("\tSunrise: {}", sunrise),

@@ -41,6 +41,8 @@ pub mod longitude;
 pub mod pressure;
 /// Relative Humidity in percent
 pub mod humidity;
+/// Speed as meters per second
+pub mod speed;
 /// Temperature module: conversions between Kelvin, Ceclius and Fahrenheit
 pub mod temperature;
 /// Serialize/Deserialize Unix Timetstamp to/from `DateTime`

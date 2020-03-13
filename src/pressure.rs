@@ -25,24 +25,24 @@ impl TryFrom<f64> for Pressure {
 }
 
 impl Pressure {
-    pub fn from_kpa(kpa: f64) -> Self {
-        Self(kpa * HECTO / KILO)
+    pub fn from_kpa(kpa: f64) -> Result<Self, Error> {
+        Self::try_from(kpa * HECTO / KILO)
     }
 
-    pub fn from_hpa(hpa: f64) -> Self {
-        Self(hpa)
+    pub fn from_hpa(hpa: f64) -> Result<Self, Error> {
+        Self::try_from(hpa)
     }
 
-    pub fn from_atmosphere(atm: f64) -> Self {
-        Self(atm * ATM)
+    pub fn from_atmosphere(atm: f64) -> Result<Self, Error> {
+        Self::try_from(atm * ATM)
     }
 
-    pub fn from_atm(atm: f64) -> Self {
+    pub fn from_atm(atm: f64) -> Result<Self, Error> {
         Self::from_atmosphere(atm)
     }
 
-    pub fn from_psi(psi: f64) -> Self {
-        Self(psi / PSI)
+    pub fn from_psi(psi: f64) -> Result<Self, Error> {
+        Self::try_from(psi / PSI)
     }
 
     pub fn kpa(&self) -> f64 {
@@ -69,15 +69,17 @@ impl Pressure {
 #[cfg(test)]
 mod tests {
     use approx::assert_abs_diff_eq;
+    use anyhow::Error;
 
     use crate::pressure::Pressure;
 
     #[test]
-    fn test_pressure() {
-        let p = Pressure::from_atmosphere(1.0);
+    fn test_pressure() -> Result<(), Error> {
+        let p = Pressure::from_atmosphere(1.0)?;
         assert_eq!(p.atm(), 1.0);
         assert_abs_diff_eq!(p.hpa(), 98.0665 / 10.0, epsilon = 0.00001);
         assert_abs_diff_eq!(p.kpa(), 98.0665, epsilon = 0.00001);
         assert_abs_diff_eq!(p.psi(), 14.223, epsilon = 0.00001);
+        Ok(())
     }
 }
