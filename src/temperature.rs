@@ -1,6 +1,6 @@
 use anyhow::{format_err, Error};
-use derive_more::{Into, From};
-use serde::{Serialize, Deserialize};
+use derive_more::{From, Into};
+use serde::{Deserialize, Serialize};
 use std::convert::TryFrom;
 
 const FREEZING_POINT_KELVIN: f64 = 273.15;

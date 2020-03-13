@@ -4,7 +4,7 @@ use serde::{
     de::{self, Visitor},
     Deserialize, Deserializer, Serialize, Serializer,
 };
-use std::convert::{TryFrom, From};
+use std::convert::{From, TryFrom};
 use std::fmt::{self, Formatter};
 use std::io::Write;
 
