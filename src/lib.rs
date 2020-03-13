@@ -37,6 +37,10 @@ pub mod config;
 pub mod latitude;
 /// Longitude
 pub mod longitude;
+/// Pressure module: conversions between hPa, kPa, Pa
+pub mod pressure;
+/// Relative Humidity in percent
+pub mod humidity;
 /// Temperature module: conversions between Kelvin, Ceclius and Fahrenheit
 pub mod temperature;
 /// Serialize/Deserialize Unix Timetstamp to/from `DateTime`

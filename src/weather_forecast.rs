@@ -3,18 +3,21 @@ use chrono::{DateTime, FixedOffset, NaiveDate, Utc};
 use serde::{Deserialize, Serialize};
 use std::{collections::BTreeMap, io::Write};
 
-use crate::{latitude::Latitude, longitude::Longitude, temperature::Temperature, timestamp};
+use crate::{
+    latitude::Latitude, longitude::Longitude, pressure::Pressure, temperature::Temperature,
+    timestamp, humidity::Humidity,
+};
 
 #[derive(Deserialize, Serialize, Debug, Clone)]
 pub struct ForecastMain {
     pub temp: Temperature,
-    pub feels_like: f64,
+    pub feels_like: Temperature,
     pub temp_min: Temperature,
     pub temp_max: Temperature,
-    pub pressure: i64,
-    pub sea_level: i64,
-    pub grnd_level: i64,
-    pub humidity: i64,
+    pub pressure: Pressure,
+    pub sea_level: Pressure,
+    pub grnd_level: Pressure,
+    pub humidity: Humidity,
 }
 
 #[derive(Deserialize, Serialize, Debug, Clone)]
