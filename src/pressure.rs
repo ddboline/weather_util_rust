@@ -45,31 +45,31 @@ impl Pressure {
         Self::try_from(psi / PSI)
     }
 
-    pub fn kpa(&self) -> f64 {
+    pub fn kpa(self) -> f64 {
         self.0 * KILO / HECTO
     }
 
-    pub fn hpa(&self) -> f64 {
+    pub fn hpa(self) -> f64 {
         self.0
     }
 
-    pub fn atmosphere(&self) -> f64 {
+    pub fn atmosphere(self) -> f64 {
         self.0 / ATM
     }
 
-    pub fn atm(&self) -> f64 {
+    pub fn atm(self) -> f64 {
         self.atmosphere()
     }
 
-    pub fn psi(&self) -> f64 {
+    pub fn psi(self) -> f64 {
         self.0 * PSI
     }
 }
 
 #[cfg(test)]
 mod tests {
-    use approx::assert_abs_diff_eq;
     use anyhow::Error;
+    use approx::assert_abs_diff_eq;
 
     use crate::pressure::Pressure;
 

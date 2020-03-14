@@ -6,7 +6,7 @@ use std::f64::consts::PI;
 
 /// Direction in degrees
 #[derive(Into, Debug, PartialEq, Copy, Clone, PartialOrd, Serialize, Deserialize, Display)]
-#[serde(into="f64", from="f64")]
+#[serde(into = "f64", from = "f64")]
 pub struct Direction(f64);
 
 impl From<f64> for Direction {
@@ -28,11 +28,11 @@ impl Direction {
         Self::from(rad * 180.0 / PI)
     }
 
-    pub fn deg(&self) -> f64 {
+    pub fn deg(self) -> f64 {
         self.0
     }
 
-    pub fn radian(&self) -> f64 {
+    pub fn radian(self) -> f64 {
         self.0 * PI / 180.0
     }
 }

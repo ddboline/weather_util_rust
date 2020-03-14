@@ -30,19 +30,19 @@ impl Speed {
         Self::try_from(mph * METERS_PER_MILE / SECONDS_PER_HOUR)
     }
 
-    pub fn mps(&self) -> f64 {
+    pub fn mps(self) -> f64 {
         self.0
     }
 
-    pub fn mph(&self) -> f64 {
+    pub fn mph(self) -> f64 {
         self.0 * SECONDS_PER_HOUR / METERS_PER_MILE
     }
 }
 
 #[cfg(test)]
 mod tests {
-    use approx::assert_abs_diff_eq;
     use anyhow::Error;
+    use approx::assert_abs_diff_eq;
 
     use crate::speed::Speed;
 

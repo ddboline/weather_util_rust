@@ -57,14 +57,13 @@ impl WeatherOpts {
     fn get_api(&self, config: &Config) -> Result<WeatherApi, Error> {
         let api_key = self
             .api_key
-            .as_ref()
-            .map(String::as_str)
+            .as_deref()
             .ok_or_else(|| format_err!(Self::api_help_msg()))?;
         let api_endpoint = config
             .api_endpoint
-            .as_ref()
-            .map_or("api.openweathermap.org", String::as_str);
-        let api_path = config.api_path.as_ref().map_or("data/2.5/", String::as_str);
+            .as_deref()
+            .unwrap_or("api.openweathermap.org");
+        let api_path = config.api_path.as_deref().unwrap_or("data/2.5/");
         let api = WeatherApi::new(api_key, api_endpoint, api_path);
         self.set_opts(api)
     }

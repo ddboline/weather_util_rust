@@ -33,20 +33,20 @@
 
 /// Configuration data
 pub mod config;
+/// Direction in degrees
+pub mod direction;
+/// Distance in meters
+pub mod distance;
+/// Relative Humidity in percent
+pub mod humidity;
 /// Latitude
 pub mod latitude;
 /// Longitude
 pub mod longitude;
 /// Pressure module: conversions between hPa, kPa, Pa
 pub mod pressure;
-/// Relative Humidity in percent
-pub mod humidity;
 /// Speed as meters per second
 pub mod speed;
-/// Distance in meters
-pub mod distance;
-/// Direction in degrees
-pub mod direction;
 /// Temperature module: conversions between Kelvin, Ceclius and Fahrenheit
 pub mod temperature;
 /// Serialize/Deserialize Unix Timetstamp to/from `DateTime`

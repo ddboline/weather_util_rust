@@ -29,19 +29,19 @@ impl Distance {
         Self::try_from(miles * METERS_PER_MILE)
     }
 
-    pub fn meters(&self) -> f64 {
+    pub fn meters(self) -> f64 {
         self.0
     }
 
-    pub fn miles(&self) -> f64 {
+    pub fn miles(self) -> f64 {
         self.0 / METERS_PER_MILE
     }
 }
 
 #[cfg(test)]
 mod tests {
-    use approx::assert_abs_diff_eq;
     use anyhow::Error;
+    use approx::assert_abs_diff_eq;
 
     use crate::distance::Distance;
 

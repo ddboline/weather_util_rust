@@ -5,7 +5,7 @@ use std::convert::TryFrom;
 
 /// Relative Humidity as Percent
 #[derive(Into, Debug, PartialEq, Copy, Clone, PartialOrd, Serialize, Deserialize, Display)]
-#[serde(into="i64", try_from="i64")]
+#[serde(into = "i64", try_from = "i64")]
 pub struct Humidity(i64);
 
 impl TryFrom<i64> for Humidity {

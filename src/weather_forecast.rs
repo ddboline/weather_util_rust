@@ -4,8 +4,8 @@ use serde::{Deserialize, Serialize};
 use std::{collections::BTreeMap, io::Write};
 
 use crate::{
-    latitude::Latitude, longitude::Longitude, pressure::Pressure, temperature::Temperature,
-    timestamp, humidity::Humidity, timezone::TimeZone
+    humidity::Humidity, latitude::Latitude, longitude::Longitude, pressure::Pressure,
+    temperature::Temperature, timestamp, timezone::TimeZone,
 };
 
 #[derive(Deserialize, Serialize, Debug, Clone)]
