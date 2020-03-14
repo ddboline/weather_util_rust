@@ -43,10 +43,16 @@ pub mod pressure;
 pub mod humidity;
 /// Speed as meters per second
 pub mod speed;
+/// Distance in meters
+pub mod distance;
+/// Direction in degrees
+pub mod direction;
 /// Temperature module: conversions between Kelvin, Ceclius and Fahrenheit
 pub mod temperature;
 /// Serialize/Deserialize Unix Timetstamp to/from `DateTime`
 pub mod timestamp;
+/// Timezone offset as seconds before / after UTC
+pub mod timezone;
 /// Reqwest Client
 pub mod weather_api;
 /// Representation of Weather Data from openweathermap.org

@@ -5,7 +5,8 @@ use std::{collections::BTreeMap, io::Write};
 
 use crate::{
     latitude::Latitude, longitude::Longitude, pressure::Pressure, temperature::Temperature,
-    timestamp, humidity::Humidity, speed::Speed,
+    timestamp, humidity::Humidity, speed::Speed, direction::Direction, timezone::TimeZone,
+    distance::Distance
 };
 
 #[derive(Serialize, Deserialize, Debug, Clone)]
@@ -33,7 +34,7 @@ pub struct WeatherMain {
 #[derive(Deserialize, Serialize, Debug, Clone)]
 pub struct Wind {
     pub speed: Speed,
-    pub deg: Option<f64>,
+    pub deg: Option<Direction>,
 }
 
 #[derive(Deserialize, Serialize, Debug, Clone)]
@@ -51,12 +52,12 @@ pub struct WeatherData {
     pub weather: Vec<WeatherCond>,
     pub base: String,
     pub main: WeatherMain,
-    pub visibility: Option<f64>,
+    pub visibility: Option<Distance>,
     pub wind: Wind,
     #[serde(with = "timestamp")]
     pub dt: DateTime<Utc>,
     pub sys: Sys,
-    pub timezone: i32,
+    pub timezone: TimeZone,
     pub name: String,
 }
 
@@ -83,7 +84,7 @@ impl WeatherData {
     /// # }
     /// ```
     pub fn get_current_conditions<T: Write>(&self, buf: &mut T) -> Result<(), Error> {
-        let fo = FixedOffset::east(self.timezone);
+        let fo: FixedOffset = self.timezone.into();
         let dt = self.dt.with_timezone(&fo);
         let sunrise = self.sys.sunrise.with_timezone(&fo);
         let sunset = self.sys.sunset.with_timezone(&fo);
@@ -105,7 +106,7 @@ impl WeatherData {
             format!("\tRelative Humidity: {}%", self.main.humidity),
             format!(
                 "\tWind: {} degrees at {:0.2} mph",
-                self.wind.deg.unwrap_or(0.0),
+                self.wind.deg.unwrap_or_else(|| 0.0.into()),
                 (self.wind.speed.mph())
             ),
             format!("\tConditions: {}", self.weather[0].description),

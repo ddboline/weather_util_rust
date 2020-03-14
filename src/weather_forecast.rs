@@ -5,7 +5,7 @@ use std::{collections::BTreeMap, io::Write};
 
 use crate::{
     latitude::Latitude, longitude::Longitude, pressure::Pressure, temperature::Temperature,
-    timestamp, humidity::Humidity,
+    timestamp, humidity::Humidity, timezone::TimeZone
 };
 
 #[derive(Deserialize, Serialize, Debug, Clone)]
@@ -29,7 +29,7 @@ pub struct ForecastEntry {
 
 #[derive(Deserialize, Serialize, Debug, Clone)]
 pub struct CityEntry {
-    pub timezone: i32,
+    pub timezone: TimeZone,
     #[serde(with = "timestamp")]
     pub sunrise: DateTime<Utc>,
     #[serde(with = "timestamp")]
@@ -74,7 +74,7 @@ impl WeatherForecast {
     /// # }
     /// ```
     pub fn get_high_low(&self) -> BTreeMap<NaiveDate, (Temperature, Temperature)> {
-        let fo = FixedOffset::east(self.city.timezone);
+        let fo: FixedOffset = self.city.timezone.into();
         self.list.iter().fold(BTreeMap::new(), |mut hmap, entry| {
             let date = entry.dt.with_timezone(&fo).date().naive_local();
             let high = entry.main.temp_max;

@@ -208,9 +208,10 @@ mod tests {
         let (data, forecast) = join(api.get_weather_data(), api.get_weather_forecast()).await;
         let (data, forecast) = (data?, forecast?);
         assert!(data.name == "Astoria", format!("{:?}", data));
-        println!("{}", forecast.city.timezone);
+        let timezone: i32 = forecast.city.timezone.into();
+        println!("{}", timezone);
         assert!(
-            forecast.city.timezone == -18000 || forecast.city.timezone == -14400,
+            timezone == -18000 || timezone == -14400,
             format!("{:?}", forecast)
         );
         Ok(())
