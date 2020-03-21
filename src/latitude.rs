@@ -4,9 +4,11 @@ use serde::{
     de::{self, Visitor},
     Deserialize, Deserializer, Serialize, Serializer,
 };
-use std::convert::{From, TryFrom};
-use std::fmt::{self, Formatter};
-use std::io::Write;
+use std::{
+    convert::{From, TryFrom},
+    fmt::{self, Formatter},
+    io::Write,
+};
 
 /// Latitude in degrees, required be within the range -90.0 to 90.0
 #[derive(Into, Clone, Copy, Display, FromStr, Debug, Serialize, Deserialize)]

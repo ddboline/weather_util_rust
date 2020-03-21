@@ -29,7 +29,6 @@
 //!     --lat <lat>                      Latitude (must also specify Longitude)
 //!     --lon <lon>                      Longitude (must also specify Latitude)
 //! -z, --zipcode <zipcode>              Zipcode (optional)
-//!
 
 /// Configuration data
 pub mod config;

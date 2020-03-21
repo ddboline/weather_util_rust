@@ -12,7 +12,8 @@ use crate::{
 
 /// Utility to retreive and format weather data from openweathermap.org
 ///
-/// Please specify one of `zipcode(country_code)`, `city_name`, or `lat` and `lon`.
+/// Please specify one of `zipcode(country_code)`, `city_name`, or `lat` and
+/// `lon`.
 #[derive(StructOpt, Default, Serialize, Deserialize)]
 pub struct WeatherOpts {
     /// Zipcode (optional)
@@ -30,7 +31,8 @@ pub struct WeatherOpts {
     /// Longitude (must also specify Latitude)
     #[structopt(long)]
     lon: Option<Longitude>,
-    /// Api key (optional but either this or API_KEY environment variable must exist)
+    /// Api key (optional but either this or API_KEY environment variable must
+    /// exist)
     #[structopt(short = "k", long)]
     api_key: Option<String>,
     /// Print forecast
@@ -133,8 +135,12 @@ impl WeatherOpts {
     fn api_help_msg() -> String {
         let config_dir = dirs::config_dir().expect("This shouldn't happen");
         format!(
-            "API_KEY environment variable must be set\nEither set them directly or place them in {}",
-            config_dir.join("weather_util").join("config.env").to_string_lossy()
+            "API_KEY environment variable must be set\nEither set them directly or place them in \
+             {}",
+            config_dir
+                .join("weather_util")
+                .join("config.env")
+                .to_string_lossy()
         )
     }
 }

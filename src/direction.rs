@@ -1,8 +1,7 @@
 use anyhow::{format_err, Error};
 use derive_more::{Display, Into};
 use serde::{Deserialize, Serialize};
-use std::convert::TryFrom;
-use std::f64::consts::PI;
+use std::{convert::TryFrom, f64::consts::PI};
 
 /// Direction in degrees
 #[derive(Into, Debug, PartialEq, Copy, Clone, PartialOrd, Serialize, Deserialize, Display)]

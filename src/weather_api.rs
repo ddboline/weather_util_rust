@@ -1,7 +1,9 @@
 use anyhow::{format_err, Error};
 use reqwest::{Client, Url};
-use std::fmt;
-use std::hash::{Hash, Hasher};
+use std::{
+    fmt,
+    hash::{Hash, Hasher},
+};
 
 use crate::{
     latitude::Latitude, longitude::Longitude, weather_data::WeatherData,
@@ -36,7 +38,8 @@ impl Default for WeatherLocation {
     }
 }
 
-/// `WeatherApi` contains a `reqwest` Client and all the metadata required to query the openweathermap.org api.
+/// `WeatherApi` contains a `reqwest` Client and all the metadata required to
+/// query the openweathermap.org api.
 #[derive(Default, Clone)]
 pub struct WeatherApi {
     client: Client,
@@ -63,7 +66,8 @@ impl Hash for WeatherApi {
 }
 
 impl WeatherApi {
-    /// Create `WeatherApi` instance specifying `api_key`, `api_endpoint` and `api_path`
+    /// Create `WeatherApi` instance specifying `api_key`, `api_endpoint` and
+    /// `api_path`
     pub fn new(api_key: &str, api_endpoint: &str, api_path: &str) -> Self {
         Self {
             client: Client::new(),
