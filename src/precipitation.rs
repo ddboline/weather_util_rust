@@ -42,7 +42,16 @@ impl TryFrom<f64> for Precipitation {
 }
 
 impl Precipitation {
-    pub fn from_mm(precip: f64) -> Result<Self, Error> {
+    /// ```
+    /// use weather_util_rust::precipitation::Precipitation;
+    /// # use anyhow::Error;
+    /// # fn main() -> Result<(), Error> {
+    /// let rain = Precipitation::from_inches(1.0)?;
+    /// assert_eq!(rain.millimeters(), 25.4);
+    /// # Ok(())
+    /// # }
+    /// ```
+    pub fn from_millimeters(precip: f64) -> Result<Self, Error> {
         Self::try_from(precip)
     }
 
