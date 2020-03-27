@@ -99,12 +99,12 @@ impl WeatherForecast {
             let high = entry.main.temp_max;
             let low = entry.main.temp_min;
             let rain = if let Some(rain) = &entry.rain {
-                rain.three_hour.unwrap_or(Precipitation::default())
+                rain.three_hour.unwrap_or_default()
             } else {
                 Precipitation::default()
             };
             let snow = if let Some(snow) = &entry.snow {
-                snow.three_hour.unwrap_or(Precipitation::default())
+                snow.three_hour.unwrap_or_default()
             } else {
                 Precipitation::default()
             };

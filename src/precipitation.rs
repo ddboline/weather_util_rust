@@ -50,11 +50,11 @@ impl Precipitation {
         Self::try_from(precip * MM_PER_INCH)
     }
 
-    pub fn millimeters(&self) -> f64 {
+    pub fn millimeters(self) -> f64 {
         self.0
     }
 
-    pub fn inches(&self) -> f64 {
+    pub fn inches(self) -> f64 {
         self.0 / MM_PER_INCH
     }
 }
