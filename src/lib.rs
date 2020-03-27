@@ -42,6 +42,8 @@ pub mod humidity;
 pub mod latitude;
 /// Longitude
 pub mod longitude;
+/// Precipitation (rain/snow) in mm
+pub mod precipitation;
 /// Pressure module: conversions between hPa, kPa, Pa
 pub mod pressure;
 /// Speed as meters per second

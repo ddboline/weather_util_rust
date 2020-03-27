@@ -5,8 +5,8 @@ use std::{collections::BTreeMap, io::Write};
 
 use crate::{
     direction::Direction, distance::Distance, humidity::Humidity, latitude::Latitude,
-    longitude::Longitude, pressure::Pressure, speed::Speed, temperature::Temperature, timestamp,
-    timezone::TimeZone,
+    longitude::Longitude, precipitation::Precipitation, pressure::Pressure, speed::Speed,
+    temperature::Temperature, timestamp, timezone::TimeZone,
 };
 
 #[derive(Serialize, Deserialize, Debug, Clone)]
@@ -47,6 +47,18 @@ pub struct Sys {
 }
 
 #[derive(Deserialize, Serialize, Debug, Clone)]
+pub struct Rain {
+    #[serde(alias = "3h")]
+    pub three_hour: Option<Precipitation>,
+}
+
+#[derive(Deserialize, Serialize, Debug, Clone)]
+pub struct Snow {
+    #[serde(alias = "3h")]
+    pub three_hour: Option<Precipitation>,
+}
+
+#[derive(Deserialize, Serialize, Debug, Clone)]
 pub struct WeatherData {
     pub coord: Coord,
     pub weather: Vec<WeatherCond>,
@@ -54,6 +66,8 @@ pub struct WeatherData {
     pub main: WeatherMain,
     pub visibility: Option<Distance>,
     pub wind: Wind,
+    pub rain: Option<Rain>,
+    pub snow: Option<Snow>,
     #[serde(with = "timestamp")]
     pub dt: DateTime<Utc>,
     pub sys: Sys,
@@ -90,7 +104,7 @@ impl WeatherData {
         let sunset = self.sys.sunset.with_timezone(&fo);
         writeln!(
             buf,
-            "Current conditions {} {}\n{}\n{}\n{}\n{}\n{}\n{}\n{}",
+            "Current conditions {} {}\n{}\n{}\n{}\n{}\n{}\n{}\n{}{}{}",
             if let Some(country) = &self.sys.country {
                 format!("{} {}", self.name, country)
             } else {
@@ -111,7 +125,23 @@ impl WeatherData {
             ),
             format!("\tConditions: {}", self.weather[0].description),
             format!("\tSunrise: {}", sunrise),
-            format!("\tSunset: {}", sunset)
+            format!("\tSunset: {}", sunset),
+            if let Some(rain) = &self.rain {
+                format!(
+                    "\n\tRain: {} inc",
+                    rain.three_hour.map_or(0.0, |r| r.inches())
+                )
+            } else {
+                "".to_string()
+            },
+            if let Some(snow) = &self.snow {
+                format!(
+                    "\n\tSnow: {} inc",
+                    snow.three_hour.map_or(0.0, |s| s.inches())
+                )
+            } else {
+                "".to_string()
+            },
         )
         .map(|_| ())
         .map_err(Into::into)

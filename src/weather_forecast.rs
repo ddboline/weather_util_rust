@@ -4,8 +4,8 @@ use serde::{Deserialize, Serialize};
 use std::{collections::BTreeMap, io::Write};
 
 use crate::{
-    humidity::Humidity, latitude::Latitude, longitude::Longitude, pressure::Pressure,
-    temperature::Temperature, timestamp, timezone::TimeZone,
+    humidity::Humidity, latitude::Latitude, longitude::Longitude, precipitation::Precipitation,
+    pressure::Pressure, temperature::Temperature, timestamp, timezone::TimeZone,
 };
 
 #[derive(Deserialize, Serialize, Debug, Clone)]
@@ -21,10 +21,24 @@ pub struct ForecastMain {
 }
 
 #[derive(Deserialize, Serialize, Debug, Clone)]
+pub struct Rain {
+    #[serde(alias = "3h")]
+    pub three_hour: Option<Precipitation>,
+}
+
+#[derive(Deserialize, Serialize, Debug, Clone)]
+pub struct Snow {
+    #[serde(alias = "3h")]
+    pub three_hour: Option<Precipitation>,
+}
+
+#[derive(Deserialize, Serialize, Debug, Clone)]
 pub struct ForecastEntry {
     #[serde(with = "timestamp")]
     pub dt: DateTime<Utc>,
     pub main: ForecastMain,
+    pub rain: Option<Rain>,
+    pub snow: Option<Snow>,
 }
 
 #[derive(Deserialize, Serialize, Debug, Clone)]
@@ -73,22 +87,36 @@ impl WeatherForecast {
     /// # Ok(())
     /// # }
     /// ```
-    pub fn get_high_low(&self) -> BTreeMap<NaiveDate, (Temperature, Temperature)> {
+    pub fn get_high_low(
+        &self,
+    ) -> BTreeMap<NaiveDate, (Temperature, Temperature, Precipitation, Precipitation)> {
         let fo: FixedOffset = self.city.timezone.into();
         self.list.iter().fold(BTreeMap::new(), |mut hmap, entry| {
             let date = entry.dt.with_timezone(&fo).date().naive_local();
             let high = entry.main.temp_max;
             let low = entry.main.temp_min;
+            let rain = if let Some(rain) = &entry.rain {
+                rain.three_hour.unwrap_or(Precipitation::default())
+            } else {
+                Precipitation::default()
+            };
+            let snow = if let Some(snow) = &entry.snow {
+                snow.three_hour.unwrap_or(Precipitation::default())
+            } else {
+                Precipitation::default()
+            };
 
-            if let Some((h, l)) = hmap.get(&date) {
+            if let Some((h, l, r, s)) = hmap.get(&date) {
                 let high = if high > *h { high } else { *h };
                 let low = if low < *l { low } else { *l };
+                let rain = *r + rain;
+                let snow = *s + snow;
 
                 if (high, low) != (*h, *l) {
-                    hmap.insert(date, (high, low));
+                    hmap.insert(date, (high, low, rain, snow));
                 }
             } else {
-                hmap.insert(date, (high, low));
+                hmap.insert(date, (high, low, rain, snow));
             }
             hmap
         })
@@ -122,13 +150,26 @@ impl WeatherForecast {
         writeln!(buf, "\nForecast:")?;
         self.get_high_low()
             .into_iter()
-            .map(|(d, (h, l))| {
+            .map(|(d, (h, l, r, s))| {
                 writeln!(
                     buf,
-                    "\t{} {:30} {:30}",
+                    "\t{} {:25} {:25} {:25}",
                     d,
-                    format!("High: {:0.2} F / {:0.2} C", h.fahrenheit(), h.celcius(),),
-                    format!("Low: {:0.2} F / {:0.2} C", l.fahrenheit(), l.celcius(),),
+                    format!("High: {:0.1} F / {:0.1} C", h.fahrenheit(), h.celcius(),),
+                    format!("Low: {:0.1} F / {:0.1} C", l.fahrenheit(), l.celcius(),),
+                    format!(
+                        "{}{}",
+                        if r.millimeters() > 0.0 {
+                            format!("Rain {:0.2}", r.inches())
+                        } else {
+                            "".to_string()
+                        },
+                        if s.millimeters() > 0.0 {
+                            format!("Snow {:0.2} in", s.inches())
+                        } else {
+                            "".to_string()
+                        },
+                    )
                 )
                 .map(|_| ())
                 .map_err(Into::into)
