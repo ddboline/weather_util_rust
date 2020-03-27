@@ -77,7 +77,8 @@ pub struct WeatherData {
 
 impl WeatherData {
     /// Write out formatted information about current conditions for a mutable
-    /// buffer. ```
+    /// buffer.
+    /// ```
     /// use weather_util_rust::weather_data::WeatherData;
     /// # use anyhow::Error;
     /// # use std::io::{stdout, Write, Read};

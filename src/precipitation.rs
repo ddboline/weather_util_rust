@@ -13,7 +13,20 @@ use std::{
 const MM_PER_INCH: f64 = 25.4;
 
 /// Precipitation in mm
-#[derive(Into, Clone, Copy, Display, FromStr, Debug, Serialize, Deserialize, Add, Default)]
+#[derive(
+    Into,
+    Clone,
+    Copy,
+    Display,
+    FromStr,
+    Debug,
+    Serialize,
+    Deserialize,
+    Add,
+    Default,
+    PartialEq,
+    PartialOrd,
+)]
 #[serde(into = "f64", try_from = "f64")]
 pub struct Precipitation(f64);
 

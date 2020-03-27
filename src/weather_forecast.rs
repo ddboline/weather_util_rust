@@ -66,6 +66,7 @@ impl WeatherForecast {
     /// # use chrono::NaiveDate;
     /// use weather_util_rust::weather_forecast::WeatherForecast;
     /// use weather_util_rust::temperature::Temperature;
+    /// use weather_util_rust::precipitation::Precipitation;
     /// # fn main() -> Result<(), Error> {
     /// # let mut buf = String::new();
     /// # let mut f = File::open("tests/forecast.json")?;
@@ -80,7 +81,9 @@ impl WeatherForecast {
     ///     Some(
     ///         &(
     ///             Temperature::try_from(272.65)?,
-    ///             Temperature::try_from(266.76)?
+    ///             Temperature::try_from(266.76)?,
+    ///             Precipitation::default(),
+    ///             Precipitation::default(),
     ///         )
     ///     )
     /// );
@@ -141,8 +144,8 @@ impl WeatherForecast {
     ///
     /// let buf = String::from_utf8(buf)?;
     /// assert!(buf.starts_with("\nForecast:"), buf);
-    /// assert!(buf.contains("2020-01-23 High: 37.72 F / 3.18 C"));
-    /// assert!(buf.contains("Low: 30.07 F / -1.07 C"));
+    /// assert!(buf.contains("2020-01-23 High: 37.7 F / 3.2 C"));
+    /// assert!(buf.contains("Low: 30.1 F / -1.1 C"));
     /// # Ok(())
     /// # }
     /// ```
