@@ -163,7 +163,7 @@ impl WeatherForecast {
                     format!(
                         "{}{}",
                         if r.millimeters() > 0.0 {
-                            format!("Rain {:0.2}", r.inches())
+                            format!("Rain {:0.2} in", r.inches())
                         } else {
                             "".to_string()
                         },

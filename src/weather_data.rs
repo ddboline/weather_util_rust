@@ -129,7 +129,7 @@ impl WeatherData {
             format!("\tSunset: {}", sunset),
             if let Some(rain) = &self.rain {
                 format!(
-                    "\n\tRain: {} inc",
+                    "\n\tRain: {} in",
                     rain.three_hour.map_or(0.0, |r| r.inches())
                 )
             } else {
@@ -137,7 +137,7 @@ impl WeatherData {
             },
             if let Some(snow) = &self.snow {
                 format!(
-                    "\n\tSnow: {} inc",
+                    "\n\tSnow: {} in",
                     snow.three_hour.map_or(0.0, |s| s.inches())
                 )
             } else {
