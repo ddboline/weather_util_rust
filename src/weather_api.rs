@@ -101,7 +101,6 @@ impl WeatherApi {
             api_key: api_key.into(),
             api_endpoint: api_endpoint.into(),
             api_path: api_path.into(),
-            ..Self::default()
         }
     }
 
