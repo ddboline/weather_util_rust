@@ -34,11 +34,13 @@ pub struct WeatherMain {
 #[derive(Deserialize, Serialize, Debug, Clone)]
 pub struct Wind {
     pub speed: Speed,
+    #[serde(skip_serializing_if = "Option::is_none")]
     pub deg: Option<Direction>,
 }
 
 #[derive(Deserialize, Serialize, Debug, Clone)]
 pub struct Sys {
+    #[serde(skip_serializing_if = "Option::is_none")]
     pub country: Option<String>,
     #[serde(with = "timestamp")]
     pub sunrise: DateTime<Utc>,
@@ -48,13 +50,13 @@ pub struct Sys {
 
 #[derive(Deserialize, Serialize, Debug, Clone)]
 pub struct Rain {
-    #[serde(alias = "3h")]
+    #[serde(alias = "3h", skip_serializing_if = "Option::is_none")]
     pub three_hour: Option<Precipitation>,
 }
 
 #[derive(Deserialize, Serialize, Debug, Clone)]
 pub struct Snow {
-    #[serde(alias = "3h")]
+    #[serde(alias = "3h", skip_serializing_if = "Option::is_none")]
     pub three_hour: Option<Precipitation>,
 }
 
@@ -64,9 +66,12 @@ pub struct WeatherData {
     pub weather: Vec<WeatherCond>,
     pub base: String,
     pub main: WeatherMain,
+    #[serde(skip_serializing_if = "Option::is_none")]
     pub visibility: Option<Distance>,
     pub wind: Wind,
+    #[serde(skip_serializing_if = "Option::is_none")]
     pub rain: Option<Rain>,
+    #[serde(skip_serializing_if = "Option::is_none")]
     pub snow: Option<Snow>,
     #[serde(with = "timestamp")]
     pub dt: DateTime<Utc>,

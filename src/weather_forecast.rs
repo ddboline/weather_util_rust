@@ -22,13 +22,13 @@ pub struct ForecastMain {
 
 #[derive(Deserialize, Serialize, Debug, Clone)]
 pub struct Rain {
-    #[serde(alias = "3h")]
+    #[serde(alias = "3h", skip_serializing_if = "Option::is_none")]
     pub three_hour: Option<Precipitation>,
 }
 
 #[derive(Deserialize, Serialize, Debug, Clone)]
 pub struct Snow {
-    #[serde(alias = "3h")]
+    #[serde(alias = "3h", skip_serializing_if = "Option::is_none")]
     pub three_hour: Option<Precipitation>,
 }
 
@@ -37,7 +37,9 @@ pub struct ForecastEntry {
     #[serde(with = "timestamp")]
     pub dt: DateTime<Utc>,
     pub main: ForecastMain,
+    #[serde(skip_serializing_if = "Option::is_none")]
     pub rain: Option<Rain>,
+    #[serde(skip_serializing_if = "Option::is_none")]
     pub snow: Option<Snow>,
 }
 
