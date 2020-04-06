@@ -6,7 +6,7 @@ use std::io::stdout;
 use structopt::StructOpt;
 
 use crate::{
-    config::Config, latitude::Latitude, longitude::Longitude, weather_api::WeatherApi,
+    config::Config, latitude::Latitude, longitude::Longitude, weather_api::{WeatherApi, WeatherLocation},
     weather_data::WeatherData, weather_forecast::WeatherForecast,
 };
 
@@ -66,39 +66,39 @@ impl WeatherOpts {
             .as_deref()
             .unwrap_or("api.openweathermap.org");
         let api_path = config.api_path.as_deref().unwrap_or("data/2.5/");
-        let api = WeatherApi::new(api_key, api_endpoint, api_path);
-        self.set_opts(api)
+        Ok(WeatherApi::new(api_key, api_endpoint, api_path))
     }
 
     /// Extract options from `WeatherOpts` and apply to `WeatherApi`
-    pub fn set_opts(&self, api: WeatherApi) -> Result<WeatherApi, Error> {
-        let api = if let Some(zipcode) = self.zipcode {
+    pub fn get_location(&self) -> Result<WeatherLocation, Error> {
+        let loc = if let Some(zipcode) = self.zipcode {
             if let Some(country_code) = &self.country_code {
-                api.with_zipcode_country_code(zipcode, country_code)
+                WeatherLocation::from_zipcode_country_code(zipcode, country_code)
             } else {
-                api.with_zipcode(zipcode)
+                WeatherLocation::from_zipcode(zipcode)
             }
         } else if let Some(city_name) = &self.city_name {
-            api.with_city_name(city_name)
+            WeatherLocation::from_city_name(city_name)
         } else if self.lat.is_some() && self.lon.is_some() {
             let lat = self.lat.unwrap();
             let lon = self.lon.unwrap();
-            api.with_lat_lon(lat, lon)
+            WeatherLocation::from_lat_lon(lat, lon)
         } else {
             Self::clap().print_help()?;
             return Err(format_err!(
                 "\n\nERROR: You must specify at least one option"
             ));
         };
-        Ok(api)
+        Ok(loc)
     }
 
     async fn run_opts(&self, config: &Config) -> Result<(), Error> {
         let api = self.get_api(config)?;
+        let loc = self.get_location()?;
 
-        let data = api.get_weather_data();
+        let data = api.get_weather_data(&loc);
         let (data, forecast) = if self.forecast {
-            let forecast = api.get_weather_forecast();
+            let forecast = api.get_weather_forecast(&loc);
             let (data, forecast) = join(data, forecast).await;
             (data?, Some(forecast?))
         } else {

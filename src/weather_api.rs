@@ -38,6 +38,34 @@ impl Default for WeatherLocation {
     }
 }
 
+impl WeatherLocation {
+    pub fn from_zipcode(zipcode: u64) -> Self {
+        WeatherLocation::ZipCode {
+                zipcode,
+                country_code: None,
+            }
+    }
+
+    pub fn from_zipcode_country_code(zipcode: u64, country_code: &str) -> Self {
+        let country_code = Some(country_code.to_string());
+        WeatherLocation::ZipCode {
+                zipcode,
+                country_code,
+            }
+    }
+
+    pub fn from_city_name(city_name: &str) -> Self {
+        WeatherLocation::CityName(city_name.to_string())
+    }
+
+    pub fn from_lat_lon(latitude: Latitude, longitude: Longitude) -> Self {
+        WeatherLocation::LatLon {
+                latitude,
+                longitude,
+            }
+    }
+}
+
 /// `WeatherApi` contains a `reqwest` Client and all the metadata required to
 /// query the openweathermap.org api.
 #[derive(Default, Clone)]
@@ -46,15 +74,14 @@ pub struct WeatherApi {
     api_key: String,
     api_endpoint: String,
     api_path: String,
-    location: WeatherLocation,
 }
 
 impl fmt::Debug for WeatherApi {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         write!(
             f,
-            "{:?}{}{}",
-            self.location, self.api_key, self.api_endpoint
+            "WeatherApi(key={},endpoint={})",
+            self.api_key, self.api_endpoint
         )
     }
 }
@@ -99,58 +126,20 @@ impl WeatherApi {
         }
     }
 
-    pub fn with_zipcode(self, zipcode: u64) -> Self {
-        Self {
-            location: WeatherLocation::ZipCode {
-                zipcode,
-                country_code: None,
-            },
-            ..self
-        }
-    }
-
-    pub fn with_zipcode_country_code(self, zipcode: u64, country_code: &str) -> Self {
-        let country_code = Some(country_code.to_string());
-        Self {
-            location: WeatherLocation::ZipCode {
-                zipcode,
-                country_code,
-            },
-            ..self
-        }
-    }
-
-    pub fn with_city_name(self, city_name: &str) -> Self {
-        Self {
-            location: WeatherLocation::CityName(city_name.to_string()),
-            ..self
-        }
-    }
-
-    pub fn with_lat_lon(self, latitude: Latitude, longitude: Longitude) -> Self {
-        Self {
-            location: WeatherLocation::LatLon {
-                latitude,
-                longitude,
-            },
-            ..self
-        }
-    }
-
     /// Get `WeatherData` from api
-    pub async fn get_weather_data(&self) -> Result<WeatherData, Error> {
-        let options = self.get_options()?;
+    pub async fn get_weather_data(&self, location: &WeatherLocation) -> Result<WeatherData, Error> {
+        let options = self.get_options(location)?;
         self.run_api("weather", &options).await
     }
 
     /// Get `WeatherForecast` from api
-    pub async fn get_weather_forecast(&self) -> Result<WeatherForecast, Error> {
-        let options = self.get_options()?;
+    pub async fn get_weather_forecast(&self, location: &WeatherLocation) -> Result<WeatherForecast, Error> {
+        let options = self.get_options(location)?;
         self.run_api("forecast", &options).await
     }
 
-    fn get_options(&self) -> Result<Vec<(&'static str, String)>, Error> {
-        let options = match &self.location {
+    fn get_options(&self, location: &WeatherLocation) -> Result<Vec<(&'static str, String)>, Error> {
+        let options = match location {
             WeatherLocation::ZipCode {
                 zipcode,
                 country_code,
@@ -199,7 +188,7 @@ mod tests {
     use anyhow::Error;
     use futures::future::join;
 
-    use crate::weather_api::WeatherApi;
+    use crate::weather_api::{WeatherApi, WeatherLocation};
 
     #[tokio::test]
     async fn test_process_opts() -> Result<(), Error> {
@@ -207,9 +196,10 @@ mod tests {
         let api_endpoint = "api.openweathermap.org";
         let api_path = "data/2.5/";
 
-        let api = WeatherApi::new(api_key, api_endpoint, api_path).with_zipcode(11106);
+        let api = WeatherApi::new(api_key, api_endpoint, api_path);
+        let loc = WeatherLocation::from_zipcode(11106);
 
-        let (data, forecast) = join(api.get_weather_data(), api.get_weather_forecast()).await;
+        let (data, forecast) = join(api.get_weather_data(&loc), api.get_weather_forecast(&loc)).await;
         let (data, forecast) = (data?, forecast?);
         assert!(data.name == "Astoria", format!("{:?}", data));
         let timezone: i32 = forecast.city.timezone.into();
