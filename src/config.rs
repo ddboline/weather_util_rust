@@ -1,10 +1,11 @@
 use anyhow::{format_err, Error};
-use std::{env::var, ops::Deref, path::Path, sync::Arc};
+use serde::Deserialize;
+use std::{ops::Deref, path::Path, sync::Arc};
 
 use crate::{latitude::Latitude, longitude::Longitude};
 
 /// Configuration data
-#[derive(Default, Debug)]
+#[derive(Default, Debug, Deserialize)]
 pub struct ConfigInner {
     /// openweathermap.org api key
     pub api_key: Option<String>,
@@ -28,20 +29,6 @@ pub struct ConfigInner {
 #[derive(Default, Debug, Clone)]
 pub struct Config(Arc<ConfigInner>);
 
-macro_rules! set_config_ok {
-    ($s:ident, $id:ident) => {
-        $s.$id = var(&stringify!($id).to_uppercase()).ok();
-    };
-}
-
-macro_rules! set_config_parse {
-    ($s:ident, $id:ident) => {
-        $s.$id = var(&stringify!($id).to_uppercase())
-            .ok()
-            .and_then(|x| x.parse().ok());
-    };
-}
-
 impl Config {
     pub fn new() -> Self {
         Self::default()
@@ -62,7 +49,7 @@ impl Config {
     /// # Example
     ///
     /// ```
-    /// # use std::env::{set_var, var};
+    /// # use std::env::set_var;
     /// use weather_util_rust::config::Config;
     /// use anyhow::Error;
     ///
@@ -70,8 +57,8 @@ impl Config {
     /// # set_var("API_KEY", "api_key_value");
     /// # set_var("API_ENDPOINT", "api.openweathermap.org");
     /// let config = Config::init_config()?;
-    /// assert_eq!(config.api_key, var("API_KEY").ok());
-    /// assert_eq!(config.api_endpoint, var("API_ENDPOINT").ok());
+    /// assert_eq!(config.api_key, Some("api_key_value".into()));
+    /// assert_eq!(config.api_endpoint, Some("api.openweathermap.org".into()));
     /// # Ok(())
     /// # }
     /// ```
@@ -92,16 +79,7 @@ impl Config {
             dotenv::from_path(env_file).ok();
         }
 
-        let mut conf = ConfigInner::default();
-
-        set_config_ok!(conf, api_key);
-        set_config_ok!(conf, api_endpoint);
-        set_config_ok!(conf, api_path);
-        set_config_parse!(conf, zipcode);
-        set_config_ok!(conf, country_code);
-        set_config_ok!(conf, city_name);
-        set_config_parse!(conf, lat);
-        set_config_parse!(conf, lon);
+        let conf: ConfigInner = envy::from_env()?;
 
         Ok(Self(Arc::new(conf)))
     }

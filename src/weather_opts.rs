@@ -6,8 +6,12 @@ use std::io::stdout;
 use structopt::StructOpt;
 
 use crate::{
-    config::Config, latitude::Latitude, longitude::Longitude, weather_api::{WeatherApi, WeatherLocation},
-    weather_data::WeatherData, weather_forecast::WeatherForecast,
+    config::Config,
+    latitude::Latitude,
+    longitude::Longitude,
+    weather_api::{WeatherApi, WeatherLocation},
+    weather_data::WeatherData,
+    weather_forecast::WeatherForecast,
 };
 
 /// Utility to retreive and format weather data from openweathermap.org

@@ -41,17 +41,17 @@ impl Default for WeatherLocation {
 impl WeatherLocation {
     pub fn from_zipcode(zipcode: u64) -> Self {
         WeatherLocation::ZipCode {
-                zipcode,
-                country_code: None,
-            }
+            zipcode,
+            country_code: None,
+        }
     }
 
     pub fn from_zipcode_country_code(zipcode: u64, country_code: &str) -> Self {
         let country_code = Some(country_code.to_string());
         WeatherLocation::ZipCode {
-                zipcode,
-                country_code,
-            }
+            zipcode,
+            country_code,
+        }
     }
 
     pub fn from_city_name(city_name: &str) -> Self {
@@ -60,9 +60,9 @@ impl WeatherLocation {
 
     pub fn from_lat_lon(latitude: Latitude, longitude: Longitude) -> Self {
         WeatherLocation::LatLon {
-                latitude,
-                longitude,
-            }
+            latitude,
+            longitude,
+        }
     }
 }
 
@@ -132,12 +132,18 @@ impl WeatherApi {
     }
 
     /// Get `WeatherForecast` from api
-    pub async fn get_weather_forecast(&self, location: &WeatherLocation) -> Result<WeatherForecast, Error> {
+    pub async fn get_weather_forecast(
+        &self,
+        location: &WeatherLocation,
+    ) -> Result<WeatherForecast, Error> {
         let options = self.get_options(location)?;
         self.run_api("forecast", &options).await
     }
 
-    fn get_options(&self, location: &WeatherLocation) -> Result<Vec<(&'static str, String)>, Error> {
+    fn get_options(
+        &self,
+        location: &WeatherLocation,
+    ) -> Result<Vec<(&'static str, String)>, Error> {
         let options = match location {
             WeatherLocation::ZipCode {
                 zipcode,
@@ -198,7 +204,8 @@ mod tests {
         let api = WeatherApi::new(api_key, api_endpoint, api_path);
         let loc = WeatherLocation::from_zipcode(11106);
 
-        let (data, forecast) = join(api.get_weather_data(&loc), api.get_weather_forecast(&loc)).await;
+        let (data, forecast) =
+            join(api.get_weather_data(&loc), api.get_weather_forecast(&loc)).await;
         let (data, forecast) = (data?, forecast?);
         assert!(data.name == "Astoria", format!("{:?}", data));
         let timezone: i32 = forecast.city.timezone.into();
