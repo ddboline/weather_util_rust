@@ -8,6 +8,7 @@ const METERS_PER_MILE: f64 = 1609.344;
 
 /// Speed in meters per second
 #[derive(Into, Debug, PartialEq, Copy, Clone, PartialOrd, Serialize, Deserialize)]
+#[serde(into = "f64", try_from = "f64")]
 pub struct Speed(f64);
 
 impl TryFrom<f64> for Speed {
