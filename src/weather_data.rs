@@ -94,23 +94,20 @@ impl WeatherData {
     /// # f.read_to_string(&mut buf)?;
     /// let data: WeatherData = serde_json::from_str(&buf)?;
     ///
-    /// let mut buf = Vec::new();
-    /// data.get_current_conditions(&mut buf)?;
+    /// let buf = data.get_current_conditions()?;
     ///
-    /// let buf = String::from_utf8(buf)?;
     /// assert!(buf.starts_with("Current conditions Astoria US 40.76"));
     /// assert!(buf.contains("Temperature: 41.05 F (5.03 C)"));
     /// # Ok(())
     /// # }
     /// ```
-    pub fn get_current_conditions<T: Write>(&self, buf: &mut T) -> Result<(), Error> {
+    pub fn get_current_conditions(&self) -> Result<String, Error> {
         let fo: FixedOffset = self.timezone.into();
         let dt = self.dt.with_timezone(&fo);
         let sunrise = self.sys.sunrise.with_timezone(&fo);
         let sunset = self.sys.sunset.with_timezone(&fo);
-        writeln!(
-            buf,
-            "Current conditions {} {}\n{}\n{}\n{}\n{}\n{}\n{}\n{}{}{}",
+        let output = format!(
+            "Current conditions {} {}\n{}\n{}\n{}\n{}\n{}\n{}\n{}{}{}\n",
             if let Some(country) = &self.sys.country {
                 format!("{} {}", self.name, country)
             } else {
@@ -148,8 +145,7 @@ impl WeatherData {
             } else {
                 "".to_string()
             },
-        )
-        .map(|_| ())
-        .map_err(Into::into)
+        );
+        Ok(output)
     }
 }

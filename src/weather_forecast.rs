@@ -141,23 +141,20 @@ impl WeatherForecast {
     /// # f.read_to_string(&mut buf)?;
     /// let data: WeatherForecast = serde_json::from_str(&buf)?;
     ///
-    /// let mut buf = Vec::new();
-    /// data.get_forecast(&mut buf)?;
+    /// let buf = data.get_forecast()?;
     ///
-    /// let buf = String::from_utf8(buf)?;
     /// assert!(buf.starts_with("\nForecast:"), buf);
     /// assert!(buf.contains("2020-01-23 High: 37.7 F / 3.2 C"));
     /// assert!(buf.contains("Low: 30.1 F / -1.1 C"));
     /// # Ok(())
     /// # }
     /// ```
-    pub fn get_forecast<T: Write>(&self, buf: &mut T) -> Result<(), Error> {
-        writeln!(buf, "\nForecast:")?;
-        self.get_high_low()
+    pub fn get_forecast(&self) -> Result<String, Error> {
+        let mut output = vec!["\nForecast:".to_string()];
+        output.extend(self.get_high_low()
             .into_iter()
             .map(|(d, (h, l, r, s))| {
-                writeln!(
-                    buf,
+                format!(
                     "\t{} {:25} {:25} {:25}",
                     d,
                     format!("High: {:0.1} F / {:0.1} C", h.fahrenheit(), h.celcius(),),
@@ -176,9 +173,7 @@ impl WeatherForecast {
                         },
                     )
                 )
-                .map(|_| ())
-                .map_err(Into::into)
-            })
-            .collect()
+            }));
+        Ok(output.join("\n"))
     }
 }
