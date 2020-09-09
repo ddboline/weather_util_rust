@@ -151,29 +151,27 @@ impl WeatherForecast {
     /// ```
     pub fn get_forecast(&self) -> Result<String, Error> {
         let mut output = vec!["\nForecast:".to_string()];
-        output.extend(self.get_high_low()
-            .into_iter()
-            .map(|(d, (h, l, r, s))| {
+        output.extend(self.get_high_low().into_iter().map(|(d, (h, l, r, s))| {
+            format!(
+                "\t{} {:25} {:25} {:25}",
+                d,
+                format!("High: {:0.1} F / {:0.1} C", h.fahrenheit(), h.celcius(),),
+                format!("Low: {:0.1} F / {:0.1} C", l.fahrenheit(), l.celcius(),),
                 format!(
-                    "\t{} {:25} {:25} {:25}",
-                    d,
-                    format!("High: {:0.1} F / {:0.1} C", h.fahrenheit(), h.celcius(),),
-                    format!("Low: {:0.1} F / {:0.1} C", l.fahrenheit(), l.celcius(),),
-                    format!(
-                        "{}{}",
-                        if r.millimeters() > 0.0 {
-                            format!("Rain {:0.2} in", r.inches())
-                        } else {
-                            "".to_string()
-                        },
-                        if s.millimeters() > 0.0 {
-                            format!("Snow {:0.2} in", s.inches())
-                        } else {
-                            "".to_string()
-                        },
-                    )
+                    "{}{}",
+                    if r.millimeters() > 0.0 {
+                        format!("Rain {:0.2} in", r.inches())
+                    } else {
+                        "".to_string()
+                    },
+                    if s.millimeters() > 0.0 {
+                        format!("Snow {:0.2} in", s.inches())
+                    } else {
+                        "".to_string()
+                    },
                 )
-            }));
+            )
+        }));
         Ok(output.join("\n"))
     }
 }

@@ -38,16 +38,28 @@ impl Direction {
 
 #[cfg(test)]
 mod tests {
-    use std::f64::consts::PI;
     use approx::assert_abs_diff_eq;
+    use std::f64::consts::PI;
 
     use crate::direction::Direction;
 
     #[test]
     fn test_direction() {
-        assert_abs_diff_eq!(Direction::from_deg(90.).deg(), Direction::from_deg(90. + 360.).deg());
-        assert_abs_diff_eq!(Direction::from_deg(90.).deg(), Direction::from_radian(PI / 2.).deg());
-        assert_abs_diff_eq!(Direction::from_deg(90.).deg(), Direction::from_radian(PI / 2. + 2. * PI).deg());
-        assert_abs_diff_eq!(Direction::from_deg(90.).radian(), Direction::from_radian(PI / 2.).radian());
+        assert_abs_diff_eq!(
+            Direction::from_deg(90.).deg(),
+            Direction::from_deg(90. + 360.).deg()
+        );
+        assert_abs_diff_eq!(
+            Direction::from_deg(90.).deg(),
+            Direction::from_radian(PI / 2.).deg()
+        );
+        assert_abs_diff_eq!(
+            Direction::from_deg(90.).deg(),
+            Direction::from_radian(PI / 2. + 2. * PI).deg()
+        );
+        assert_abs_diff_eq!(
+            Direction::from_deg(90.).radian(),
+            Direction::from_radian(PI / 2.).radian()
+        );
     }
 }

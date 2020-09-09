@@ -2,8 +2,8 @@ use anyhow::{format_err, Error};
 use futures::future::join;
 use reqwest::Url;
 use serde::{Deserialize, Serialize};
-use tokio::io::{stdout, AsyncWriteExt};
 use structopt::StructOpt;
+use tokio::io::{stdout, AsyncWriteExt};
 
 use crate::{
     config::Config,
@@ -110,9 +110,13 @@ impl WeatherOpts {
         };
 
         let mut stdout = stdout();
-        stdout.write_all(data.get_current_conditions()?.as_bytes()).await?;
+        stdout
+            .write_all(data.get_current_conditions()?.as_bytes())
+            .await?;
         if let Some(forecast) = forecast {
-            stdout.write_all(forecast.get_forecast()?.as_bytes()).await?;
+            stdout
+                .write_all(forecast.get_forecast()?.as_bytes())
+                .await?;
         }
         Ok(())
     }
