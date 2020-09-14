@@ -150,10 +150,10 @@ impl WeatherForecast {
     /// # }
     /// ```
     pub fn get_forecast(&self) -> Result<String, Error> {
-        let mut output = vec!["\nForecast:".to_string()];
+        let mut output = vec!["\nForecast:\n".to_string()];
         output.extend(self.get_high_low().into_iter().map(|(d, (h, l, r, s))| {
             format!(
-                "\t{} {:25} {:25} {:25}",
+                "\t{} {:25} {:25} {:25}\n",
                 d,
                 format!("High: {:0.1} F / {:0.1} C", h.fahrenheit(), h.celcius(),),
                 format!("Low: {:0.1} F / {:0.1} C", l.fahrenheit(), l.celcius(),),
@@ -172,6 +172,6 @@ impl WeatherForecast {
                 )
             )
         }));
-        Ok(output.join("\n"))
+        Ok(output.join(""))
     }
 }
