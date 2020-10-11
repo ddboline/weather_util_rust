@@ -51,6 +51,18 @@ mod tests {
         let s = Distance::from_miles(1.0)?;
         assert_abs_diff_eq!(s.miles(), 1.0);
         assert_abs_diff_eq!(s.meters(), 1609.344);
+
+        let s = Distance::from_meters(160934.4)?;
+        assert_abs_diff_eq!(s.miles(), 100.0);
+        assert_abs_diff_eq!(s.meters(), 160934.4);
+        Ok(())
+    }
+
+    #[test]
+    fn test_invalid_distance() -> Result<(), Error> {
+        let s = Distance::from_miles(-12.0);
+        assert!(s.is_err());
+        assert_eq!(s.err().unwrap().to_string(), format!("{} is not a valid distance", -19312.128));
         Ok(())
     }
 }
