@@ -21,7 +21,30 @@ impl TryFrom<f64> for Latitude {
         if item >= -90.0 && item <= 90.0 {
             Ok(Self(item))
         } else {
-            Err(format_err!("{} is not a valid latitude"))
+            Err(format_err!("{} is not a valid latitude", item))
         }
+    }
+}
+
+#[cfg(test)]
+mod test {
+    use anyhow::Error;
+    use std::convert::TryFrom;
+
+    use crate::latitude::Latitude;
+
+    #[test]
+    fn test_latitude() -> Result<(), Error> {
+        let h = Latitude::try_from(41.0)?;
+        let v: f64 = h.into();
+        assert_eq!(v, 41.0);
+
+        let h = Latitude::try_from(-360.0);
+        assert!(h.is_err());
+        assert_eq!(
+            h.err().unwrap().to_string(),
+            format!("{} is not a valid latitude", -360.0)
+        );
+        Ok(())
     }
 }
