@@ -18,3 +18,23 @@ impl TryFrom<i64> for Humidity {
         }
     }
 }
+
+#[cfg(test)]
+mod test {
+    use std::convert::TryFrom;
+    use anyhow::Error;
+
+    use crate::humidity::Humidity;
+
+    #[test]
+    fn test_humidity() -> Result<(), Error> {
+        let h = Humidity::try_from(86)?;
+        let v: i64 = h.into();
+        assert_eq!(v, 86);
+
+        let h = Humidity::try_from(-86);
+        assert!(h.is_err());
+        assert_eq!(h.err().unwrap().to_string(), "-86 is not a valid relative humidity");
+        Ok(())
+    }
+}
