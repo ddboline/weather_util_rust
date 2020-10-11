@@ -27,10 +27,12 @@ impl Direction {
         Self::from(rad * 180.0 / PI)
     }
 
+    #[inline]
     pub fn deg(self) -> f64 {
         self.0
     }
 
+    #[inline]
     pub fn radian(self) -> f64 {
         self.0 * PI / 180.0
     }
@@ -60,6 +62,23 @@ mod tests {
         assert_abs_diff_eq!(
             Direction::from_deg(90.).radian(),
             Direction::from_radian(PI / 2.).radian()
+        );
+
+        assert_abs_diff_eq!(
+            Direction::from_deg(-90.).deg(),
+            Direction::from_deg(-90. + 360.).deg()
+        );
+        assert_abs_diff_eq!(
+            Direction::from_deg(-90.).deg(),
+            Direction::from_radian(-1.0 * PI / 2.).deg()
+        );
+        assert_abs_diff_eq!(
+            Direction::from_deg(-90.).deg(),
+            Direction::from_radian(-1.0 * PI / 2. + 2. * PI).deg()
+        );
+        assert_abs_diff_eq!(
+            Direction::from_deg(-90.).radian(),
+            Direction::from_radian(-1.0 * PI / 2.).radian()
         );
     }
 }
