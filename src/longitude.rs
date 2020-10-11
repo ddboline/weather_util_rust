@@ -4,7 +4,7 @@ use serde::{Deserialize, Deserializer, Serialize, Serializer};
 use std::convert::TryFrom;
 
 /// Latitude in degrees, required be within the range -180.0 to 180.0
-#[derive(Into, Clone, Copy, Display, FromStr, Debug, Serialize, Deserialize)]
+#[derive(Into, Clone, Copy, Display, FromStr, Debug, Serialize, Deserialize, PartialEq)]
 #[serde(into = "f64", try_from = "f64")]
 pub struct Longitude(f64);
 

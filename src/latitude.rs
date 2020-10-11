@@ -11,7 +11,7 @@ use std::{
 };
 
 /// Latitude in degrees, required be within the range -90.0 to 90.0
-#[derive(Into, Clone, Copy, Display, FromStr, Debug, Serialize, Deserialize)]
+#[derive(Into, Clone, Copy, Display, FromStr, Debug, Serialize, Deserialize, PartialEq)]
 #[serde(into = "f64", try_from = "f64")]
 pub struct Latitude(f64);
 

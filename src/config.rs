@@ -5,7 +5,7 @@ use std::{ops::Deref, path::Path, sync::Arc};
 use crate::{latitude::Latitude, longitude::Longitude};
 
 /// Configuration data
-#[derive(Default, Debug, Deserialize)]
+#[derive(Default, Debug, Deserialize, PartialEq)]
 pub struct ConfigInner {
     /// openweathermap.org api key
     pub api_key: Option<String>,
@@ -26,7 +26,7 @@ pub struct ConfigInner {
 }
 
 /// Configuration struct
-#[derive(Default, Debug, Clone)]
+#[derive(Default, Debug, Clone, PartialEq)]
 pub struct Config(Arc<ConfigInner>);
 
 impl Config {
@@ -102,6 +102,8 @@ mod tests {
 
     #[test]
     fn test_config() -> Result<(), Error> {
+        assert_eq!(Config::new(), Config::default());
+
         set_var("API_KEY", "1234567");
         set_var("API_ENDPOINT", "test.local");
         set_var("ZIPCODE", "8675309");

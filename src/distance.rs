@@ -62,7 +62,10 @@ mod tests {
     fn test_invalid_distance() -> Result<(), Error> {
         let s = Distance::from_miles(-12.0);
         assert!(s.is_err());
-        assert_eq!(s.err().unwrap().to_string(), format!("{} is not a valid distance", -19312.128));
+        assert_eq!(
+            s.err().unwrap().to_string(),
+            format!("{} is not a valid distance", -19312.128)
+        );
         Ok(())
     }
 }
