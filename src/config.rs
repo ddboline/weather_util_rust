@@ -92,3 +92,26 @@ impl Deref for Config {
         &self.0
     }
 }
+
+#[cfg(test)]
+mod tests {
+    use anyhow::Error;
+    use std::env::set_var;
+
+    use crate::config::Config;
+
+    #[test]
+    fn test_config() -> Result<(), Error> {
+        set_var("API_KEY", "1234567");
+        set_var("API_ENDPOINT", "test.local");
+        set_var("ZIPCODE", "8675309");
+        set_var("API_PATH", "weather/");
+
+        let conf = Config::init_config()?;
+        assert_eq!(conf.api_key, Some("1234567".to_string()));
+        assert_eq!(conf.api_endpoint, Some("test.local".to_string()));
+        assert_eq!(conf.zipcode, Some(8675309));
+        assert_eq!(conf.api_path, Some("weather/".to_string()));
+        Ok(())
+    }
+}
