@@ -52,6 +52,13 @@ mod tests {
         let s = Speed::from_mph(1.0)?;
         assert_abs_diff_eq!(s.mph(), 1.0);
         assert_abs_diff_eq!(s.mps(), 1609.344 / 3600.);
+
+        let s = Speed::from_mps(1.0)?;
+        assert_abs_diff_eq!(s.mps(), 1.0);
+
+        let s = Speed::from_mps(-1.0);
+        assert!(s.is_err());
+        assert_eq!(s.err().unwrap().to_string(), format!("{} is not a valid speed", -1.0));
         Ok(())
     }
 }

@@ -19,7 +19,7 @@ impl TryFrom<f64> for Pressure {
         if item > 0.0 {
             Ok(Self(item))
         } else {
-            Err(format_err!("{} is not a valid pressure value"))
+            Err(format_err!("{} is not a valid pressure value", item))
         }
     }
 }
@@ -80,6 +80,17 @@ mod tests {
         assert_abs_diff_eq!(p.hpa(), 98.0665 / 10.0, epsilon = 0.00001);
         assert_abs_diff_eq!(p.kpa(), 98.0665, epsilon = 0.00001);
         assert_abs_diff_eq!(p.psi(), 14.223, epsilon = 0.00001);
+        let p = Pressure::from_kpa(1.0)?;
+        assert_abs_diff_eq!(p.kpa(), 1.0);
+        let p = Pressure::from_atmosphere(1.0)?;
+        let p2 = Pressure::from_atm(1.0)?;
+        assert_eq!(p, p2);
+        let p = Pressure::from_hpa(1.0)?;
+        assert_eq!(p.hpa(), 1.0);
+
+        let p = Pressure::from_hpa(-1.0);
+        assert!(p.is_err());
+        assert_eq!(p.err().unwrap().to_string(), format!("{} is not a valid pressure value", -1.0));
         Ok(())
     }
 }

@@ -15,7 +15,7 @@ impl TryFrom<i32> for TimeZone {
         if item > -86400 && item < 86400 {
             Ok(Self(item))
         } else {
-            Err(format_err!("{} is not a valid timezone"))
+            Err(format_err!("{} is not a valid timezone", item))
         }
     }
 }
@@ -23,5 +23,25 @@ impl TryFrom<i32> for TimeZone {
 impl std::convert::Into<FixedOffset> for TimeZone {
     fn into(self) -> FixedOffset {
         FixedOffset::east(self.0)
+    }
+}
+
+#[cfg(test)]
+mod test {
+    use anyhow::Error;
+    use std::convert::TryFrom;
+
+    use crate::timezone::TimeZone;
+
+    #[test]
+    fn test_timezone() -> Result<(), Error> {
+        let t = TimeZone::try_from(4 * 3600)?;
+        let offset: i32 = t.into();
+        assert_eq!(offset, 4 * 3600);
+
+        let t = TimeZone::try_from(100_000);
+        assert!(t.is_err());
+        assert_eq!(t.err().unwrap().to_string(), format!("{} is not a valid timezone", 100_000));
+        Ok(())
     }
 }
