@@ -1,4 +1,10 @@
 # weather_util_rust
+
+[![crates.io](https://meritbadge.herokuapp.com/weather_util_rust)](https://crates.io/crates/weather_util_rust)
+[![Build Status](https://github.com/ddboline/weather_util_rust/workflows/Rust/badge.svg?branch=master)](https://github.com/ddboline/weather_util_rust/actions?branch=master)
+[![Documentation](https://docs.rs/weather_util_rust/badge.svg)](https://docs.rs/weather_util_rust/0.1.3/s3_ext/)
+[![codecov](https://codecov.io/gh/ddboline/weather_util_rust/branch/master/graph/badge.svg)](https://codecov.io/gh/ddboline/weather_util_rust)
+
 CLI tool to pull weather data from openweathermap.org, intended to replace the debian package `weather-util`.
 
 You will need to obtain an api key by signing up at openweathermap.org.
