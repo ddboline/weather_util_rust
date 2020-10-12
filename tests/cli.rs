@@ -1,14 +1,16 @@
 use anyhow::Error;
 use assert_cmd::Command;
-use predicates::prelude::predicate;
 
 #[test]
 fn test_default() -> Result<(), Error> {
-    let mut cmd = Command::cargo_bin("weather-util-rust")?;
+    let output = Command::cargo_bin("weather-util-rust")?.output()?;
 
-    cmd.assert()
-        .success()
-        .stdout(predicate::str::contains("Current conditions"));
+    let stdout = String::from_utf8_lossy(&output.stdout);
+    let stderr = String::from_utf8_lossy(&output.stderr);
+    println!("{}", stdout);
+    println!("{}", stderr);
+
+    assert!(stdout.contains("Current conditions"));
 
     Ok(())
 }
