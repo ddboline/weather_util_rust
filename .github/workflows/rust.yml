@@ -27,7 +27,7 @@ jobs:
 
     - name: Generate code coverage
       run: |
-        cargo install tarpaulin && cargo tarpaulin --verbose --all-features --workspace --out Xml
+        cargo install cargo-tarpaulin && cargo tarpaulin --verbose --all-features --workspace --out Xml
       env:
         API_KEY: ${{secrets.OPENWEATHERMAP_API_KEY}}
         API_ENDPOINT: api.openweathermap.org
