@@ -182,9 +182,9 @@ mod test {
     use chrono::NaiveDate;
     use std::convert::TryFrom;
 
-    use crate::weather_forecast::WeatherForecast;
-    use crate::temperature::Temperature;
-    use crate::precipitation::Precipitation;
+    use crate::{
+        precipitation::Precipitation, temperature::Temperature, weather_forecast::WeatherForecast,
+    };
 
     #[test]
     fn test_get_high_low() -> Result<(), Error> {
