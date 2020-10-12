@@ -156,12 +156,16 @@ impl WeatherOpts {
 mod test {
     use anyhow::Error;
     use std::{
+        convert::TryFrom,
         env::{set_var, var_os},
         ffi::{OsStr, OsString},
     };
 
     use crate::{
         config::{Config, TestEnvs},
+        latitude::Latitude,
+        longitude::Longitude,
+        weather_api::WeatherLocation,
         weather_opts::WeatherOpts,
     };
 
@@ -193,6 +197,27 @@ mod test {
         Ok(())
     }
 
+    #[test]
+    fn test_apply_defaults() -> Result<(), Error> {
+        let _env = TestEnvs::new(&["API_KEY", "API_ENDPOINT", "LAT", "LON", "API_PATH"]);
+
+        set_var("API_KEY", "1234567");
+        set_var("API_ENDPOINT", "test.local1");
+        set_var("LAT", "10.1");
+        set_var("LON", "11.1");
+        set_var("API_PATH", "weather/");
+
+        let config = Config::init_config()?;
+        drop(_env);
+
+        let mut opts = WeatherOpts::default();
+        opts.apply_defaults(&config);
+
+        assert_eq!(opts.lat, Some(Latitude::try_from(10.1)?));
+        assert_eq!(opts.lon, Some(Longitude::try_from(11.1)?));
+        Ok(())
+    }
+
     #[tokio::test]
     async fn test_run_opts() -> Result<(), Error> {
         let _env = TestEnvs::new(&["API_KEY", "API_ENDPOINT", "ZIPCODE", "API_PATH"]);
@@ -202,17 +227,64 @@ mod test {
 
         let mut opts = WeatherOpts::default();
         opts.zipcode = Some(55427);
-        opts.forecast = true;
         opts.apply_defaults(&config);
 
         let output = opts.run_opts(&config).await?;
 
-        assert_eq!(output.len(), 2);
+        assert_eq!(output.len(), 1);
         assert!(output[0].contains("Current conditions Minneapolis"));
 
+        opts.forecast = true;
+        let output = opts.run_opts(&config).await?;
+        assert_eq!(output.len(), 2);
         assert!(output[1].contains("Forecast:"));
         assert!(output[1].contains("High:"));
         assert!(output[1].contains("Low:"));
+
+        Ok(())
+    }
+
+    #[test]
+    fn test_api_help_msg() -> Result<(), Error> {
+        let msg = WeatherOpts::api_help_msg();
+        assert!(msg.len() > 0);
+        Ok(())
+    }
+
+    #[test]
+    fn test_get_location() -> Result<(), Error> {
+        let mut opts = WeatherOpts::default();
+        opts.zipcode = Some(55427);
+        opts.country_code = Some("US".to_string());
+        let loc = opts.get_location()?;
+        assert_eq!(
+            loc,
+            WeatherLocation::ZipCode {
+                zipcode: 55427,
+                country_code: Some("US".to_string())
+            }
+        );
+
+        let mut opts = WeatherOpts::default();
+        opts.city_name = Some("Pittsburgh".to_string());
+        let loc = opts.get_location()?;
+        assert_eq!(loc, WeatherLocation::CityName("Pittsburgh".to_string()));
+
+        let mut opts = WeatherOpts::default();
+        opts.lat = Latitude::try_from(11.1).ok();
+        opts.lon = Longitude::try_from(12.2).ok();
+
+        let loc = opts.get_location()?;
+        assert_eq!(
+            loc,
+            WeatherLocation::LatLon {
+                latitude: Latitude::try_from(11.1)?,
+                longitude: Longitude::try_from(12.2)?
+            }
+        );
+
+        let opts = WeatherOpts::default();
+        assert!(opts.get_location().is_err());
 
         Ok(())
     }
