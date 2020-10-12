@@ -10,7 +10,7 @@ use crate::{
     weather_forecast::WeatherForecast,
 };
 
-#[derive(Clone, Debug, PartialEq)]
+#[derive(Clone, Debug, PartialEq, Hash)]
 pub enum WeatherLocation {
     ZipCode {
         zipcode: u64,
@@ -21,12 +21,6 @@ pub enum WeatherLocation {
         latitude: Latitude,
         longitude: Longitude,
     },
-}
-
-impl Hash for WeatherLocation {
-    fn hash<H: Hasher>(&self, state: &mut H) {
-        format!("{:?}", self).hash(state);
-    }
 }
 
 impl Default for WeatherLocation {
@@ -230,10 +224,7 @@ mod tests {
 
         let mut hasher0 = DefaultHasher::new();
         loc.hash(&mut hasher0);
-        let mut hasher1 = DefaultHasher::new();
-        format!(r#"ZipCode {{ zipcode: 11106, country_code: None }}"#).hash(&mut hasher1);
-        println!("{:?}", loc);
-        assert_eq!(hasher0.finish(), hasher1.finish());
+        assert_eq!(hasher0.finish(), 3871895985647742457);
         Ok(())
     }
 

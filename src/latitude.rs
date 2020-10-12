@@ -9,11 +9,27 @@ use std::{
     fmt::{self, Formatter},
     io::Write,
 };
+use std::hash::{Hash, Hasher};
+
+const HASH_FACTOR: f64 = 1_000_000.0;
 
 /// Latitude in degrees, required be within the range -90.0 to 90.0
-#[derive(Into, Clone, Copy, Display, FromStr, Debug, Serialize, Deserialize, PartialEq)]
+#[derive(Into, Clone, Copy, Display, FromStr, Debug, Serialize, Deserialize)]
 #[serde(into = "f64", try_from = "f64")]
 pub struct Latitude(f64);
+
+impl PartialEq for Latitude {
+    fn eq(&self, other: &Self) -> bool {
+        (self.0 * HASH_FACTOR) as u32 == (other.0 * HASH_FACTOR) as u32
+        }
+}
+
+impl Hash for Latitude {
+    fn hash<H: Hasher>(&self, state: &mut H) {
+        ((self.0 * HASH_FACTOR) as u32).hash(state);
+    }
+}
+
 
 impl TryFrom<f64> for Latitude {
     type Error = Error;
