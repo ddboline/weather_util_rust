@@ -20,6 +20,10 @@ jobs:
 
     - name: Run tests
       run: cargo test --verbose
+      env:
+        API_KEY: ${{secrets.OPENWEATHERMAP_API_KEY}}
+        API_ENDPOINT: api.openweathermap.org
+        ZIPCODE: 10001
 
     - name: rust-tarpaulin
       uses: actions-rs/tarpaulin@v0.1

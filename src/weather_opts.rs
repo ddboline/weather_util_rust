@@ -156,26 +156,36 @@ impl WeatherOpts {
 #[cfg(test)]
 mod test {
     use anyhow::Error;
-    use std::env::set_var;
+    use std::env::{set_var, var_os};
+    use std::ffi::{OsStr, OsString};
 
-    use crate::config::Config;
+    use crate::config::{Config, TestEnvs};
     use crate::weather_opts::WeatherOpts;
 
     #[test]
     fn test_get_api() -> Result<(), Error> {
+        let _env = TestEnvs::new(&["API_KEY", "API_ENDPOINT", "ZIPCODE", "API_PATH"]);
+
         set_var("API_KEY", "1234567");
         set_var("API_ENDPOINT", "test.local");
         set_var("ZIPCODE", "8675309");
         set_var("API_PATH", "weather/");
 
         let config = Config::init_config()?;
+        drop(_env);
         let mut opts = WeatherOpts::default();
         opts.apply_defaults(&config);
         let api = opts.get_api(&config)?;
-        assert_eq!(format!("{:?}", api), "WeatherApi(key=1234567,endpoint=test.local)".to_string());
+        assert_eq!(
+            format!("{:?}", api),
+            "WeatherApi(key=1234567,endpoint=test.local)".to_string()
+        );
 
         let loc = opts.get_location()?;
-        assert_eq!(format!("{:?}", loc), "ZipCode { zipcode: 8675309, country_code: None }".to_string());
+        assert_eq!(
+            format!("{:?}", loc),
+            "ZipCode { zipcode: 8675309, country_code: None }".to_string()
+        );
         Ok(())
     }
 }

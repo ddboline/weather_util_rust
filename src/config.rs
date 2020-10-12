@@ -1,5 +1,7 @@
 use anyhow::{format_err, Error};
 use serde::Deserialize;
+use std::env::{set_var, var_os};
+use std::ffi::{OsStr, OsString};
 use std::{ops::Deref, path::Path, sync::Arc};
 
 use crate::{latitude::Latitude, longitude::Longitude};
@@ -93,15 +95,40 @@ impl Deref for Config {
     }
 }
 
+pub(crate) struct TestEnvs {
+    envs: Vec<(OsString, OsString)>,
+}
+
+impl TestEnvs {
+    pub(crate) fn new(keys: &[impl AsRef<OsStr>]) -> Self {
+        Self {
+            envs: keys
+                .iter()
+                .filter_map(|k| var_os(k).map(|v| (k.as_ref().to_os_string(), v)))
+                .collect(),
+        }
+    }
+}
+
+impl Drop for TestEnvs {
+    fn drop(&mut self) {
+        for (key, val) in &self.envs {
+            set_var(key, val);
+        }
+    }
+}
+
 #[cfg(test)]
 mod tests {
     use anyhow::Error;
     use std::env::set_var;
 
-    use crate::config::Config;
+    use crate::config::{Config, TestEnvs};
 
     #[test]
     fn test_config() -> Result<(), Error> {
+        let _env = TestEnvs::new(&["API_KEY", "API_ENDPOINT", "ZIPCODE", "API_PATH"]);
+
         assert_eq!(Config::new(), Config::default());
 
         set_var("API_KEY", "1234567");
@@ -110,6 +137,7 @@ mod tests {
         set_var("API_PATH", "weather/");
 
         let conf = Config::init_config()?;
+        drop(_env);
         assert_eq!(conf.api_key, Some("1234567".to_string()));
         assert_eq!(conf.api_endpoint, Some("test.local".to_string()));
         assert_eq!(conf.zipcode, Some(8675309));

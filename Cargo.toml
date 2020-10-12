@@ -38,6 +38,8 @@ envy = "0.4"
 
 [dev-dependencies]
 approx = "0.3"
+assert_cmd = "1.0"
+predicates = "1.0"
 
 [[bin]]
 name = "weather-util-rust"
