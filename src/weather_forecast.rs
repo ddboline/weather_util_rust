@@ -175,3 +175,21 @@ impl WeatherForecast {
         Ok(output.join(""))
     }
 }
+
+#[cfg(test)]
+mod test {
+    use anyhow::Error;
+
+    use crate::weather_forecast::WeatherForecast;
+
+    #[test]
+    fn test_get_forecast() -> Result<(), Error> {
+        let buf = include_str!("../tests/forecast.json");
+        let data: WeatherForecast = serde_json::from_str(&buf)?;
+        let buf = data.get_forecast()?;
+        assert!(buf.starts_with("\nForecast:"), buf);
+        assert!(buf.contains("2020-01-23 High: 37.7 F / 3.2 C"));
+        assert!(buf.contains("Low: 30.1 F / -1.1 C"));
+        Ok(())
+    }
+}
