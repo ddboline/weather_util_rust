@@ -58,7 +58,10 @@ mod tests {
 
         let s = Speed::from_mps(-1.0);
         assert!(s.is_err());
-        assert_eq!(s.err().unwrap().to_string(), format!("{} is not a valid speed", -1.0));
+        assert_eq!(
+            s.err().unwrap().to_string(),
+            format!("{} is not a valid speed", -1.0)
+        );
         Ok(())
     }
 }

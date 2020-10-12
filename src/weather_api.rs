@@ -10,7 +10,7 @@ use crate::{
     weather_forecast::WeatherForecast,
 };
 
-#[derive(Clone, Debug)]
+#[derive(Clone, Debug, PartialEq)]
 pub enum WeatherLocation {
     ZipCode {
         zipcode: u64,
@@ -74,6 +74,14 @@ pub struct WeatherApi {
     api_key: String,
     api_endpoint: String,
     api_path: String,
+}
+
+impl PartialEq for WeatherApi {
+    fn eq(&self, other: &Self) -> bool {
+        self.api_key == other.api_key
+            && self.api_endpoint == other.api_endpoint
+            && self.api_path == other.api_path
+    }
 }
 
 impl fmt::Debug for WeatherApi {
@@ -192,8 +200,11 @@ impl WeatherApi {
 mod tests {
     use anyhow::Error;
     use futures::future::join;
-    use std::collections::hash_map::DefaultHasher;
-    use std::hash::{Hash, Hasher};
+    use std::{
+        collections::hash_map::DefaultHasher,
+        convert::TryInto,
+        hash::{Hash, Hasher},
+    };
 
     use crate::weather_api::{WeatherApi, WeatherLocation};
 
@@ -223,6 +234,66 @@ mod tests {
         format!(r#"ZipCode {{ zipcode: 11106, country_code: None }}"#).hash(&mut hasher1);
         println!("{:?}", loc);
         assert_eq!(hasher0.finish(), hasher1.finish());
+        Ok(())
+    }
+
+    #[test]
+    fn test_weatherlocation_default() -> Result<(), Error> {
+        assert_eq!(
+            WeatherLocation::default(),
+            WeatherLocation::from_zipcode(10001)
+        );
+        Ok(())
+    }
+
+    #[test]
+    fn test_weatherapi() -> Result<(), Error> {
+        let api = WeatherApi::new("8675309", "api.openweathermap.org", "data/2.5/");
+        let api2 = WeatherApi::default()
+            .with_key("8675309")
+            .with_endpoint("api.openweathermap.org")
+            .with_path("data/2.5/");
+        assert_eq!(api, api2);
+
+        assert_eq!(
+            format!("{:?}", api),
+            "WeatherApi(key=8675309,endpoint=api.openweathermap.org)".to_string()
+        );
+
+        let mut hasher0 = DefaultHasher::new();
+        api.hash(&mut hasher0);
+        let mut hasher1 = DefaultHasher::new();
+        "WeatherApi(key=8675309,endpoint=api.openweathermap.org)"
+            .to_string()
+            .hash(&mut hasher1);
+        println!("{:?}", api);
+        assert_eq!(hasher0.finish(), hasher1.finish());
+
+        let loc = WeatherLocation::from_zipcode_country_code(10001, "US");
+        let opts = api.get_options(&loc)?;
+        let expected = vec![
+            ("zip", "10001".to_string()),
+            ("country_code", "US".to_string()),
+            ("APPID", "8675309".to_string()),
+        ];
+        assert_eq!(opts, expected);
+
+        let loc = WeatherLocation::from_city_name("New York");
+        let opts = api.get_options(&loc)?;
+        let expected = vec![
+            ("q", "New York".to_string()),
+            ("APPID", "8675309".to_string()),
+        ];
+        assert_eq!(opts, expected);
+
+        let loc = WeatherLocation::from_lat_lon(41.0f64.try_into()?, 39.0f64.try_into()?);
+        let opts = api.get_options(&loc)?;
+        let expected = vec![
+            ("lat", "41".to_string()),
+            ("lon", "39".to_string()),
+            ("APPID", "8675309".to_string()),
+        ];
+        assert_eq!(opts, expected);
         Ok(())
     }
 }

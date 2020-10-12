@@ -90,7 +90,10 @@ mod tests {
 
         let p = Pressure::from_hpa(-1.0);
         assert!(p.is_err());
-        assert_eq!(p.err().unwrap().to_string(), format!("{} is not a valid pressure value", -1.0));
+        assert_eq!(
+            p.err().unwrap().to_string(),
+            format!("{} is not a valid pressure value", -1.0)
+        );
         Ok(())
     }
 }

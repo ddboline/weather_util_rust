@@ -29,8 +29,8 @@ impl std::convert::Into<FixedOffset> for TimeZone {
 #[cfg(test)]
 mod test {
     use anyhow::Error;
-    use std::convert::TryFrom;
     use chrono::offset::FixedOffset;
+    use std::convert::TryFrom;
 
     use crate::timezone::TimeZone;
 
@@ -44,7 +44,10 @@ mod test {
 
         let t = TimeZone::try_from(100_000);
         assert!(t.is_err());
-        assert_eq!(t.err().unwrap().to_string(), format!("{} is not a valid timezone", 100_000));
+        assert_eq!(
+            t.err().unwrap().to_string(),
+            format!("{} is not a valid timezone", 100_000)
+        );
         Ok(())
     }
 }

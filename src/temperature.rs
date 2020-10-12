@@ -46,7 +46,10 @@ impl Temperature {
         if t >= -FAHRENHEIT_OFFSET {
             Ok(Self((t + FAHRENHEIT_OFFSET) / FAHRENHEIT_FACTOR))
         } else {
-            Err(format_err!("{} is not a valid temperature in Fahrenheit", t))
+            Err(format_err!(
+                "{} is not a valid temperature in Fahrenheit",
+                t
+            ))
         }
     }
     pub fn kelvin(self) -> f64 {
@@ -63,8 +66,8 @@ impl Temperature {
 #[cfg(test)]
 mod test {
     use anyhow::Error;
-    use std::convert::TryFrom;
     use approx::assert_abs_diff_eq;
+    use std::convert::TryFrom;
 
     use crate::temperature::Temperature;
 
@@ -74,22 +77,31 @@ mod test {
         assert_eq!(t.celcius(), 15.0);
 
         let t = Temperature::from_fahrenheit(15.0)?;
-        assert_abs_diff_eq!(t.fahrenheit(), 15.0, epsilon=0.0001);
+        assert_abs_diff_eq!(t.fahrenheit(), 15.0, epsilon = 0.0001);
 
         let t = Temperature::try_from(300.0)?;
         assert_abs_diff_eq!(t.kelvin(), 300.0);
 
         let t = Temperature::try_from(-15.0);
         assert!(t.is_err());
-        assert_eq!(t.err().unwrap().to_string(), format!("{} is not a valid Temperature", -15.0));
+        assert_eq!(
+            t.err().unwrap().to_string(),
+            format!("{} is not a valid Temperature", -15.0)
+        );
 
         let t = Temperature::from_celcius(-300.0);
         assert!(t.is_err());
-        assert_eq!(t.err().unwrap().to_string(), format!("{} is not a valid temperature in Celcius", -300.0));
+        assert_eq!(
+            t.err().unwrap().to_string(),
+            format!("{} is not a valid temperature in Celcius", -300.0)
+        );
 
         let t = Temperature::from_fahrenheit(-500.0);
         assert!(t.is_err());
-        assert_eq!(t.err().unwrap().to_string(), format!("{} is not a valid temperature in Fahrenheit", -500.0));
+        assert_eq!(
+            t.err().unwrap().to_string(),
+            format!("{} is not a valid temperature in Fahrenheit", -500.0)
+        );
         Ok(())
     }
 }
