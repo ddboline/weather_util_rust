@@ -100,6 +100,7 @@ pub(crate) struct TestEnvs {
 }
 
 impl TestEnvs {
+    #[allow(dead_code)]
     pub(crate) fn new(keys: &[impl AsRef<OsStr>]) -> Self {
         Self {
             envs: keys
