@@ -179,8 +179,32 @@ impl WeatherForecast {
 #[cfg(test)]
 mod test {
     use anyhow::Error;
+    use chrono::NaiveDate;
+    use std::convert::TryFrom;
 
     use crate::weather_forecast::WeatherForecast;
+    use crate::temperature::Temperature;
+    use crate::precipitation::Precipitation;
+
+    #[test]
+    fn test_get_high_low() -> Result<(), Error> {
+        let buf = include_str!("../tests/forecast.json");
+        let data: WeatherForecast = serde_json::from_str(&buf)?;
+        let high_low = data.get_high_low();
+        assert_eq!(high_low.len(), 6);
+        let date: NaiveDate = "2020-01-21".parse()?;
+        assert_eq!(
+            high_low.get(&date),
+            Some(&(
+                Temperature::try_from(272.65)?,
+                Temperature::try_from(266.76)?,
+                Precipitation::default(),
+                Precipitation::default(),
+            ))
+        );
+
+        Ok(())
+    }
 
     #[test]
     fn test_get_forecast() -> Result<(), Error> {
