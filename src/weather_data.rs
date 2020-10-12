@@ -149,3 +149,23 @@ impl WeatherData {
         Ok(output)
     }
 }
+
+#[cfg(test)]
+mod test {
+    use anyhow::Error;
+
+    use crate::weather_data::WeatherData;
+
+    #[test]
+    fn test_weather_data() -> Result<(), Error> {
+        let buf = include_str!("../tests/weather.json");
+        let data: WeatherData = serde_json::from_str(buf)?;
+
+        let buf = data.get_current_conditions()?;
+
+        assert!(buf.starts_with("Current conditions Astoria US 40.76"));
+        assert!(buf.contains("Temperature: 41.05 F (5.03 C)"));
+
+        Ok(())
+    }
+}
