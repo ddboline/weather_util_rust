@@ -64,6 +64,7 @@ impl Temperature {
 mod test {
     use anyhow::Error;
     use std::convert::TryFrom;
+    use approx::assert_abs_diff_eq;
 
     use crate::temperature::Temperature;
 
@@ -71,6 +72,12 @@ mod test {
     fn test_temperature() -> Result<(), Error> {
         let t = Temperature::from_celcius(15.0)?;
         assert_eq!(t.celcius(), 15.0);
+
+        let t = Temperature::from_fahrenheit(15.0)?;
+        assert_abs_diff_eq!(t.fahrenheit(), 15.0, epsilon=0.0001);
+
+        let t = Temperature::try_from(300.0)?;
+        assert_abs_diff_eq!(t.kelvin(), 300.0);
 
         let t = Temperature::try_from(-15.0);
         assert!(t.is_err());
