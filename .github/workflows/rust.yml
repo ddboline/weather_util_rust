@@ -25,8 +25,9 @@ jobs:
         API_ENDPOINT: api.openweathermap.org
         ZIPCODE: 10001
 
-    - name: rust-tarpaulin
-      uses: actions-rs/tarpaulin@v0.1
+    - name: Generate code coverage
+      run: |
+        cargo install tarpaulin && cargo tarpaulin --verbose --all-features --workspace --out Xml
       env:
         API_KEY: ${{secrets.OPENWEATHERMAP_API_KEY}}
         API_ENDPOINT: api.openweathermap.org
