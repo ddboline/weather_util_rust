@@ -192,6 +192,8 @@ impl WeatherApi {
 mod tests {
     use anyhow::Error;
     use futures::future::join;
+    use std::collections::hash_map::DefaultHasher;
+    use std::hash::{Hash, Hasher};
 
     use crate::weather_api::{WeatherApi, WeatherLocation};
 
@@ -214,6 +216,13 @@ mod tests {
             timezone == -18000 || timezone == -14400,
             format!("{:?}", forecast)
         );
+
+        let mut hasher0 = DefaultHasher::new();
+        loc.hash(&mut hasher0);
+        let mut hasher1 = DefaultHasher::new();
+        format!(r#"ZipCode {{ zipcode: 11106, country_code: None }}"#).hash(&mut hasher1);
+        println!("{:?}", loc);
+        assert_eq!(hasher0.finish(), hasher1.finish());
         Ok(())
     }
 }

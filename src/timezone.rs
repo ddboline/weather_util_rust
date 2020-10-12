@@ -30,6 +30,7 @@ impl std::convert::Into<FixedOffset> for TimeZone {
 mod test {
     use anyhow::Error;
     use std::convert::TryFrom;
+    use chrono::offset::FixedOffset;
 
     use crate::timezone::TimeZone;
 
@@ -38,6 +39,8 @@ mod test {
         let t = TimeZone::try_from(4 * 3600)?;
         let offset: i32 = t.into();
         assert_eq!(offset, 4 * 3600);
+        let offset: FixedOffset = t.into();
+        assert_eq!(offset, FixedOffset::east(4 * 3600));
 
         let t = TimeZone::try_from(100_000);
         assert!(t.is_err());
