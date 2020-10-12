@@ -1,4 +1,5 @@
 use anyhow::{format_err, Error};
+use log::error;
 use reqwest::{Client, Url};
 use std::{
     fmt,
@@ -181,12 +182,14 @@ impl WeatherApi {
     ) -> Result<T, Error> {
         let base_url = format!("https://{}/{}{}", self.api_endpoint, self.api_path, command);
         let url = Url::parse_with_params(&base_url, options)?;
-        let res = self.client.get(url).send().await?;
-        let text = res.text().await?;
-        serde_json::from_str(&text).map_err(|e| {
-            println!("{}", text);
-            e.into()
-        })
+        self.client
+            .get(url)
+            .send()
+            .await?
+            .error_for_status()?
+            .json()
+            .await
+            .map_err(Into::into)
     }
 }
 

@@ -1,8 +1,10 @@
 use anyhow::{format_err, Error};
 use derive_more::{Display, FromStr, Into};
 use serde::{Deserialize, Deserializer, Serialize, Serializer};
-use std::convert::TryFrom;
-use std::hash::{Hash, Hasher};
+use std::{
+    convert::TryFrom,
+    hash::{Hash, Hasher},
+};
 
 const HASH_FACTOR: f64 = 1_000_000.0;
 
@@ -14,7 +16,7 @@ pub struct Longitude(f64);
 impl PartialEq for Longitude {
     fn eq(&self, other: &Self) -> bool {
         (self.0 * HASH_FACTOR) as u32 == (other.0 * HASH_FACTOR) as u32
-        }
+    }
 }
 
 impl Hash for Longitude {
@@ -37,7 +39,11 @@ impl TryFrom<f64> for Longitude {
 #[cfg(test)]
 mod test {
     use anyhow::Error;
-    use std::convert::TryFrom;
+    use std::{
+        collections::hash_map::DefaultHasher,
+        convert::TryFrom,
+        hash::{Hash, Hasher},
+    };
 
     use crate::longitude::Longitude;
 
@@ -46,6 +52,15 @@ mod test {
         let h = Longitude::try_from(41.0)?;
         let v: f64 = h.into();
         assert_eq!(v, 41.0);
+
+        let h1 = Longitude::try_from(41.0000)?;
+        assert_eq!(h, h1);
+
+        let mut hasher0 = DefaultHasher::new();
+        h.hash(&mut hasher0);
+        let mut hasher1 = DefaultHasher::new();
+        h1.hash(&mut hasher1);
+        assert_eq!(hasher0.finish(), hasher1.finish());
 
         let h = Longitude::try_from(-360.0);
         assert!(h.is_err());
