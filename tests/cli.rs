@@ -3,6 +3,7 @@ use assert_cmd::{cargo::cargo_bin, Command};
 use weather_util_rust::config::TestEnvs;
 
 #[test]
+#[ignore]
 #[cfg(not(tarpaulin_include))]
 fn test_default() -> Result<(), Error> {
     let _env = TestEnvs::new(&["API_KEY", "API_ENDPOINT", "ZIPCODE", "API_PATH"]);
