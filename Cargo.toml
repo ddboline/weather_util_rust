@@ -35,6 +35,8 @@ dirs = "3.0"
 retry = "1.1"
 log = "0.4"
 envy = "0.4"
+lazy_static = "1.4"
+parking_lot = "0.11"
 
 [dev-dependencies]
 approx = "0.3"

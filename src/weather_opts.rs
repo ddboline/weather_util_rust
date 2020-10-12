@@ -56,7 +56,11 @@ impl WeatherOpts {
     pub async fn parse_opts(config: &Config) -> Result<(), Error> {
         let mut opts = Self::from_args();
         opts.apply_defaults(config);
-        opts.run_opts(config).await?;
+
+        let mut stdout = stdout();
+        for output in opts.run_opts(config).await? {
+            stdout.write_all(output.as_bytes()).await?;
+        }
         Ok(())
     }
 
@@ -96,7 +100,7 @@ impl WeatherOpts {
         Ok(loc)
     }
 
-    async fn run_opts(&self, config: &Config) -> Result<(), Error> {
+    async fn run_opts(&self, config: &Config) -> Result<Vec<String>, Error> {
         let api = self.get_api(config)?;
         let loc = self.get_location()?;
 
@@ -108,17 +112,12 @@ impl WeatherOpts {
         } else {
             (data.await?, None)
         };
-
-        let mut stdout = stdout();
-        stdout
-            .write_all(data.get_current_conditions()?.as_bytes())
-            .await?;
+        let mut output = Vec::new();
+        output.push(data.get_current_conditions()?);
         if let Some(forecast) = forecast {
-            stdout
-                .write_all(forecast.get_forecast()?.as_bytes())
-                .await?;
+            output.push(forecast.get_forecast()?);
         }
-        Ok(())
+        Ok(output)
     }
 
     fn apply_defaults(&mut self, config: &Config) {
@@ -156,29 +155,34 @@ impl WeatherOpts {
 #[cfg(test)]
 mod test {
     use anyhow::Error;
-    use std::env::{set_var, var_os};
-    use std::ffi::{OsStr, OsString};
+    use std::{
+        env::{set_var, var_os},
+        ffi::{OsStr, OsString},
+    };
 
-    use crate::config::{Config, TestEnvs};
-    use crate::weather_opts::WeatherOpts;
+    use crate::{
+        config::{Config, TestEnvs},
+        weather_opts::WeatherOpts,
+    };
 
     #[test]
     fn test_get_api() -> Result<(), Error> {
         let _env = TestEnvs::new(&["API_KEY", "API_ENDPOINT", "ZIPCODE", "API_PATH"]);
 
         set_var("API_KEY", "1234567");
-        set_var("API_ENDPOINT", "test.local");
+        set_var("API_ENDPOINT", "test.local1");
         set_var("ZIPCODE", "8675309");
         set_var("API_PATH", "weather/");
 
         let config = Config::init_config()?;
         drop(_env);
+
         let mut opts = WeatherOpts::default();
         opts.apply_defaults(&config);
         let api = opts.get_api(&config)?;
         assert_eq!(
             format!("{:?}", api),
-            "WeatherApi(key=1234567,endpoint=test.local)".to_string()
+            "WeatherApi(key=1234567,endpoint=test.local1)".to_string()
         );
 
         let loc = opts.get_location()?;
@@ -186,6 +190,30 @@ mod test {
             format!("{:?}", loc),
             "ZipCode { zipcode: 8675309, country_code: None }".to_string()
         );
+        Ok(())
+    }
+
+    #[tokio::test]
+    async fn test_run_opts() -> Result<(), Error> {
+        let _env = TestEnvs::new(&["API_KEY", "API_ENDPOINT", "ZIPCODE", "API_PATH"]);
+
+        let config = Config::init_config()?;
+        drop(_env);
+
+        let mut opts = WeatherOpts::default();
+        opts.zipcode = Some(55427);
+        opts.forecast = true;
+        opts.apply_defaults(&config);
+
+        let output = opts.run_opts(&config).await?;
+
+        assert_eq!(output.len(), 2);
+        assert!(output[0].contains("Current conditions Minneapolis"));
+
+        assert!(output[1].contains("Forecast:"));
+        assert!(output[1].contains("High:"));
+        assert!(output[1].contains("Low:"));
+
         Ok(())
     }
 }

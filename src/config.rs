@@ -1,8 +1,14 @@
 use anyhow::{format_err, Error};
+use lazy_static::lazy_static;
+use parking_lot::{Mutex, MutexGuard};
 use serde::Deserialize;
-use std::env::{set_var, var_os};
-use std::ffi::{OsStr, OsString};
-use std::{ops::Deref, path::Path, sync::Arc};
+use std::{
+    env::{remove_var, set_var, var_os},
+    ffi::{OsStr, OsString},
+    ops::Deref,
+    path::Path,
+    sync::Arc,
+};
 
 use crate::{latitude::Latitude, longitude::Longitude};
 
@@ -53,12 +59,15 @@ impl Config {
     /// ```
     /// # use std::env::set_var;
     /// use weather_util_rust::config::Config;
+    /// # use weather_util_rust::config::TestEnvs;
     /// use anyhow::Error;
     ///
     /// # fn main() -> Result<(), Error> {
+    /// # let _env = TestEnvs::new(&["API_KEY", "API_ENDPOINT", "ZIPCODE", "API_PATH"]);
     /// # set_var("API_KEY", "api_key_value");
     /// # set_var("API_ENDPOINT", "api.openweathermap.org");
     /// let config = Config::init_config()?;
+    /// # drop(_env);
     /// assert_eq!(config.api_key, Some("api_key_value".into()));
     /// assert_eq!(config.api_endpoint, Some("api.openweathermap.org".into()));
     /// # Ok(())
@@ -95,26 +104,35 @@ impl Deref for Config {
     }
 }
 
-pub(crate) struct TestEnvs {
-    envs: Vec<(OsString, OsString)>,
+lazy_static! {
+    static ref TEST_MUTEX: Mutex<()> = Mutex::new(());
 }
 
-impl TestEnvs {
+pub struct TestEnvs<'a> {
+    _guard: MutexGuard<'a, ()>,
+    envs: Vec<(OsString, Option<OsString>)>,
+}
+
+impl<'a> TestEnvs<'a> {
     #[allow(dead_code)]
-    pub(crate) fn new(keys: &[impl AsRef<OsStr>]) -> Self {
-        Self {
-            envs: keys
-                .iter()
-                .filter_map(|k| var_os(k).map(|v| (k.as_ref().to_os_string(), v)))
-                .collect(),
-        }
+    pub fn new(keys: &[impl AsRef<OsStr>]) -> Self {
+        let _guard = TEST_MUTEX.lock();
+        let envs = keys
+            .iter()
+            .map(|k| (k.as_ref().to_os_string(), var_os(k)))
+            .collect();
+        Self { _guard, envs }
     }
 }
 
-impl Drop for TestEnvs {
+impl<'a> Drop for TestEnvs<'a> {
     fn drop(&mut self) {
         for (key, val) in &self.envs {
-            set_var(key, val);
+            if let Some(val) = val {
+                set_var(key, val);
+            } else {
+                remove_var(key);
+            }
         }
     }
 }
@@ -128,9 +146,9 @@ mod tests {
 
     #[test]
     fn test_config() -> Result<(), Error> {
-        let _env = TestEnvs::new(&["API_KEY", "API_ENDPOINT", "ZIPCODE", "API_PATH"]);
-
         assert_eq!(Config::new(), Config::default());
+
+        let _env = TestEnvs::new(&["API_KEY", "API_ENDPOINT", "ZIPCODE", "API_PATH"]);
 
         set_var("API_KEY", "1234567");
         set_var("API_ENDPOINT", "test.local");
@@ -139,6 +157,7 @@ mod tests {
 
         let conf = Config::init_config()?;
         drop(_env);
+
         assert_eq!(conf.api_key, Some("1234567".to_string()));
         assert_eq!(conf.api_endpoint, Some("test.local".to_string()));
         assert_eq!(conf.zipcode, Some(8675309));
