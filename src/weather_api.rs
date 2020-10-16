@@ -5,6 +5,7 @@ use std::{
     fmt,
     hash::{Hash, Hasher},
 };
+use tokio_compat_02::FutureExt;
 
 use crate::{
     latitude::Latitude, longitude::Longitude, weather_data::WeatherData,
@@ -185,6 +186,7 @@ impl WeatherApi {
         self.client
             .get(url)
             .send()
+            .compat()
             .await?
             .error_for_status()?
             .json()
