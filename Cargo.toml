@@ -1,6 +1,6 @@
 [package]
 name = "weather_util_rust"
-version = "0.5.0"
+version = "0.5.1"
 authors = ["Daniel Boline <ddboline@gmail.com>"]
 edition = "2018"
 license-file = "LICENSE"
@@ -30,17 +30,17 @@ serde_json = "1.0"
 structopt = "0.3"
 chrono = "0.4"
 derive_more = "0.99"
-rayon = "1.4"
+rayon = "1.5"
 futures = "0.3"
 dirs = "3.0"
-retry = "1.1"
+retry = "1.2"
 log = "0.4"
 envy = "0.4"
 lazy_static = "1.4"
 parking_lot = "0.11"
 
 [dev-dependencies]
-approx = "0.3"
+approx = "0.4"
 assert_cmd = "1.0"
 predicates = "1.0"
 
