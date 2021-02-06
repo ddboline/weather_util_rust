@@ -20,7 +20,7 @@ pub struct Latitude(f64);
 
 impl PartialEq for Latitude {
     fn eq(&self, other: &Self) -> bool {
-        (self.0 * HASH_FACTOR) as u32 == (other.0 * HASH_FACTOR) as u32
+        (self.0 * HASH_FACTOR) as i32 == (other.0 * HASH_FACTOR) as i32
     }
 }
 
@@ -50,7 +50,7 @@ mod test {
         hash::{Hash, Hasher},
     };
 
-    use crate::latitude::Latitude;
+    use crate::latitude::{Latitude, HASH_FACTOR};
 
     #[test]
     fn test_latitude() -> Result<(), Error> {
@@ -73,6 +73,14 @@ mod test {
             h.err().unwrap().to_string(),
             format!("{} is not a valid latitude", -360.0)
         );
+        Ok(())
+    }
+
+    #[test]
+    fn test_latitude_not_eq_neg() -> Result<(), Error> {
+        let a = Latitude::try_from(41.0)?;
+        let b = Latitude::try_from(-41.0)?;
+        assert_ne!(a, b);
         Ok(())
     }
 }

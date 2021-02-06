@@ -1,6 +1,6 @@
 [package]
 name = "weather_util_rust"
-version = "0.6.0"
+version = "0.6.1"
 authors = ["Daniel Boline <ddboline@gmail.com>"]
 edition = "2018"
 license-file = "LICENSE"

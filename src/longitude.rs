@@ -8,14 +8,14 @@ use std::{
 
 const HASH_FACTOR: f64 = 1_000_000.0;
 
-/// Latitude in degrees, required be within the range -180.0 to 180.0
+/// Longitude in degrees, required be within the range -180.0 to 180.0
 #[derive(Into, Clone, Copy, Display, FromStr, Debug, Serialize, Deserialize)]
 #[serde(into = "f64", try_from = "f64")]
 pub struct Longitude(f64);
 
 impl PartialEq for Longitude {
     fn eq(&self, other: &Self) -> bool {
-        (self.0 * HASH_FACTOR) as u32 == (other.0 * HASH_FACTOR) as u32
+        (self.0 * HASH_FACTOR) as i32 == (other.0 * HASH_FACTOR) as i32
     }
 }
 
@@ -68,6 +68,14 @@ mod test {
             h.err().unwrap().to_string(),
             format!("{} is not a valid longitude", -360.0)
         );
+        Ok(())
+    }
+
+    #[test]
+    fn test_longitude_not_eq_neg() -> Result<(), Error> {
+        let a = Longitude::try_from(41.0)?;
+        let b = Longitude::try_from(-41.0)?;
+        assert_ne!(a, b);
         Ok(())
     }
 }
