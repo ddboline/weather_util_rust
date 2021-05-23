@@ -4,7 +4,7 @@ use log::error;
 use reqwest::{Client, Url};
 use stack_string::StackString;
 use std::{
-    fmt::{self},
+    fmt,
     hash::{Hash, Hasher},
 };
 
