@@ -238,9 +238,10 @@ mod test {
         opts.forecast = true;
         let output = opts.run_opts(&config).await?;
         assert_eq!(output.len(), 8);
+        println!("{:#?}", output);
         assert!(output[1].contains("Forecast:"));
-        assert!(output[1].contains("High:"));
-        assert!(output[1].contains("Low:"));
+        assert!(output[2].contains("High:"));
+        assert!(output[2].contains("Low:"));
 
         Ok(())
     }
