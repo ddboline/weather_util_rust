@@ -154,10 +154,10 @@ impl WeatherApi {
                 zipcode,
                 country_code,
             } => {
-                let country_code = country_code.clone().unwrap_or_else(|| CountryCode::USA);
+                let country_code = country_code.map_or("US" ,|c| c.alpha2());
                 vec![
                     ("zip", zipcode.to_string().into()),
-                    ("country_code", country_code.alpha2().into()),
+                    ("country_code", country_code.into()),
                     ("APPID", self.api_key.clone()),
                 ]
             }
