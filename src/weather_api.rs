@@ -1,8 +1,10 @@
 use anyhow::{format_err, Error};
+use isocountry::CountryCode;
 use log::error;
 use reqwest::{Client, Url};
+use stack_string::StackString;
 use std::{
-    fmt,
+    fmt::{self},
     hash::{Hash, Hasher},
 };
 
@@ -15,9 +17,9 @@ use crate::{
 pub enum WeatherLocation {
     ZipCode {
         zipcode: u64,
-        country_code: Option<String>,
+        country_code: Option<CountryCode>,
     },
-    CityName(String),
+    CityName(StackString),
     LatLon {
         latitude: Latitude,
         longitude: Longitude,
@@ -42,7 +44,7 @@ impl WeatherLocation {
     }
 
     pub fn from_zipcode_country_code(zipcode: u64, country_code: &str) -> Self {
-        let country_code = Some(country_code.to_string());
+        let country_code = CountryCode::for_alpha2(country_code).ok();
         WeatherLocation::ZipCode {
             zipcode,
             country_code,
@@ -50,7 +52,7 @@ impl WeatherLocation {
     }
 
     pub fn from_city_name(city_name: &str) -> Self {
-        WeatherLocation::CityName(city_name.to_string())
+        WeatherLocation::CityName(city_name.into())
     }
 
     pub fn from_lat_lon(latitude: Latitude, longitude: Longitude) -> Self {
@@ -66,9 +68,9 @@ impl WeatherLocation {
 #[derive(Default, Clone)]
 pub struct WeatherApi {
     client: Client,
-    api_key: String,
-    api_endpoint: String,
-    api_path: String,
+    api_key: StackString,
+    api_endpoint: StackString,
+    api_path: StackString,
 }
 
 impl PartialEq for WeatherApi {
@@ -146,30 +148,30 @@ impl WeatherApi {
     fn get_options(
         &self,
         location: &WeatherLocation,
-    ) -> Result<Vec<(&'static str, String)>, Error> {
-        let options = match location {
+    ) -> Result<Vec<(&'static str, StackString)>, Error> {
+        let options: Vec<(&'static str, StackString)> = match location {
             WeatherLocation::ZipCode {
                 zipcode,
                 country_code,
             } => {
-                let country_code = country_code.clone().unwrap_or_else(|| "us".to_string());
+                let country_code = country_code.clone().unwrap_or_else(|| CountryCode::USA);
                 vec![
-                    ("zip", zipcode.to_string()),
-                    ("country_code", country_code),
-                    ("APPID", self.api_key.to_string()),
+                    ("zip", zipcode.to_string().into()),
+                    ("country_code", country_code.alpha2().into()),
+                    ("APPID", self.api_key.clone()),
                 ]
             }
             WeatherLocation::CityName(city_name) => {
                 let city_name = city_name.clone();
-                vec![("q", city_name), ("APPID", self.api_key.to_string())]
+                vec![("q", city_name), ("APPID", self.api_key.clone())]
             }
             WeatherLocation::LatLon {
                 latitude,
                 longitude,
             } => vec![
-                ("lat", latitude.to_string()),
-                ("lon", longitude.to_string()),
-                ("APPID", self.api_key.to_string()),
+                ("lat", latitude.to_string().into()),
+                ("lon", longitude.to_string().into()),
+                ("APPID", self.api_key.clone()),
             ],
         };
         Ok(options)
@@ -178,7 +180,7 @@ impl WeatherApi {
     async fn run_api<T: serde::de::DeserializeOwned>(
         &self,
         command: &str,
-        options: &[(&'static str, String)],
+        options: &[(&'static str, StackString)],
     ) -> Result<T, Error> {
         let base_url = format!("https://{}/{}{}", self.api_endpoint, self.api_path, command);
         let url = Url::parse_with_params(&base_url, options)?;
@@ -197,6 +199,7 @@ impl WeatherApi {
 mod tests {
     use anyhow::Error;
     use futures::future::join;
+    use stack_string::StackString;
     use std::{
         collections::hash_map::DefaultHasher,
         convert::TryInto,
@@ -217,13 +220,12 @@ mod tests {
         let (data, forecast) =
             join(api.get_weather_data(&loc), api.get_weather_forecast(&loc)).await;
         let (data, forecast) = (data?, forecast?);
-        assert!(data.name == "Astoria", format!("{:?}", data));
+        println!("{:?}", data);
+        assert!(data.name == "Astoria");
         let timezone: i32 = forecast.city.timezone.into();
         println!("{}", timezone);
-        assert!(
-            timezone == -18000 || timezone == -14400,
-            format!("{:?}", forecast)
-        );
+        println!("{:?}", forecast);
+        assert!(timezone == -18000 || timezone == -14400);
 
         let mut hasher0 = DefaultHasher::new();
         loc.hash(&mut hasher0);
@@ -265,27 +267,25 @@ mod tests {
 
         let loc = WeatherLocation::from_zipcode_country_code(10001, "US");
         let opts = api.get_options(&loc)?;
-        let expected = vec![
-            ("zip", "10001".to_string()),
-            ("country_code", "US".to_string()),
-            ("APPID", "8675309".to_string()),
+        let expected: Vec<(&str, StackString)> = vec![
+            ("zip", "10001".into()),
+            ("country_code", "US".into()),
+            ("APPID", "8675309".into()),
         ];
         assert_eq!(opts, expected);
 
         let loc = WeatherLocation::from_city_name("New York");
         let opts = api.get_options(&loc)?;
-        let expected = vec![
-            ("q", "New York".to_string()),
-            ("APPID", "8675309".to_string()),
-        ];
+        let expected: Vec<(&str, StackString)> =
+            vec![("q", "New York".into()), ("APPID", "8675309".into())];
         assert_eq!(opts, expected);
 
         let loc = WeatherLocation::from_lat_lon(41.0f64.try_into()?, 39.0f64.try_into()?);
         let opts = api.get_options(&loc)?;
-        let expected = vec![
-            ("lat", "41".to_string()),
-            ("lon", "39".to_string()),
-            ("APPID", "8675309".to_string()),
+        let expected: Vec<(&str, StackString)> = vec![
+            ("lat", "41".into()),
+            ("lon", "39".into()),
+            ("APPID", "8675309".into()),
         ];
         assert_eq!(opts, expected);
         Ok(())
