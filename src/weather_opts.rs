@@ -2,6 +2,7 @@ use anyhow::{format_err, Error};
 use futures::future::join;
 use reqwest::Url;
 use serde::{Deserialize, Serialize};
+use stack_string::StackString;
 use structopt::StructOpt;
 use tokio::io::{stdout, AsyncWriteExt};
 
@@ -25,10 +26,10 @@ pub struct WeatherOpts {
     zipcode: Option<u64>,
     /// Country Code (optional), if not specified `us` will be assumed
     #[structopt(short, long)]
-    country_code: Option<String>,
+    country_code: Option<StackString>,
     /// City Name (optional)
     #[structopt(long)]
-    city_name: Option<String>,
+    city_name: Option<StackString>,
     /// Latitude (must also specify Longitude)
     #[structopt(long)]
     lat: Option<Latitude>,
@@ -38,7 +39,7 @@ pub struct WeatherOpts {
     /// Api key (optional but either this or API_KEY environment variable must
     /// exist)
     #[structopt(short = "k", long)]
-    api_key: Option<String>,
+    api_key: Option<StackString>,
     /// Print forecast
     #[serde(default)]
     #[structopt(short, long)]
@@ -71,9 +72,9 @@ impl WeatherOpts {
             .ok_or_else(|| format_err!(Self::api_help_msg()))?;
         let api_endpoint = config
             .api_endpoint
-            .as_deref()
-            .unwrap_or("api.openweathermap.org");
-        let api_path = config.api_path.as_deref().unwrap_or("data/2.5/");
+            .as_ref()
+            .map_or("api.openweathermap.org", AsRef::as_ref);
+        let api_path = config.api_path.as_ref().map_or("data/2.5/", AsRef::as_ref);
         Ok(WeatherApi::new(api_key, api_endpoint, api_path))
     }
 
@@ -112,10 +113,9 @@ impl WeatherOpts {
         } else {
             (data.await?, None)
         };
-        let mut output = Vec::new();
-        output.push(data.get_current_conditions()?);
+        let mut output = vec![data.get_current_conditions()?];
         if let Some(forecast) = forecast {
-            output.push(forecast.get_forecast()?);
+            output.extend(forecast.get_forecast()?);
         }
         Ok(output)
     }
@@ -155,6 +155,7 @@ impl WeatherOpts {
 #[cfg(test)]
 mod test {
     use anyhow::Error;
+    use isocountry::CountryCode;
     use std::{
         convert::TryFrom,
         env::{set_var, var_os},
@@ -255,20 +256,20 @@ mod test {
     fn test_get_location() -> Result<(), Error> {
         let mut opts = WeatherOpts::default();
         opts.zipcode = Some(55427);
-        opts.country_code = Some("US".to_string());
+        opts.country_code = Some("US".into());
         let loc = opts.get_location()?;
         assert_eq!(
             loc,
             WeatherLocation::ZipCode {
                 zipcode: 55427,
-                country_code: Some("US".to_string())
+                country_code: CountryCode::for_alpha2("US").ok(),
             }
         );
 
         let mut opts = WeatherOpts::default();
-        opts.city_name = Some("Pittsburgh".to_string());
+        opts.city_name = Some("Pittsburgh".into());
         let loc = opts.get_location()?;
-        assert_eq!(loc, WeatherLocation::CityName("Pittsburgh".to_string()));
+        assert_eq!(loc, WeatherLocation::CityName("Pittsburgh".into()));
 
         let mut opts = WeatherOpts::default();
         opts.lat = Latitude::try_from(11.1).ok();
