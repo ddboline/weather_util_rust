@@ -20,9 +20,9 @@ impl TryFrom<i32> for TimeZone {
     }
 }
 
-impl std::convert::Into<FixedOffset> for TimeZone {
-    fn into(self) -> FixedOffset {
-        FixedOffset::east(self.0)
+impl From<TimeZone> for FixedOffset {
+    fn from(z: TimeZone) -> Self {
+        Self::east(z.0)
     }
 }
 
