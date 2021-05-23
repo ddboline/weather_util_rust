@@ -1,6 +1,7 @@
 use anyhow::Error;
 use chrono::{DateTime, FixedOffset, NaiveDate, Utc};
 use serde::{Deserialize, Serialize};
+use stack_string::StackString;
 use std::{collections::BTreeMap, io::Write};
 
 use crate::{
@@ -141,7 +142,7 @@ impl WeatherForecast {
     /// # f.read_to_string(&mut buf)?;
     /// let data: WeatherForecast = serde_json::from_str(&buf)?;
     ///
-    /// let buf = data.get_forecast()?;
+    /// let buf = data.get_forecast()?.join("");
     ///
     /// assert!(buf.starts_with("\nForecast:"), buf);
     /// assert!(buf.contains("2020-01-23 High: 37.7 F / 3.2 C"));
@@ -149,8 +150,8 @@ impl WeatherForecast {
     /// # Ok(())
     /// # }
     /// ```
-    pub fn get_forecast(&self) -> Result<String, Error> {
-        let mut output = vec!["\nForecast:\n".to_string()];
+    pub fn get_forecast(&self) -> Result<Vec<String>, Error> {
+        let mut output = vec!["\nForecast:\n".into()];
         output.extend(self.get_high_low().into_iter().map(|(d, (h, l, r, s))| {
             format!(
                 "\t{} {:25} {:25} {:25}\n",
@@ -172,7 +173,7 @@ impl WeatherForecast {
                 )
             )
         }));
-        Ok(output.join(""))
+        Ok(output)
     }
 }
 
@@ -210,8 +211,9 @@ mod test {
     fn test_get_forecast() -> Result<(), Error> {
         let buf = include_str!("../tests/forecast.json");
         let data: WeatherForecast = serde_json::from_str(&buf)?;
-        let buf = data.get_forecast()?;
-        assert!(buf.starts_with("\nForecast:"), buf);
+        let buf = data.get_forecast()?.join("");
+        println!("{}", buf);
+        assert!(buf.starts_with("\nForecast:"));
         assert!(buf.contains("2020-01-23 High: 37.7 F / 3.2 C"));
         assert!(buf.contains("Low: 30.1 F / -1.1 C"));
         Ok(())
