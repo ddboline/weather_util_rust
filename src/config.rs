@@ -2,6 +2,7 @@ use anyhow::{format_err, Error};
 use lazy_static::lazy_static;
 use parking_lot::{Mutex, MutexGuard};
 use serde::Deserialize;
+use stack_string::StackString;
 use std::{
     env::{remove_var, set_var, var_os},
     ffi::{OsStr, OsString},
@@ -16,17 +17,17 @@ use crate::{latitude::Latitude, longitude::Longitude};
 #[derive(Default, Debug, Deserialize, PartialEq)]
 pub struct ConfigInner {
     /// openweathermap.org api key
-    pub api_key: Option<String>,
+    pub api_key: Option<StackString>,
     /// openweathermap.org api endpoint
-    pub api_endpoint: Option<String>,
+    pub api_endpoint: Option<StackString>,
     /// Api path (default is `data/2.5/`)
-    pub api_path: Option<String>,
+    pub api_path: Option<StackString>,
     /// optional default zipcode
     pub zipcode: Option<u64>,
     /// optional default country code
-    pub country_code: Option<String>,
+    pub country_code: Option<StackString>,
     /// optional default city name
-    pub city_name: Option<String>,
+    pub city_name: Option<StackString>,
     /// optional default latitude
     pub lat: Option<Latitude>,
     /// optional default longitude
@@ -158,10 +159,10 @@ mod tests {
         let conf = Config::init_config()?;
         drop(_env);
 
-        assert_eq!(conf.api_key, Some("1234567".to_string()));
-        assert_eq!(conf.api_endpoint, Some("test.local".to_string()));
+        assert_eq!(conf.api_key, Some("1234567".into()));
+        assert_eq!(conf.api_endpoint, Some("test.local".into()));
         assert_eq!(conf.zipcode, Some(8675309));
-        assert_eq!(conf.api_path, Some("weather/".to_string()));
+        assert_eq!(conf.api_path, Some("weather/".into()));
         Ok(())
     }
 }
