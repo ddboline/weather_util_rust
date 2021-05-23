@@ -1,6 +1,7 @@
 use anyhow::Error;
 use chrono::{DateTime, FixedOffset, NaiveDate, Utc};
 use serde::{Deserialize, Serialize};
+use stack_string::StackString;
 use std::{collections::BTreeMap, io::Write};
 
 use crate::{
@@ -17,8 +18,8 @@ pub struct Coord {
 
 #[derive(Serialize, Deserialize, Debug, Clone)]
 pub struct WeatherCond {
-    pub main: String,
-    pub description: String,
+    pub main: StackString,
+    pub description: StackString,
 }
 
 #[derive(Serialize, Deserialize, Debug, Clone)]
@@ -41,7 +42,7 @@ pub struct Wind {
 #[derive(Deserialize, Serialize, Debug, Clone)]
 pub struct Sys {
     #[serde(skip_serializing_if = "Option::is_none")]
-    pub country: Option<String>,
+    pub country: Option<StackString>,
     #[serde(with = "timestamp")]
     pub sunrise: DateTime<Utc>,
     #[serde(with = "timestamp")]
@@ -64,7 +65,7 @@ pub struct Snow {
 pub struct WeatherData {
     pub coord: Coord,
     pub weather: Vec<WeatherCond>,
-    pub base: String,
+    pub base: StackString,
     pub main: WeatherMain,
     #[serde(skip_serializing_if = "Option::is_none")]
     pub visibility: Option<Distance>,
@@ -77,7 +78,7 @@ pub struct WeatherData {
     pub dt: DateTime<Utc>,
     pub sys: Sys,
     pub timezone: TimeZone,
-    pub name: String,
+    pub name: StackString,
 }
 
 impl WeatherData {
@@ -106,7 +107,7 @@ impl WeatherData {
         let dt = self.dt.with_timezone(&fo);
         let sunrise = self.sys.sunrise.with_timezone(&fo);
         let sunset = self.sys.sunset.with_timezone(&fo);
-        let output = format!(
+        Ok(format!(
             "Current conditions {} {}\n{}\n{}\n{}\n{}\n{}\n{}\n{}{}{}\n",
             if let Some(country) = &self.sys.country {
                 format!("{} {}", self.name, country)
@@ -145,8 +146,7 @@ impl WeatherData {
             } else {
                 "".to_string()
             },
-        );
-        Ok(output)
+        ))
     }
 }
 
