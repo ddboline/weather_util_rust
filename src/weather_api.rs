@@ -43,7 +43,14 @@ impl WeatherLocation {
         }
     }
 
-    pub fn from_zipcode_country_code(zipcode: u64, country_code: &str) -> Self {
+    pub fn from_zipcode_country_code(zipcode: u64, country_code: CountryCode) -> Self {
+        WeatherLocation::ZipCode {
+            zipcode,
+            country_code: Some(country_code),
+        }
+    }
+
+    pub fn from_zipcode_country_code_str(zipcode: u64, country_code: &str) -> Self {
         let country_code = CountryCode::for_alpha2(country_code).ok();
         WeatherLocation::ZipCode {
             zipcode,
@@ -154,7 +161,7 @@ impl WeatherApi {
                 zipcode,
                 country_code,
             } => {
-                let country_code = country_code.map_or("US" ,|c| c.alpha2());
+                let country_code = country_code.map_or("US", |c| c.alpha2());
                 vec![
                     ("zip", zipcode.to_string().into()),
                     ("country_code", country_code.into()),
@@ -199,6 +206,7 @@ impl WeatherApi {
 mod tests {
     use anyhow::Error;
     use futures::future::join;
+    use isocountry::CountryCode;
     use stack_string::StackString;
     use std::{
         collections::hash_map::DefaultHasher,
@@ -265,7 +273,7 @@ mod tests {
         println!("{:?}", api);
         assert_eq!(hasher0.finish(), hasher1.finish());
 
-        let loc = WeatherLocation::from_zipcode_country_code(10001, "US");
+        let loc = WeatherLocation::from_zipcode_country_code(10001, CountryCode::USA);
         let opts = api.get_options(&loc)?;
         let expected: Vec<(&str, StackString)> = vec![
             ("zip", "10001".into()),

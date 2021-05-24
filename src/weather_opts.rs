@@ -82,7 +82,7 @@ impl WeatherOpts {
     pub fn get_location(&self) -> Result<WeatherLocation, Error> {
         let loc = if let Some(zipcode) = self.zipcode {
             if let Some(country_code) = &self.country_code {
-                WeatherLocation::from_zipcode_country_code(zipcode, country_code)
+                WeatherLocation::from_zipcode_country_code_str(zipcode, country_code)
             } else {
                 WeatherLocation::from_zipcode(zipcode)
             }
