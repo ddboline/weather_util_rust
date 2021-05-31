@@ -1,5 +1,6 @@
 use anyhow::{format_err, Error};
 use derive_more::{Add, Display, FromStr, Into};
+use rweb::Schema;
 use serde::{
     de::{self, Visitor},
     Deserialize, Deserializer, Serialize, Serializer,
@@ -9,7 +10,6 @@ use std::{
     fmt::{self, Formatter},
     io::Write,
 };
-use rweb::Schema;
 
 const MM_PER_INCH: f64 = 25.4;
 

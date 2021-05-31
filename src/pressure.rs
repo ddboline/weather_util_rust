@@ -1,8 +1,8 @@
 use anyhow::{format_err, Error};
 use derive_more::Into;
+use rweb::Schema;
 use serde::{Deserialize, Serialize};
 use std::convert::TryFrom;
-use rweb::Schema;
 
 const HECTO: f64 = 1.0; // hPa 100 hundred Pa
 const KILO: f64 = 1_000.0 / 100.0;

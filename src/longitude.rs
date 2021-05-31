@@ -1,11 +1,11 @@
 use anyhow::{format_err, Error};
 use derive_more::{Display, FromStr, Into};
+use rweb::Schema;
 use serde::{Deserialize, Deserializer, Serialize, Serializer};
 use std::{
     convert::TryFrom,
     hash::{Hash, Hasher},
 };
-use rweb::Schema;
 
 const HASH_FACTOR: f64 = 1_000_000.0;
 

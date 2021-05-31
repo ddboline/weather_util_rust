@@ -1,8 +1,8 @@
 use anyhow::{format_err, Error};
 use derive_more::Into;
+use rweb::Schema;
 use serde::{Deserialize, Serialize};
 use std::convert::TryFrom;
-use rweb::Schema;
 
 const METERS_PER_MILE: f64 = 1609.344;
 

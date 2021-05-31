@@ -1,8 +1,8 @@
 use anyhow::{format_err, Error};
 use derive_more::Into;
+use rweb::Schema;
 use serde::{Deserialize, Serialize};
 use std::convert::TryFrom;
-use rweb::Schema;
 
 const SECONDS_PER_HOUR: f64 = 3600.;
 const METERS_PER_MILE: f64 = 1609.344;

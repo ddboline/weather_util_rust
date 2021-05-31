@@ -1,8 +1,8 @@
 use anyhow::{format_err, Error};
 use derive_more::{From, Into};
+use rweb::Schema;
 use serde::{Deserialize, Serialize};
 use std::convert::TryFrom;
-use rweb::Schema;
 
 const FREEZING_POINT_KELVIN: f64 = 273.15;
 const FAHRENHEIT_OFFSET: f64 = 459.67;

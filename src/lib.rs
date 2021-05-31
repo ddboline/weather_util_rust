@@ -33,6 +33,7 @@
 
 /// Configuration data
 pub mod config;
+pub mod datetime_wrapper;
 /// Direction in degrees
 pub mod direction;
 /// Distance in meters
@@ -63,7 +64,6 @@ pub mod weather_data;
 pub mod weather_forecast;
 /// CLI App Options and implementation
 pub mod weather_opts;
-pub mod datetime_wrapper;
 
 use anyhow::{format_err, Error};
 use log::error;

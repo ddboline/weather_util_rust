@@ -1,11 +1,13 @@
 use anyhow::{format_err, Error};
 use derive_more::{Display, Into};
+use rweb::Schema;
 use serde::{Deserialize, Serialize};
 use std::{convert::TryFrom, f64::consts::PI};
-use rweb::Schema;
 
 /// Direction in degrees
-#[derive(Into, Debug, PartialEq, Copy, Clone, PartialOrd, Serialize, Deserialize, Display, Schema)]
+#[derive(
+    Into, Debug, PartialEq, Copy, Clone, PartialOrd, Serialize, Deserialize, Display, Schema,
+)]
 #[serde(into = "f64", from = "f64")]
 pub struct Direction(f64);
 

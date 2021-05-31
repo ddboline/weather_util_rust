@@ -1,15 +1,14 @@
 use anyhow::Error;
 use chrono::{DateTime, FixedOffset, NaiveDate, Utc};
+use rweb::Schema;
 use serde::{Deserialize, Serialize};
 use stack_string::StackString;
 use std::{collections::BTreeMap, io::Write};
-use rweb::Schema;
 
 use crate::{
-    direction::Direction, distance::Distance, humidity::Humidity, latitude::Latitude,
-    longitude::Longitude, precipitation::Precipitation, pressure::Pressure, speed::Speed,
-    temperature::Temperature, timestamp, timezone::TimeZone,
-    datetime_wrapper::DateTimeWrapper,
+    datetime_wrapper::DateTimeWrapper, direction::Direction, distance::Distance,
+    humidity::Humidity, latitude::Latitude, longitude::Longitude, precipitation::Precipitation,
+    pressure::Pressure, speed::Speed, temperature::Temperature, timestamp, timezone::TimeZone,
 };
 
 #[derive(Serialize, Deserialize, Debug, Clone, Schema)]
