@@ -2,12 +2,13 @@ use anyhow::{format_err, Error};
 use derive_more::Into;
 use serde::{Deserialize, Serialize};
 use std::convert::TryFrom;
+use rweb::Schema;
 
 const SECONDS_PER_HOUR: f64 = 3600.;
 const METERS_PER_MILE: f64 = 1609.344;
 
 /// Speed in meters per second
-#[derive(Into, Debug, PartialEq, Copy, Clone, PartialOrd, Serialize, Deserialize)]
+#[derive(Into, Debug, PartialEq, Copy, Clone, PartialOrd, Serialize, Deserialize, Schema)]
 #[serde(into = "f64", try_from = "f64")]
 pub struct Speed(f64);
 

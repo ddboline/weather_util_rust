@@ -10,11 +10,12 @@ use std::{
     hash::{Hash, Hasher},
     io::Write,
 };
+use rweb::Schema;
 
 const HASH_FACTOR: f64 = 1_000_000.0;
 
 /// Latitude in degrees, required be within the range -90.0 to 90.0
-#[derive(Into, Clone, Copy, Display, FromStr, Debug, Serialize, Deserialize)]
+#[derive(Into, Clone, Copy, Display, FromStr, Debug, Serialize, Deserialize, Schema)]
 #[serde(into = "f64", try_from = "f64")]
 pub struct Latitude(f64);
 

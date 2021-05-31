@@ -9,6 +9,7 @@ use std::{
     fmt::{self, Formatter},
     io::Write,
 };
+use rweb::Schema;
 
 const MM_PER_INCH: f64 = 25.4;
 
@@ -26,6 +27,7 @@ const MM_PER_INCH: f64 = 25.4;
     Default,
     PartialEq,
     PartialOrd,
+    Schema,
 )]
 #[serde(into = "f64", try_from = "f64")]
 pub struct Precipitation(f64);

@@ -2,9 +2,10 @@ use anyhow::{format_err, Error};
 use derive_more::{Display, Into};
 use serde::{Deserialize, Serialize};
 use std::convert::TryFrom;
+use rweb::Schema;
 
 /// Relative Humidity as Percent
-#[derive(Into, Debug, PartialEq, Copy, Clone, PartialOrd, Serialize, Deserialize, Display)]
+#[derive(Into, Debug, PartialEq, Copy, Clone, PartialOrd, Serialize, Deserialize, Display, Schema)]
 #[serde(into = "i64", try_from = "i64")]
 pub struct Humidity(i64);
 
