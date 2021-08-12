@@ -1,6 +1,5 @@
 use anyhow::{format_err, Error};
 use derive_more::{From, Into};
-use rweb::Schema;
 use serde::{Deserialize, Serialize};
 use std::convert::TryFrom;
 
@@ -9,7 +8,7 @@ const FAHRENHEIT_OFFSET: f64 = 459.67;
 const FAHRENHEIT_FACTOR: f64 = 1.8;
 
 /// Temperature struct, data is stored as Kelvin
-#[derive(Into, Debug, PartialEq, Copy, Clone, PartialOrd, Serialize, Deserialize, Schema)]
+#[derive(Into, Debug, PartialEq, Copy, Clone, PartialOrd, Serialize, Deserialize)]
 #[serde(into = "f64", try_from = "f64")]
 pub struct Temperature(f64);
 

@@ -1,6 +1,6 @@
 [package]
 name = "weather_util_rust"
-version = "0.8.0"
+version = "0.8.1"
 authors = ["Daniel Boline <ddboline@gmail.com>"]
 edition = "2018"
 license-file = "LICENSE"
@@ -38,13 +38,12 @@ envy = "0.4"
 isocountry = "0.3"
 lazy_static = "1.4"
 parking_lot = "0.11"
-stack-string = {version="0.2", features=["rweb-openapi"]}
-rweb = {version="0.12", features=["openapi"]}
+stack-string = {version="0.3"}
 
 [dev-dependencies]
-approx = "0.4"
-assert_cmd = "1.0"
-predicates = "1.0"
+approx = "0.5"
+assert_cmd = "2.0"
+predicates = "2.0"
 
 [[bin]]
 name = "weather-util-rust"

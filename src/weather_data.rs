@@ -1,29 +1,28 @@
 use anyhow::Error;
 use chrono::{DateTime, FixedOffset, NaiveDate, Utc};
-use rweb::Schema;
 use serde::{Deserialize, Serialize};
 use stack_string::StackString;
 use std::{collections::BTreeMap, io::Write};
 
 use crate::{
-    datetime_wrapper::DateTimeWrapper, direction::Direction, distance::Distance,
-    humidity::Humidity, latitude::Latitude, longitude::Longitude, precipitation::Precipitation,
-    pressure::Pressure, speed::Speed, temperature::Temperature, timestamp, timezone::TimeZone,
+    direction::Direction, distance::Distance, humidity::Humidity, latitude::Latitude,
+    longitude::Longitude, precipitation::Precipitation, pressure::Pressure, speed::Speed,
+    temperature::Temperature, timestamp, timezone::TimeZone,
 };
 
-#[derive(Serialize, Deserialize, Debug, Clone, Schema)]
+#[derive(Serialize, Deserialize, Debug, Clone)]
 pub struct Coord {
     pub lon: Longitude,
     pub lat: Latitude,
 }
 
-#[derive(Serialize, Deserialize, Debug, Clone, Schema)]
+#[derive(Serialize, Deserialize, Debug, Clone)]
 pub struct WeatherCond {
     pub main: StackString,
     pub description: StackString,
 }
 
-#[derive(Serialize, Deserialize, Debug, Clone, Schema)]
+#[derive(Serialize, Deserialize, Debug, Clone)]
 pub struct WeatherMain {
     pub temp: Temperature,
     pub feels_like: Temperature,
@@ -33,36 +32,36 @@ pub struct WeatherMain {
     pub humidity: Humidity,
 }
 
-#[derive(Deserialize, Serialize, Debug, Clone, Schema)]
+#[derive(Deserialize, Serialize, Debug, Clone)]
 pub struct Wind {
     pub speed: Speed,
     #[serde(skip_serializing_if = "Option::is_none")]
     pub deg: Option<Direction>,
 }
 
-#[derive(Deserialize, Serialize, Debug, Clone, Schema)]
+#[derive(Deserialize, Serialize, Debug, Clone)]
 pub struct Sys {
     #[serde(skip_serializing_if = "Option::is_none")]
     pub country: Option<StackString>,
     #[serde(with = "timestamp")]
-    pub sunrise: DateTimeWrapper,
+    pub sunrise: DateTime<Utc>,
     #[serde(with = "timestamp")]
-    pub sunset: DateTimeWrapper,
+    pub sunset: DateTime<Utc>,
 }
 
-#[derive(Deserialize, Serialize, Debug, Clone, Schema)]
+#[derive(Deserialize, Serialize, Debug, Clone)]
 pub struct Rain {
     #[serde(alias = "3h", skip_serializing_if = "Option::is_none")]
     pub three_hour: Option<Precipitation>,
 }
 
-#[derive(Deserialize, Serialize, Debug, Clone, Schema)]
+#[derive(Deserialize, Serialize, Debug, Clone)]
 pub struct Snow {
     #[serde(alias = "3h", skip_serializing_if = "Option::is_none")]
     pub three_hour: Option<Precipitation>,
 }
 
-#[derive(Deserialize, Serialize, Debug, Clone, Schema)]
+#[derive(Deserialize, Serialize, Debug, Clone)]
 pub struct WeatherData {
     pub coord: Coord,
     pub weather: Vec<WeatherCond>,
@@ -76,7 +75,7 @@ pub struct WeatherData {
     #[serde(skip_serializing_if = "Option::is_none")]
     pub snow: Option<Snow>,
     #[serde(with = "timestamp")]
-    pub dt: DateTimeWrapper,
+    pub dt: DateTime<Utc>,
     pub sys: Sys,
     pub timezone: TimeZone,
     pub name: StackString,

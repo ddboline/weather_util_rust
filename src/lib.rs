@@ -33,7 +33,6 @@
 
 /// Configuration data
 pub mod config;
-pub mod datetime_wrapper;
 /// Direction in degrees
 pub mod direction;
 /// Distance in meters

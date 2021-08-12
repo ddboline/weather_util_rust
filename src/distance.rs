@@ -1,13 +1,12 @@
 use anyhow::{format_err, Error};
 use derive_more::Into;
-use rweb::Schema;
 use serde::{Deserialize, Serialize};
 use std::convert::TryFrom;
 
 const METERS_PER_MILE: f64 = 1609.344;
 
 /// Distance in meters
-#[derive(Into, Debug, PartialEq, Copy, Clone, PartialOrd, Serialize, Deserialize, Schema)]
+#[derive(Into, Debug, PartialEq, Copy, Clone, PartialOrd, Serialize, Deserialize)]
 #[serde(into = "f64", try_from = "f64")]
 pub struct Distance(f64);
 

@@ -1,6 +1,5 @@
 use anyhow::{format_err, Error};
 use derive_more::Into;
-use rweb::Schema;
 use serde::{Deserialize, Serialize};
 use std::convert::TryFrom;
 
@@ -10,7 +9,7 @@ const ATM: f64 = 98.0665 * HECTO / KILO;
 const PSI: f64 = 14.223 / (98.0665 * HECTO / KILO);
 
 /// Pressure struct, data is stored as hPa (100 Pa)
-#[derive(Into, Debug, PartialEq, Copy, Clone, PartialOrd, Serialize, Deserialize, Schema)]
+#[derive(Into, Debug, PartialEq, Copy, Clone, PartialOrd, Serialize, Deserialize)]
 #[serde(into = "f64", try_from = "f64")]
 pub struct Pressure(f64);
 

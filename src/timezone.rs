@@ -1,14 +1,11 @@
 use anyhow::{format_err, Error};
 use chrono::offset::FixedOffset;
 use derive_more::{Display, From, Into};
-use rweb::Schema;
 use serde::{Deserialize, Serialize};
 use std::convert::TryFrom;
 
 /// Direction in degrees
-#[derive(
-    Into, Debug, PartialEq, Copy, Clone, PartialOrd, Serialize, Deserialize, Display, Schema,
-)]
+#[derive(Into, Debug, PartialEq, Copy, Clone, PartialOrd, Serialize, Deserialize, Display)]
 #[serde(into = "i32", try_from = "i32")]
 pub struct TimeZone(i32);
 

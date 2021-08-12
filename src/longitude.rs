@@ -1,6 +1,5 @@
 use anyhow::{format_err, Error};
 use derive_more::{Display, FromStr, Into};
-use rweb::Schema;
 use serde::{Deserialize, Deserializer, Serialize, Serializer};
 use std::{
     convert::TryFrom,
@@ -10,7 +9,7 @@ use std::{
 const HASH_FACTOR: f64 = 1_000_000.0;
 
 /// Longitude in degrees, required be within the range -180.0 to 180.0
-#[derive(Into, Clone, Copy, Display, FromStr, Debug, Serialize, Deserialize, Schema)]
+#[derive(Into, Clone, Copy, Display, FromStr, Debug, Serialize, Deserialize)]
 #[serde(into = "f64", try_from = "f64")]
 pub struct Longitude(f64);
 

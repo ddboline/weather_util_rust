@@ -1,6 +1,5 @@
 use anyhow::{format_err, Error};
 use derive_more::{Display, FromStr, Into};
-use rweb::Schema;
 use serde::{
     de::{self, Visitor},
     Deserialize, Deserializer, Serialize, Serializer,
@@ -15,7 +14,7 @@ use std::{
 const HASH_FACTOR: f64 = 1_000_000.0;
 
 /// Latitude in degrees, required be within the range -90.0 to 90.0
-#[derive(Into, Clone, Copy, Display, FromStr, Debug, Serialize, Deserialize, Schema)]
+#[derive(Into, Clone, Copy, Display, FromStr, Debug, Serialize, Deserialize)]
 #[serde(into = "f64", try_from = "f64")]
 pub struct Latitude(f64);
 

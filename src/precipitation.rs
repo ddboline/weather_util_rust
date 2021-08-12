@@ -1,6 +1,5 @@
 use anyhow::{format_err, Error};
 use derive_more::{Add, Display, FromStr, Into};
-use rweb::Schema;
 use serde::{
     de::{self, Visitor},
     Deserialize, Deserializer, Serialize, Serializer,
@@ -27,7 +26,6 @@ const MM_PER_INCH: f64 = 25.4;
     Default,
     PartialEq,
     PartialOrd,
-    Schema,
 )]
 #[serde(into = "f64", try_from = "f64")]
 pub struct Precipitation(f64);

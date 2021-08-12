@@ -1,17 +1,15 @@
 use anyhow::Error;
 use chrono::{DateTime, FixedOffset, NaiveDate, Utc};
-use rweb::Schema;
 use serde::{Deserialize, Serialize};
 use stack_string::StackString;
 use std::{collections::BTreeMap, io::Write};
 
 use crate::{
-    datetime_wrapper::DateTimeWrapper, humidity::Humidity, latitude::Latitude,
-    longitude::Longitude, precipitation::Precipitation, pressure::Pressure,
-    temperature::Temperature, timestamp, timezone::TimeZone,
+    humidity::Humidity, latitude::Latitude, longitude::Longitude, precipitation::Precipitation,
+    pressure::Pressure, temperature::Temperature, timestamp, timezone::TimeZone,
 };
 
-#[derive(Deserialize, Serialize, Debug, Clone, Schema)]
+#[derive(Deserialize, Serialize, Debug, Clone)]
 pub struct ForecastMain {
     pub temp: Temperature,
     pub feels_like: Temperature,
@@ -23,22 +21,22 @@ pub struct ForecastMain {
     pub humidity: Humidity,
 }
 
-#[derive(Deserialize, Serialize, Debug, Clone, Schema)]
+#[derive(Deserialize, Serialize, Debug, Clone)]
 pub struct Rain {
     #[serde(alias = "3h", skip_serializing_if = "Option::is_none")]
     pub three_hour: Option<Precipitation>,
 }
 
-#[derive(Deserialize, Serialize, Debug, Clone, Schema)]
+#[derive(Deserialize, Serialize, Debug, Clone)]
 pub struct Snow {
     #[serde(alias = "3h", skip_serializing_if = "Option::is_none")]
     pub three_hour: Option<Precipitation>,
 }
 
-#[derive(Deserialize, Serialize, Debug, Clone, Schema)]
+#[derive(Deserialize, Serialize, Debug, Clone)]
 pub struct ForecastEntry {
     #[serde(with = "timestamp")]
-    pub dt: DateTimeWrapper,
+    pub dt: DateTime<Utc>,
     pub main: ForecastMain,
     #[serde(skip_serializing_if = "Option::is_none")]
     pub rain: Option<Rain>,
@@ -46,16 +44,16 @@ pub struct ForecastEntry {
     pub snow: Option<Snow>,
 }
 
-#[derive(Deserialize, Serialize, Debug, Clone, Schema)]
+#[derive(Deserialize, Serialize, Debug, Clone)]
 pub struct CityEntry {
     pub timezone: TimeZone,
     #[serde(with = "timestamp")]
-    pub sunrise: DateTimeWrapper,
+    pub sunrise: DateTime<Utc>,
     #[serde(with = "timestamp")]
-    pub sunset: DateTimeWrapper,
+    pub sunset: DateTime<Utc>,
 }
 
-#[derive(Deserialize, Serialize, Debug, Clone, Schema)]
+#[derive(Deserialize, Serialize, Debug, Clone)]
 pub struct WeatherForecast {
     pub list: Vec<ForecastEntry>,
     pub city: CityEntry,
