@@ -8,6 +8,7 @@ use crate::{
     humidity::Humidity, latitude::Latitude, longitude::Longitude, precipitation::Precipitation,
     pressure::Pressure, temperature::Temperature, timestamp, timezone::TimeZone,
 };
+use crate::weather_data::{Rain, Snow};
 
 #[derive(Deserialize, Serialize, Debug, Clone)]
 pub struct ForecastMain {
@@ -19,18 +20,6 @@ pub struct ForecastMain {
     pub sea_level: Pressure,
     pub grnd_level: Pressure,
     pub humidity: Humidity,
-}
-
-#[derive(Deserialize, Serialize, Debug, Clone)]
-pub struct Rain {
-    #[serde(alias = "3h", skip_serializing_if = "Option::is_none")]
-    pub three_hour: Option<Precipitation>,
-}
-
-#[derive(Deserialize, Serialize, Debug, Clone)]
-pub struct Snow {
-    #[serde(alias = "3h", skip_serializing_if = "Option::is_none")]
-    pub three_hour: Option<Precipitation>,
 }
 
 #[derive(Deserialize, Serialize, Debug, Clone)]
