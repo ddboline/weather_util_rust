@@ -14,5 +14,5 @@ pub fn deserialize<'de, D>(deserializer: D) -> Result<DateTime<Utc>, D::Error>
 where
     D: Deserializer<'de>,
 {
-    i64::deserialize(deserializer).map(|t| Utc.timestamp(t, 0).into())
+    i64::deserialize(deserializer).map(|t| Utc.timestamp(t, 0))
 }
