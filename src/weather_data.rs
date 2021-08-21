@@ -3,7 +3,6 @@ use chrono::{DateTime, FixedOffset, NaiveDate, Utc};
 use serde::{Deserialize, Serialize};
 use stack_string::StackString;
 use std::{collections::BTreeMap, io::Write};
-use rust_decimal_macros::dec;
 
 use crate::{
     direction::Direction, distance::Distance, humidity::Humidity, latitude::Latitude,

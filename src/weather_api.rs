@@ -291,8 +291,8 @@ mod tests {
         let loc = WeatherLocation::from_lat_lon(41.0f64.try_into()?, 39.0f64.try_into()?);
         let opts = api.get_options(&loc)?;
         let expected: Vec<(&str, StackString)> = vec![
-            ("lat", "41".into()),
-            ("lon", "39".into()),
+            ("lat", "41.00000".into()),
+            ("lon", "39.00000".into()),
             ("APPID", "8675309".into()),
         ];
         assert_eq!(opts, expected);

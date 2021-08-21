@@ -31,6 +31,7 @@
 //!     --lon <lon>                      Longitude (must also specify Latitude)
 //! -z, --zipcode <zipcode>              Zipcode (optional)
 
+pub mod angle;
 /// Configuration data
 pub mod config;
 /// Direction in degrees
@@ -63,7 +64,6 @@ pub mod weather_data;
 pub mod weather_forecast;
 /// CLI App Options and implementation
 pub mod weather_opts;
-pub mod angle;
 
 use anyhow::{format_err, Error};
 use log::error;

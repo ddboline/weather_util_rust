@@ -9,7 +9,9 @@ use std::{
 use crate::angle::Angle;
 
 /// Longitude in degrees, required be within the range -180.0 to 180.0
-#[derive(Into, Clone, Copy, Display, FromStr, Debug, Serialize, Deserialize, PartialEq, Hash, Eq)]
+#[derive(
+    Into, Clone, Copy, Display, FromStr, Debug, Serialize, Deserialize, PartialEq, Hash, Eq,
+)]
 pub struct Longitude(Angle);
 
 impl From<Longitude> for f64 {

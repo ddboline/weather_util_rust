@@ -5,10 +5,16 @@ use stack_string::StackString;
 use std::{collections::BTreeMap, io::Write};
 
 use crate::{
-    humidity::Humidity, latitude::Latitude, longitude::Longitude, precipitation::Precipitation,
-    pressure::Pressure, temperature::Temperature, timestamp, timezone::TimeZone,
+    humidity::Humidity,
+    latitude::Latitude,
+    longitude::Longitude,
+    precipitation::Precipitation,
+    pressure::Pressure,
+    temperature::Temperature,
+    timestamp,
+    timezone::TimeZone,
+    weather_data::{Rain, Snow},
 };
-use crate::weather_data::{Rain, Snow};
 
 #[derive(Deserialize, Serialize, Debug, Clone, Copy)]
 pub struct ForecastMain {

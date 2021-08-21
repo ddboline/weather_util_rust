@@ -1,33 +1,17 @@
-use derive_more::{Into, Display};
-use rust_decimal::prelude::ToPrimitive;
-use serde::{Serialize, Deserialize};
-use std::{f64::consts::PI};
-use std::fmt;
-use std::str::FromStr;
 use anyhow::Error;
-use rust_decimal::{Decimal, prelude::FromPrimitive};
-use std::convert::TryFrom;
+use derive_more::{Display, Into};
+use serde::{Deserialize, Serialize};
+use std::{convert::TryFrom, f64::consts::PI, fmt, str::FromStr};
 
-const DEGREE_PER_TURN: i64 = 360;
-const MINUTES_PER_DEGREE: i64 = 60;
-const SECONDS_PER_MINUTE: i64 = 60;
-const SECONDS_PER_DEGREE: i64 = SECONDS_PER_MINUTE * MINUTES_PER_DEGREE;
-const SECONDS_PER_TURN: i64 = DEGREE_PER_TURN * MINUTES_PER_DEGREE * SECONDS_PER_MINUTE;
 const RADIANS_PER_TURN: f64 = 2.0 * PI;
 
 /// Angle in arcseconds
 #[derive(Into, Debug, Copy, Clone, PartialOrd, Serialize, Deserialize, Eq, PartialEq, Hash)]
-#[serde(into="Decimal", from="Decimal")]
-pub struct Angle(i64);
-
-impl From<i64> for Angle {
-    fn from(item: i64) -> Self {
-        if item >= 0 {
-            Self(item % SECONDS_PER_TURN)
-        } else {
-            Self((item % SECONDS_PER_TURN) + SECONDS_PER_TURN)
-        }
-    }
+#[serde(into = "f64", from = "f64")]
+pub struct Angle {
+    degree: i16,
+    minute: u8,
+    second: u8,
 }
 
 impl fmt::Display for Angle {
@@ -44,73 +28,69 @@ impl FromStr for Angle {
     }
 }
 
-impl From<Decimal> for Angle {
-    fn from(item: Decimal) -> Self {
-        let sec = item * Decimal::from_i64(SECONDS_PER_DEGREE).expect("Unexpected");
-        Self(sec.round().to_i64().expect("unexpected"))
+impl From<f64> for Angle {
+    fn from(item: f64) -> Self {
+        Self::from_deg(item)
     }
 }
 
-impl From<Angle> for Decimal {
+impl From<Angle> for f64 {
     fn from(item: Angle) -> Self {
-        let sec = Decimal::from_i64(item.0).expect("Unexpected");
-        sec / Decimal::from_i64(SECONDS_PER_DEGREE).expect("Unexpected")
+        item.deg()
     }
 }
-
-// impl From<f64> for Angle {
-//     fn from(item: f64) -> Self {
-//         Self::from_deg(item)
-//     }
-// }
-
-// impl From<Angle> for f64 {
-//     fn from(item: Angle) -> Self {
-//         item.deg()
-//     }
-// }
 
 impl Angle {
-    pub fn from_deg_min_sec(deg: i16, min: u8, sec: u8) -> Self {
-        let deg = deg as i64 % 360;
-        let min = min as i64 % 60;
-        let sec = sec as i64 % 60;
-        Self::from((deg % 360) * SECONDS_PER_DEGREE + min * SECONDS_PER_MINUTE + sec)
+    pub fn from_deg_min_sec(degree: i16, minute: u8, second: u8) -> Self {
+        Self {
+            degree,
+            minute,
+            second,
+        }
     }
 
     pub fn from_deg(deg: f64) -> Self {
-        Self::from((deg * SECONDS_PER_DEGREE as f64) as i64)
+        let degree = deg as i64;
+        let minute = (deg * 60.0) as i64 - (degree * 60);
+        let second = (deg * 3600.0) as i64 - minute * 60 - degree * 3600;
+        let degree = if degree >= 0 {
+            degree % 360
+        } else {
+            (degree % 360) + 360
+        } as i16;
+        let minute = if minute >= 0 {
+            minute % 60
+        } else {
+            (minute % 60) + 60
+        } as u8;
+        let second = if second >= 0 {
+            second % 60
+        } else {
+            (second % 60) + 60
+        } as u8;
+        Self {
+            degree,
+            minute,
+            second,
+        }
     }
 
     pub fn from_radian(rad: f64) -> Self {
-        Self::from(((rad / RADIANS_PER_TURN) * SECONDS_PER_TURN as f64) as i64)
+        Self::from(rad * 360.0 / RADIANS_PER_TURN)
     }
 
     #[inline]
     pub fn deg(self) -> f64 {
-        self.0 as f64 / SECONDS_PER_DEGREE as f64
+        self.degree as f64 + (self.minute as f64 / 60.0) + (self.second as f64 / 3600.0)
     }
 
     pub fn deg_min_sec(self) -> (i16, u8, u8) {
-        let deg = (self.0 / SECONDS_PER_DEGREE) % 360;
-        let min = self.0 / SECONDS_PER_MINUTE - deg * MINUTES_PER_DEGREE;
-        let sec = self.0 - min * SECONDS_PER_MINUTE - deg * SECONDS_PER_DEGREE;
-        let min = if min > 0 {
-            min % 60
-        } else {
-            (min % 60) + 60
-        };
-        let sec = if sec > 0 {
-            sec % 60
-        } else {
-            (sec % 60) + 60
-        };
-        (deg as i16, min as u8, sec as u8)
+        (self.degree, self.minute, self.second)
     }
 
     #[inline]
     pub fn radian(self) -> f64 {
-        self.0 as f64 * RADIANS_PER_TURN / SECONDS_PER_TURN as f64
+        self.deg() * RADIANS_PER_TURN / 360.0
     }
 }
 
@@ -158,6 +138,9 @@ mod tests {
         );
 
         assert_eq!(Angle::from_deg(90.0).deg_min_sec(), (90, 0, 0));
-        assert_eq!(Angle::from_deg_min_sec(12, 13, 15).deg_min_sec(), (12, 13, 15));
+        assert_eq!(
+            Angle::from_deg_min_sec(12, 13, 15).deg_min_sec(),
+            (12, 13, 15)
+        );
     }
 }

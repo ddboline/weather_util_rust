@@ -14,7 +14,9 @@ use std::{
 use crate::angle::Angle;
 
 /// Latitude in degrees, required be within the range -90.0 to 90.0
-#[derive(Into, Clone, Copy, Display, FromStr, Debug, Serialize, Deserialize, PartialEq, Eq, Hash)]
+#[derive(
+    Into, Clone, Copy, Display, FromStr, Debug, Serialize, Deserialize, PartialEq, Eq, Hash,
+)]
 pub struct Latitude(Angle);
 
 impl From<Latitude> for f64 {
@@ -43,7 +45,7 @@ mod test {
         hash::{Hash, Hasher},
     };
 
-    use crate::latitude::{Latitude};
+    use crate::latitude::Latitude;
 
     #[test]
     fn test_latitude() -> Result<(), Error> {
