@@ -1,17 +1,42 @@
 use anyhow::Error;
 use derive_more::{Display, Into};
 use serde::{Deserialize, Serialize};
-use std::{convert::TryFrom, f64::consts::PI, fmt, str::FromStr};
+use std::{
+    convert::TryFrom,
+    f64::consts::PI,
+    fmt,
+    hash::{Hash, Hasher},
+    str::FromStr,
+};
 
 const RADIANS_PER_TURN: f64 = 2.0 * PI;
 
-/// Angle in arcseconds
-#[derive(Into, Debug, Copy, Clone, PartialOrd, Serialize, Deserialize, Eq, PartialEq, Hash)]
+/// Angle in degrees
+#[derive(Into, Debug, Copy, Clone, PartialOrd, Serialize, Deserialize)]
 #[serde(into = "f64", from = "f64")]
 pub struct Angle {
     degree: i16,
     minute: u8,
     second: u8,
+    subsec: f64,
+}
+
+impl PartialEq for Angle {
+    fn eq(&self, other: &Self) -> bool {
+        ((self.degree as i64 - other.degree as i64) % 360 == 0)
+            && (self.minute == other.minute)
+            && (self.second == other.second)
+    }
+}
+
+impl Eq for Angle {}
+
+impl Hash for Angle {
+    fn hash<H: Hasher>(&self, state: &mut H) {
+        self.degree.hash(state);
+        self.minute.hash(state);
+        self.second.hash(state);
+    }
 }
 
 impl fmt::Display for Angle {
@@ -41,37 +66,40 @@ impl From<Angle> for f64 {
 }
 
 impl Angle {
-    pub fn from_deg_min_sec(degree: i16, minute: u8, second: u8) -> Self {
+    pub fn from_deg_min_sec(degree: i16, minute: u8, sec: f64) -> Self {
+        let second: u8 = (sec % 60.0) as u8;
+        let subsec: f64 = (sec % 60.0) - sec as f64;
         Self {
             degree,
             minute,
             second,
+            subsec,
         }
     }
 
     pub fn from_deg(deg: f64) -> Self {
+        let deg = deg % 360.0;
         let degree = deg as i64;
         let minute = (deg * 60.0) as i64 - (degree * 60);
-        let second = (deg * 3600.0) as i64 - minute * 60 - degree * 3600;
-        let degree = if degree >= 0 {
-            degree % 360
-        } else {
-            (degree % 360) + 360
-        } as i16;
+        let sec = (deg * 3600.0) - minute as f64 * 60.0 - degree as f64 * 3600.0;
+        let degree = deg as i16;
         let minute = if minute >= 0 {
             minute % 60
         } else {
             (minute % 60) + 60
         } as u8;
-        let second = if second >= 0 {
-            second % 60
+        let sec = if sec >= 0.0 {
+            sec % 60.0
         } else {
-            (second % 60) + 60
-        } as u8;
+            (sec % 60.0) + 60.0
+        };
+        let second = sec as u8;
+        let subsec = sec - second as f64;
         Self {
             degree,
             minute,
             second,
+            subsec,
         }
     }
 
@@ -84,8 +112,8 @@ impl Angle {
         self.degree as f64 + (self.minute as f64 / 60.0) + (self.second as f64 / 3600.0)
     }
 
-    pub fn deg_min_sec(self) -> (i16, u8, u8) {
-        (self.degree, self.minute, self.second)
+    pub fn deg_min_sec(self) -> (i16, u8, f64) {
+        (self.degree, self.minute, self.second as f64 + self.subsec)
     }
 
     #[inline]
@@ -96,6 +124,7 @@ impl Angle {
 
 #[cfg(test)]
 mod tests {
+    use anyhow::Error;
     use approx::assert_abs_diff_eq;
     use std::f64::consts::PI;
 
@@ -103,44 +132,55 @@ mod tests {
 
     #[test]
     fn test_direction() {
-        assert_abs_diff_eq!(
-            Angle::from_deg(90.).deg(),
-            Angle::from_deg(90. + 360.).deg()
+        assert_eq!(
+            Angle::from_deg(90.),
+            Angle::from_deg(90. + 360.)
         );
-        assert_abs_diff_eq!(
-            Angle::from_deg(90.).deg(),
-            Angle::from_radian(PI / 2.).deg()
+        assert_eq!(
+            Angle::from_deg(90.),
+            Angle::from_radian(PI / 2.)
         );
-        assert_abs_diff_eq!(
-            Angle::from_deg(90.).deg(),
-            Angle::from_radian(PI / 2. + 2. * PI).deg()
+        assert_eq!(
+            Angle::from_deg(90.),
+            Angle::from_radian(PI / 2. + 2. * PI)
         );
         assert_abs_diff_eq!(
             Angle::from_deg(90.).radian(),
             Angle::from_radian(PI / 2.).radian()
         );
 
-        assert_abs_diff_eq!(
-            Angle::from_deg(-90.).deg(),
-            Angle::from_deg(-90. + 360.).deg()
+        assert_eq!(
+            Angle::from_deg(-90.),
+            Angle::from_deg(-90. + 360.)
         );
         assert_abs_diff_eq!(
             Angle::from_deg(-90.).deg(),
             Angle::from_radian(-1.0 * PI / 2.).deg()
         );
-        assert_abs_diff_eq!(
-            Angle::from_deg(-90.).deg(),
-            Angle::from_radian(-1.0 * PI / 2. + 2. * PI).deg()
+        assert_eq!(
+            Angle::from_deg(-90.),
+            Angle::from_radian(-1.0 * PI / 2. + 2. * PI)
         );
         assert_abs_diff_eq!(
             Angle::from_deg(-90.).radian(),
             Angle::from_radian(-1.0 * PI / 2.).radian()
         );
-
-        assert_eq!(Angle::from_deg(90.0).deg_min_sec(), (90, 0, 0));
+        assert_eq!(Angle::from_deg(90.0).deg_min_sec(), (90, 0, 0.0));
+        let x: f64 = Angle::from_deg(90.0).into();
+        assert_eq!(90.0, x);
         assert_eq!(
-            Angle::from_deg_min_sec(12, 13, 15).deg_min_sec(),
-            (12, 13, 15)
+            Angle::from_deg_min_sec(12, 13, 15.0).deg_min_sec(),
+            (12, 13, 15.0)
         );
+        assert_eq!(Angle::from_deg(-42.3).deg_min_sec(), (-42, 42, 0.0));
+        assert_eq!(-42.3, Angle::from_deg(-42.3).deg());
+    }
+
+    #[test]
+    fn test_parse() -> Result<(), Error> {
+        let a = Angle::from_deg_min_sec(42, 0, 0.0);
+        let b: Angle = "42.0".parse()?;
+        assert_eq!(a, b);
+        Ok(())
     }
 }
