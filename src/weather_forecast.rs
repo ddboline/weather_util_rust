@@ -5,12 +5,18 @@ use stack_string::StackString;
 use std::{collections::BTreeMap, io::Write};
 
 use crate::{
-    humidity::Humidity, latitude::Latitude, longitude::Longitude, precipitation::Precipitation,
-    pressure::Pressure, temperature::Temperature, timestamp, timezone::TimeZone,
+    humidity::Humidity,
+    latitude::Latitude,
+    longitude::Longitude,
+    precipitation::Precipitation,
+    pressure::Pressure,
+    temperature::Temperature,
+    timestamp,
+    timezone::TimeZone,
+    weather_data::{Rain, Snow},
 };
-use crate::weather_data::{Rain, Snow};
 
-#[derive(Deserialize, Serialize, Debug, Clone)]
+#[derive(Deserialize, Serialize, Debug, Clone, Copy)]
 pub struct ForecastMain {
     pub temp: Temperature,
     pub feels_like: Temperature,
@@ -22,7 +28,7 @@ pub struct ForecastMain {
     pub humidity: Humidity,
 }
 
-#[derive(Deserialize, Serialize, Debug, Clone)]
+#[derive(Deserialize, Serialize, Debug, Clone, Copy)]
 pub struct ForecastEntry {
     #[serde(with = "timestamp")]
     pub dt: DateTime<Utc>,
@@ -33,7 +39,7 @@ pub struct ForecastEntry {
     pub snow: Option<Snow>,
 }
 
-#[derive(Deserialize, Serialize, Debug, Clone)]
+#[derive(Deserialize, Serialize, Debug, Clone, Copy)]
 pub struct CityEntry {
     pub timezone: TimeZone,
     #[serde(with = "timestamp")]

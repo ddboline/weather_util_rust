@@ -1,40 +1,29 @@
 use anyhow::{format_err, Error};
-use derive_more::{Display, Into};
+use derive_more::{Deref, Display, From, Into};
 use serde::{Deserialize, Serialize};
 use std::{convert::TryFrom, f64::consts::PI};
 
+use crate::angle::Angle;
+
 /// Direction in degrees
-#[derive(Into, Debug, PartialEq, Copy, Clone, PartialOrd, Serialize, Deserialize, Display)]
-#[serde(into = "f64", from = "f64")]
-pub struct Direction(f64);
+#[derive(
+    Into, Debug, PartialEq, Copy, Clone, PartialOrd, Serialize, Deserialize, Display, Deref, From,
+)]
+pub struct Direction(Angle);
 
 impl From<f64> for Direction {
     fn from(item: f64) -> Self {
-        if item >= 0.0 {
-            Self(item % 360.0)
-        } else {
-            Self((item % 360.0) + 360.0)
-        }
+        Self(Angle::from_deg(item))
     }
 }
 
 impl Direction {
     pub fn from_deg(deg: f64) -> Self {
-        Self::from(deg)
+        Self(Angle::from_deg(deg))
     }
 
     pub fn from_radian(rad: f64) -> Self {
-        Self::from(rad * 180.0 / PI)
-    }
-
-    #[inline]
-    pub fn deg(self) -> f64 {
-        self.0
-    }
-
-    #[inline]
-    pub fn radian(self) -> f64 {
-        self.0 * PI / 180.0
+        Self(Angle::from_radian(rad))
     }
 }
 
@@ -47,9 +36,9 @@ mod tests {
 
     #[test]
     fn test_direction() {
-        assert_abs_diff_eq!(
-            Direction::from_deg(90.).deg(),
-            Direction::from_deg(90. + 360.).deg()
+        assert_eq!(
+            Direction::from_deg(90.),
+            Direction::from_deg(90. + 360.)
         );
         assert_abs_diff_eq!(
             Direction::from_deg(90.).deg(),
@@ -63,18 +52,17 @@ mod tests {
             Direction::from_deg(90.).radian(),
             Direction::from_radian(PI / 2.).radian()
         );
-
-        assert_abs_diff_eq!(
-            Direction::from_deg(-90.).deg(),
-            Direction::from_deg(-90. + 360.).deg()
+        assert_eq!(
+            Direction::from_deg(-90.),
+            Direction::from_deg(-90. + 360.)
         );
         assert_abs_diff_eq!(
             Direction::from_deg(-90.).deg(),
             Direction::from_radian(-1.0 * PI / 2.).deg()
         );
-        assert_abs_diff_eq!(
-            Direction::from_deg(-90.).deg(),
-            Direction::from_radian(-1.0 * PI / 2. + 2. * PI).deg()
+        assert_eq!(
+            Direction::from_deg(-90.),
+            Direction::from_radian(-1.0 * PI / 2. + 2. * PI)
         );
         assert_abs_diff_eq!(
             Direction::from_deg(-90.).radian(),

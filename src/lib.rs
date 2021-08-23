@@ -31,6 +31,7 @@
 //!     --lon <lon>                      Longitude (must also specify Latitude)
 //! -z, --zipcode <zipcode>              Zipcode (optional)
 
+pub mod angle;
 /// Configuration data
 pub mod config;
 /// Direction in degrees

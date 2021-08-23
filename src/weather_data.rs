@@ -10,7 +10,7 @@ use crate::{
     temperature::Temperature, timestamp, timezone::TimeZone,
 };
 
-#[derive(Serialize, Deserialize, Debug, Clone)]
+#[derive(Serialize, Deserialize, Debug, Clone, Copy)]
 pub struct Coord {
     pub lon: Longitude,
     pub lat: Latitude,
@@ -22,7 +22,7 @@ pub struct WeatherCond {
     pub description: StackString,
 }
 
-#[derive(Serialize, Deserialize, Debug, Clone)]
+#[derive(Serialize, Deserialize, Debug, Clone, Copy)]
 pub struct WeatherMain {
     pub temp: Temperature,
     pub feels_like: Temperature,
@@ -32,7 +32,7 @@ pub struct WeatherMain {
     pub humidity: Humidity,
 }
 
-#[derive(Deserialize, Serialize, Debug, Clone)]
+#[derive(Deserialize, Serialize, Debug, Clone, Copy)]
 pub struct Wind {
     pub speed: Speed,
     #[serde(skip_serializing_if = "Option::is_none")]
@@ -49,13 +49,13 @@ pub struct Sys {
     pub sunset: DateTime<Utc>,
 }
 
-#[derive(Deserialize, Serialize, Debug, Clone)]
+#[derive(Deserialize, Serialize, Debug, Clone, Copy)]
 pub struct Rain {
     #[serde(alias = "3h", skip_serializing_if = "Option::is_none")]
     pub three_hour: Option<Precipitation>,
 }
 
-#[derive(Deserialize, Serialize, Debug, Clone)]
+#[derive(Deserialize, Serialize, Debug, Clone, Copy)]
 pub struct Snow {
     #[serde(alias = "3h", skip_serializing_if = "Option::is_none")]
     pub three_hour: Option<Precipitation>,
