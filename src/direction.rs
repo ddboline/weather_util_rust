@@ -36,9 +36,9 @@ mod tests {
 
     #[test]
     fn test_direction() {
-        assert_abs_diff_eq!(
-            Direction::from_deg(90.).deg(),
-            Direction::from_deg(90. + 360.).deg()
+        assert_eq!(
+            Direction::from_deg(90.),
+            Direction::from_deg(90. + 360.)
         );
         assert_abs_diff_eq!(
             Direction::from_deg(90.).deg(),
@@ -52,18 +52,17 @@ mod tests {
             Direction::from_deg(90.).radian(),
             Direction::from_radian(PI / 2.).radian()
         );
-
-        assert_abs_diff_eq!(
-            Direction::from_deg(-90.).deg(),
-            Direction::from_deg(-90. + 360.).deg()
+        assert_eq!(
+            Direction::from_deg(-90.),
+            Direction::from_deg(-90. + 360.)
         );
         assert_abs_diff_eq!(
             Direction::from_deg(-90.).deg(),
             Direction::from_radian(-1.0 * PI / 2.).deg()
         );
-        assert_abs_diff_eq!(
-            Direction::from_deg(-90.).deg(),
-            Direction::from_radian(-1.0 * PI / 2. + 2. * PI).deg()
+        assert_eq!(
+            Direction::from_deg(-90.),
+            Direction::from_radian(-1.0 * PI / 2. + 2. * PI)
         );
         assert_abs_diff_eq!(
             Direction::from_deg(-90.).radian(),

@@ -16,14 +16,14 @@ const RADIANS_PER_TURN: f64 = 2.0 * PI;
 #[serde(into = "f64", from = "f64")]
 pub struct Angle {
     degree: i16,
-    minute: u8,
-    second: u8,
-    subsec: f64,
+    minute: i8,
+    second: i8,
+    subsec: f32,
 }
 
 impl PartialEq for Angle {
     fn eq(&self, other: &Self) -> bool {
-        ((self.degree as i64 - other.degree as i64) % 360 == 0)
+        ((self.degree - other.degree) % 360 == 0)
             && (self.minute == other.minute)
             && (self.second == other.second)
     }
@@ -66,9 +66,11 @@ impl From<Angle> for f64 {
 }
 
 impl Angle {
-    pub fn from_deg_min_sec(degree: i16, minute: u8, sec: f64) -> Self {
-        let second: u8 = (sec % 60.0) as u8;
-        let subsec: f64 = (sec % 60.0) - sec as f64;
+    pub fn from_deg_min_sec(degree: i16, minute: i8, sec: f32) -> Self {
+        let degree = degree % 360;
+        let minute = minute % 60;
+        let second = (sec % 60.0) as i8;
+        let subsec = (sec % 60.0) - sec as f32;
         Self {
             degree,
             minute,
@@ -83,18 +85,10 @@ impl Angle {
         let minute = (deg * 60.0) as i64 - (degree * 60);
         let sec = (deg * 3600.0) - minute as f64 * 60.0 - degree as f64 * 3600.0;
         let degree = deg as i16;
-        let minute = if minute >= 0 {
-            minute % 60
-        } else {
-            (minute % 60) + 60
-        } as u8;
-        let sec = if sec >= 0.0 {
-            sec % 60.0
-        } else {
-            (sec % 60.0) + 60.0
-        };
-        let second = sec as u8;
-        let subsec = sec - second as f64;
+        let minute = (minute % 60) as i8;
+        let sec = sec % 60.0;
+        let second = sec as i8;
+        let subsec = sec as f32 - second as f32;
         Self {
             degree,
             minute,
@@ -112,8 +106,8 @@ impl Angle {
         self.degree as f64 + (self.minute as f64 / 60.0) + (self.second as f64 / 3600.0)
     }
 
-    pub fn deg_min_sec(self) -> (i16, u8, f64) {
-        (self.degree, self.minute, self.second as f64 + self.subsec)
+    pub fn deg_min_sec(self) -> (i16, i8, f64) {
+        (self.degree, self.minute, self.second as f64 + self.subsec as f64)
     }
 
     #[inline]
@@ -172,7 +166,7 @@ mod tests {
             Angle::from_deg_min_sec(12, 13, 15.0).deg_min_sec(),
             (12, 13, 15.0)
         );
-        assert_eq!(Angle::from_deg(-42.3).deg_min_sec(), (-42, 42, 0.0));
+        assert_eq!(Angle::from_deg(-42.3).deg_min_sec(), (-42, -18, 0.0));
         assert_eq!(-42.3, Angle::from_deg(-42.3).deg());
     }
 
