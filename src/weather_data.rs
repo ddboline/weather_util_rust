@@ -114,7 +114,7 @@ impl WeatherData {
             } else {
                 "".to_string()
             },
-            format!("{}N {}E", self.coord.lat, self.coord.lon),
+            format!("{:0.5}N {:0.5}E", self.coord.lat, self.coord.lon),
             format!("Last Updated {}", dt,),
             format!(
                 "\tTemperature: {:0.2} F ({:0.2} C)",
