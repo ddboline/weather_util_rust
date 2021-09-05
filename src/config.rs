@@ -17,7 +17,7 @@ use crate::{latitude::Latitude, longitude::Longitude};
 #[derive(Default, Debug, Deserialize, PartialEq)]
 pub struct ConfigInner {
     /// openweathermap.org api key
-    pub api_key: StackString,
+    pub api_key: Option<StackString>,
     /// openweathermap.org api endpoint
     #[serde(default = "default_api_endpoint")]
     pub api_endpoint: StackString,
@@ -80,7 +80,7 @@ impl Config {
     /// let config = Config::init_config()?;
     /// # drop(_env);
     /// assert_eq!(config.api_key, Some("api_key_value".into()));
-    /// assert_eq!(config.api_endpoint, Some("api.openweathermap.org".into()));
+    /// assert_eq!(&config.api_endpoint, "api.openweathermap.org");
     /// # Ok(())
     /// # }
     /// ```
@@ -169,7 +169,7 @@ mod tests {
         let conf = Config::init_config()?;
         drop(_env);
 
-        assert_eq!(&conf.api_key, "1234567");
+        assert_eq!(conf.api_key, Some("1234567".into()));
         assert_eq!(&conf.api_endpoint, "test.local");
         assert_eq!(conf.zipcode, Some(8675309));
         assert_eq!(&conf.api_path, "weather/");

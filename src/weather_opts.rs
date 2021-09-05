@@ -120,6 +120,9 @@ impl WeatherOpts {
     }
 
     fn apply_defaults(&mut self, config: &Config) {
+        if self.api_key.is_none() {
+            set_default!(self, config, api_key);
+        }
         if self.zipcode.is_none()
             && self.country_code.is_none()
             && self.city_name.is_none()
