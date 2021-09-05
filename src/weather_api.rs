@@ -104,6 +104,27 @@ impl Hash for WeatherApi {
     }
 }
 
+#[derive(Clone, Copy)]
+enum WeatherCommands {
+    Weather,
+    Forecast,
+}
+
+impl WeatherCommands {
+    fn to_str(self) -> &'static str {
+        match self {
+            Self::Weather => "weather",
+            Self::Forecast => "forecast",
+        }
+    }
+}
+
+impl fmt::Display for WeatherCommands {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        write!(f, "{}", self.to_str())
+    }
+}
+
 impl WeatherApi {
     /// Create `WeatherApi` instance specifying `api_key`, `api_endpoint` and
     /// `api_path`
@@ -140,7 +161,7 @@ impl WeatherApi {
     /// Get `WeatherData` from api
     pub async fn get_weather_data(&self, location: &WeatherLocation) -> Result<WeatherData, Error> {
         let options = self.get_options(location)?;
-        self.run_api("weather", &options).await
+        self.run_api(WeatherCommands::Weather, &options).await
     }
 
     /// Get `WeatherForecast` from api
@@ -149,7 +170,7 @@ impl WeatherApi {
         location: &WeatherLocation,
     ) -> Result<WeatherForecast, Error> {
         let options = self.get_options(location)?;
-        self.run_api("forecast", &options).await
+        self.run_api(WeatherCommands::Forecast, &options).await
     }
 
     fn get_options(
@@ -186,7 +207,7 @@ impl WeatherApi {
 
     async fn run_api<T: serde::de::DeserializeOwned>(
         &self,
-        command: &str,
+        command: WeatherCommands,
         options: &[(&'static str, StackString)],
     ) -> Result<T, Error> {
         let base_url = format!("https://{}/{}{}", self.api_endpoint, self.api_path, command);

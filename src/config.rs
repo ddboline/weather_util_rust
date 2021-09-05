@@ -17,11 +17,13 @@ use crate::{latitude::Latitude, longitude::Longitude};
 #[derive(Default, Debug, Deserialize, PartialEq)]
 pub struct ConfigInner {
     /// openweathermap.org api key
-    pub api_key: Option<StackString>,
+    pub api_key: StackString,
     /// openweathermap.org api endpoint
-    pub api_endpoint: Option<StackString>,
+    #[serde(default = "default_api_endpoint")]
+    pub api_endpoint: StackString,
     /// Api path (default is `data/2.5/`)
-    pub api_path: Option<StackString>,
+    #[serde(default = "default_api_path")]
+    pub api_path: StackString,
     /// optional default zipcode
     pub zipcode: Option<u64>,
     /// optional default country code
@@ -32,6 +34,14 @@ pub struct ConfigInner {
     pub lat: Option<Latitude>,
     /// optional default longitude
     pub lon: Option<Longitude>,
+}
+
+fn default_api_endpoint() -> StackString {
+    "api.openweathermap.org".into()
+}
+
+fn default_api_path() -> StackString {
+    "data/2.5/".into()
 }
 
 /// Configuration struct
@@ -159,10 +169,10 @@ mod tests {
         let conf = Config::init_config()?;
         drop(_env);
 
-        assert_eq!(conf.api_key, Some("1234567".into()));
-        assert_eq!(conf.api_endpoint, Some("test.local".into()));
+        assert_eq!(&conf.api_key, "1234567");
+        assert_eq!(&conf.api_endpoint, "test.local");
         assert_eq!(conf.zipcode, Some(8675309));
-        assert_eq!(conf.api_path, Some("weather/".into()));
+        assert_eq!(&conf.api_path, "weather/");
         Ok(())
     }
 }

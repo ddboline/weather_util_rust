@@ -70,12 +70,11 @@ impl WeatherOpts {
             .api_key
             .as_deref()
             .ok_or_else(|| format_err!(Self::api_help_msg()))?;
-        let api_endpoint = config
-            .api_endpoint
-            .as_ref()
-            .map_or("api.openweathermap.org", AsRef::as_ref);
-        let api_path = config.api_path.as_ref().map_or("data/2.5/", AsRef::as_ref);
-        Ok(WeatherApi::new(api_key, api_endpoint, api_path))
+        Ok(WeatherApi::new(
+            api_key,
+            &config.api_endpoint,
+            &config.api_path,
+        ))
     }
 
     /// Extract options from `WeatherOpts` and apply to `WeatherApi`
@@ -121,9 +120,6 @@ impl WeatherOpts {
     }
 
     fn apply_defaults(&mut self, config: &Config) {
-        if self.api_key.is_none() {
-            set_default!(self, config, api_key);
-        }
         if self.zipcode.is_none()
             && self.country_code.is_none()
             && self.city_name.is_none()

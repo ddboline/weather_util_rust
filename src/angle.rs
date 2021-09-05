@@ -107,7 +107,11 @@ impl Angle {
     }
 
     pub fn deg_min_sec(self) -> (i16, i8, f64) {
-        (self.degree, self.minute, self.second as f64 + self.subsec as f64)
+        (
+            self.degree,
+            self.minute,
+            self.second as f64 + self.subsec as f64,
+        )
     }
 
     #[inline]
@@ -126,27 +130,15 @@ mod tests {
 
     #[test]
     fn test_direction() {
-        assert_eq!(
-            Angle::from_deg(90.),
-            Angle::from_deg(90. + 360.)
-        );
-        assert_eq!(
-            Angle::from_deg(90.),
-            Angle::from_radian(PI / 2.)
-        );
-        assert_eq!(
-            Angle::from_deg(90.),
-            Angle::from_radian(PI / 2. + 2. * PI)
-        );
+        assert_eq!(Angle::from_deg(90.), Angle::from_deg(90. + 360.));
+        assert_eq!(Angle::from_deg(90.), Angle::from_radian(PI / 2.));
+        assert_eq!(Angle::from_deg(90.), Angle::from_radian(PI / 2. + 2. * PI));
         assert_abs_diff_eq!(
             Angle::from_deg(90.).radian(),
             Angle::from_radian(PI / 2.).radian()
         );
 
-        assert_eq!(
-            Angle::from_deg(-90.),
-            Angle::from_deg(-90. + 360.)
-        );
+        assert_eq!(Angle::from_deg(-90.), Angle::from_deg(-90. + 360.));
         assert_abs_diff_eq!(
             Angle::from_deg(-90.).deg(),
             Angle::from_radian(-1.0 * PI / 2.).deg()
