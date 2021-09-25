@@ -1,6 +1,6 @@
 [package]
 name = "weather_util_rust"
-version = "0.10.3"
+version = "0.10.4"
 authors = ["Daniel Boline <ddboline@gmail.com>"]
 edition = "2018"
 license-file = "LICENSE"
@@ -31,7 +31,7 @@ chrono = {version="0.4", features=["serde"]}
 derive_more = "0.99"
 rayon = "1.5"
 futures = "0.3"
-dirs = "3.0"
+dirs = "4.0"
 retry = "1.2"
 log = "0.4"
 envy = "0.4"
