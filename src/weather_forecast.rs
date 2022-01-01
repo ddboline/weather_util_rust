@@ -2,7 +2,7 @@ use anyhow::Error;
 use chrono::{DateTime, FixedOffset, NaiveDate, Utc};
 use serde::{Deserialize, Serialize};
 use stack_string::StackString;
-use std::{collections::BTreeMap, io::Write};
+use std::{collections::BTreeMap, fmt::Write as FmtWrite, io::Write};
 
 use crate::{
     humidity::Humidity,
@@ -148,25 +148,24 @@ impl WeatherForecast {
     pub fn get_forecast(&self) -> Result<Vec<String>, Error> {
         let mut output = vec!["\nForecast:\n".into()];
         output.extend(self.get_high_low().into_iter().map(|(d, (h, l, r, s))| {
-            format!(
-                "\t{} {:25} {:25} {:25}\n",
-                d,
-                format!("High: {:0.1} F / {:0.1} C", h.fahrenheit(), h.celcius(),),
-                format!("Low: {:0.1} F / {:0.1} C", l.fahrenheit(), l.celcius(),),
-                format!(
-                    "{}{}",
-                    if r.millimeters() > 0.0 {
-                        format!("Rain {:0.2} in", r.inches())
-                    } else {
-                        "".to_string()
-                    },
-                    if s.millimeters() > 0.0 {
-                        format!("Snow {:0.2} in", s.inches())
-                    } else {
-                        "".to_string()
-                    },
-                )
+            let mut high = StackString::new();
+            let mut low = StackString::new();
+            let mut rain_snow = StackString::new();
+            write!(
+                high,
+                "High: {:0.1} F / {:0.1} C",
+                h.fahrenheit(),
+                h.celcius(),
             )
+            .unwrap();
+            write!(low, "Low: {:0.1} F / {:0.1} C", l.fahrenheit(), l.celcius(),).unwrap();
+            if r.millimeters() > 0.0 {
+                write!(rain_snow, "Rain {:0.2} in", r.inches()).unwrap();
+            }
+            if s.millimeters() > 0.0 {
+                write!(rain_snow, "Snow {:0.2} in", s.inches()).unwrap();
+            }
+            format!("\t{} {:25} {:25} {:25}\n", d, high, low, rain_snow,)
         }));
         Ok(output)
     }
