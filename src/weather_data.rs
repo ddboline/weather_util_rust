@@ -2,7 +2,7 @@ use anyhow::Error;
 use chrono::{DateTime, FixedOffset, NaiveDate, Utc};
 use serde::{Deserialize, Serialize};
 use stack_string::StackString;
-use std::{collections::BTreeMap, io::Write};
+use std::{collections::BTreeMap, fmt::Write as FmtWrite, io::Write};
 
 use crate::{
     direction::Direction, distance::Distance, humidity::Humidity, latitude::Latitude,
@@ -107,45 +107,69 @@ impl WeatherData {
         let dt = self.dt.with_timezone(&fo);
         let sunrise = self.sys.sunrise.with_timezone(&fo);
         let sunset = self.sys.sunset.with_timezone(&fo);
+        let mut country_str = StackString::new();
+        if let Some(country) = &self.sys.country {
+            write!(country_str, "{} {}", self.name, country)?;
+        }
+        let mut lat_lon = StackString::new();
+        write!(lat_lon, "{:0.5}N {:0.5}E", self.coord.lat, self.coord.lon)?;
+        let mut dt_str = StackString::new();
+        write!(dt_str, "Last Updated {}", dt,)?;
+        let mut temp_str = StackString::new();
+        write!(
+            temp_str,
+            "\tTemperature: {:0.2} F ({:0.2} C)",
+            self.main.temp.fahrenheit(),
+            self.main.temp.celcius(),
+        )?;
+        let mut humidity_str = StackString::new();
+        write!(humidity_str, "\tRelative Humidity: {}%", self.main.humidity)?;
+        let mut wind_str = StackString::new();
+        write!(
+            wind_str,
+            "\tWind: {} degrees at {:0.2} mph",
+            self.wind.deg.unwrap_or_else(|| 0.0.into()),
+            (self.wind.speed.mph())
+        )?;
+        let mut conditions_str = StackString::new();
+        write!(
+            conditions_str,
+            "\tConditions: {}",
+            self.weather[0].description
+        )?;
+        let mut sunrise_str = StackString::new();
+        write!(sunrise_str, "\tSunrise: {}", sunrise)?;
+        let mut sunset_str = StackString::new();
+        write!(sunset_str, "\tSunset: {}", sunset)?;
+        let mut rain_str = StackString::new();
+        if let Some(rain) = &self.rain {
+            write!(
+                rain_str,
+                "\n\tRain: {} in",
+                rain.three_hour.map_or(0.0, Precipitation::inches)
+            )?;
+        }
+        let mut snow_str = StackString::new();
+        if let Some(snow) = &self.snow {
+            write!(
+                snow_str,
+                "\n\tSnow: {} in",
+                snow.three_hour.map_or(0.0, Precipitation::inches)
+            )?;
+        }
         Ok(format!(
             "Current conditions {} {}\n{}\n{}\n{}\n{}\n{}\n{}\n{}{}{}\n",
-            if let Some(country) = &self.sys.country {
-                format!("{} {}", self.name, country)
-            } else {
-                "".to_string()
-            },
-            format!("{:0.5}N {:0.5}E", self.coord.lat, self.coord.lon),
-            format!("Last Updated {}", dt,),
-            format!(
-                "\tTemperature: {:0.2} F ({:0.2} C)",
-                self.main.temp.fahrenheit(),
-                self.main.temp.celcius(),
-            ),
-            format!("\tRelative Humidity: {}%", self.main.humidity),
-            format!(
-                "\tWind: {} degrees at {:0.2} mph",
-                self.wind.deg.unwrap_or_else(|| 0.0.into()),
-                (self.wind.speed.mph())
-            ),
-            format!("\tConditions: {}", self.weather[0].description),
-            format!("\tSunrise: {}", sunrise),
-            format!("\tSunset: {}", sunset),
-            if let Some(rain) = &self.rain {
-                format!(
-                    "\n\tRain: {} in",
-                    rain.three_hour.map_or(0.0, Precipitation::inches)
-                )
-            } else {
-                "".to_string()
-            },
-            if let Some(snow) = &self.snow {
-                format!(
-                    "\n\tSnow: {} in",
-                    snow.three_hour.map_or(0.0, Precipitation::inches)
-                )
-            } else {
-                "".to_string()
-            },
+            country_str,
+            lat_lon,
+            dt_str,
+            temp_str,
+            humidity_str,
+            wind_str,
+            conditions_str,
+            sunrise_str,
+            sunset_str,
+            rain_str,
+            snow_str,
         ))
     }
 }

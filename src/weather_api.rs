@@ -4,7 +4,7 @@ use log::error;
 use reqwest::{Client, Url};
 use stack_string::StackString;
 use std::{
-    fmt,
+    fmt::{self, Write},
     hash::{Hash, Hasher},
 };
 
@@ -183,8 +183,10 @@ impl WeatherApi {
                 country_code,
             } => {
                 let country_code = country_code.map_or("US", |c| c.alpha2());
+                let mut zipcode_str = StackString::new();
+                write!(zipcode_str, "{}", zipcode)?;
                 vec![
-                    ("zip", zipcode.to_string().into()),
+                    ("zip", zipcode_str),
                     ("country_code", country_code.into()),
                     ("APPID", self.api_key.clone()),
                 ]
@@ -196,11 +198,17 @@ impl WeatherApi {
             WeatherLocation::LatLon {
                 latitude,
                 longitude,
-            } => vec![
-                ("lat", latitude.to_string().into()),
-                ("lon", longitude.to_string().into()),
-                ("APPID", self.api_key.clone()),
-            ],
+            } => {
+                let mut latitude_str = StackString::new();
+                let mut longitude_str = StackString::new();
+                write!(latitude_str, "{}", latitude)?;
+                write!(longitude_str, "{}", longitude)?;
+                vec![
+                    ("lat", latitude_str),
+                    ("lon", longitude_str),
+                    ("APPID", self.api_key.clone()),
+                ]
+            }
         };
         Ok(options)
     }
