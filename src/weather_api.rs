@@ -183,8 +183,7 @@ impl WeatherApi {
                 country_code,
             } => {
                 let country_code = country_code.map_or("US", |c| c.alpha2());
-                let mut zipcode_str = StackString::new();
-                write!(zipcode_str, "{}", zipcode)?;
+                let zipcode_str = StackString::from_display(zipcode)?;
                 vec![
                     ("zip", zipcode_str),
                     ("country_code", country_code.into()),
@@ -199,10 +198,8 @@ impl WeatherApi {
                 latitude,
                 longitude,
             } => {
-                let mut latitude_str = StackString::new();
-                let mut longitude_str = StackString::new();
-                write!(latitude_str, "{}", latitude)?;
-                write!(longitude_str, "{}", longitude)?;
+                let latitude_str = StackString::from_display(latitude)?;
+                let longitude_str = StackString::from_display(longitude)?;
                 vec![
                     ("lat", latitude_str),
                     ("lon", longitude_str),
