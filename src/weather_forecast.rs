@@ -1,7 +1,7 @@
 use anyhow::Error;
 use chrono::{DateTime, FixedOffset, NaiveDate, Utc};
 use serde::{Deserialize, Serialize};
-use stack_string::StackString;
+use stack_string::{format_sstr, StackString};
 use std::{collections::BTreeMap, fmt::Write as FmtWrite, io::Write};
 
 use crate::{
@@ -145,27 +145,19 @@ impl WeatherForecast {
     /// # Ok(())
     /// # }
     /// ```
-    pub fn get_forecast(&self) -> Result<Vec<String>, Error> {
+    pub fn get_forecast(&self) -> Result<Vec<StackString>, Error> {
         let mut output = vec!["\nForecast:\n".into()];
         output.extend(self.get_high_low().into_iter().map(|(d, (h, l, r, s))| {
-            let mut high = StackString::new();
-            let mut low = StackString::new();
+            let high = format_sstr!("High: {:0.1} F / {:0.1} C", h.fahrenheit(), h.celcius());
+            let low = format_sstr!("Low: {:0.1} F / {:0.1} C", l.fahrenheit(), l.celcius());
             let mut rain_snow = StackString::new();
-            write!(
-                high,
-                "High: {:0.1} F / {:0.1} C",
-                h.fahrenheit(),
-                h.celcius(),
-            )
-            .unwrap();
-            write!(low, "Low: {:0.1} F / {:0.1} C", l.fahrenheit(), l.celcius(),).unwrap();
             if r.millimeters() > 0.0 {
-                write!(rain_snow, "Rain {:0.2} in", r.inches()).unwrap();
+                rain_snow.push_str(&format_sstr!("Rain {:0.2} in", r.inches()));
             }
             if s.millimeters() > 0.0 {
-                write!(rain_snow, "Snow {:0.2} in", s.inches()).unwrap();
+                rain_snow.push_str(&format_sstr!("Snow {:0.2} in", s.inches()));
             }
-            format!("\t{} {:25} {:25} {:25}\n", d, high, low, rain_snow,)
+            format_sstr!("\t{} {:25} {:25} {:25}\n", d, high, low, rain_snow,)
         }));
         Ok(output)
     }

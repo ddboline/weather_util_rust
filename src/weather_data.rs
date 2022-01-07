@@ -1,7 +1,7 @@
 use anyhow::Error;
 use chrono::{DateTime, FixedOffset, NaiveDate, Utc};
 use serde::{Deserialize, Serialize};
-use stack_string::StackString;
+use stack_string::{format_sstr, StackString};
 use std::{collections::BTreeMap, fmt::Write as FmtWrite, io::Write};
 
 use crate::{
@@ -102,62 +102,49 @@ impl WeatherData {
     /// # Ok(())
     /// # }
     /// ```
-    pub fn get_current_conditions(&self) -> Result<String, Error> {
+    pub fn get_current_conditions(&self) -> Result<StackString, Error> {
         let fo: FixedOffset = self.timezone.into();
         let dt = self.dt.with_timezone(&fo);
         let sunrise = self.sys.sunrise.with_timezone(&fo);
         let sunset = self.sys.sunset.with_timezone(&fo);
-        let mut country_str = StackString::new();
-        if let Some(country) = &self.sys.country {
-            write!(country_str, "{} {}", self.name, country)?;
-        }
-        let mut lat_lon = StackString::new();
-        write!(lat_lon, "{:0.5}N {:0.5}E", self.coord.lat, self.coord.lon)?;
-        let mut dt_str = StackString::new();
-        write!(dt_str, "Last Updated {}", dt,)?;
-        let mut temp_str = StackString::new();
-        write!(
-            temp_str,
+        let country_str = if let Some(country) = &self.sys.country {
+            format_sstr!("{} {}", self.name, country)
+        } else {
+            StackString::new()
+        };
+        let lat_lon = format_sstr!("{:0.5}N {:0.5}E", self.coord.lat, self.coord.lon);
+        let dt_str = format_sstr!("Last Updated {}", dt,);
+        let temp_str = format_sstr!(
             "\tTemperature: {:0.2} F ({:0.2} C)",
             self.main.temp.fahrenheit(),
             self.main.temp.celcius(),
-        )?;
-        let mut humidity_str = StackString::new();
-        write!(humidity_str, "\tRelative Humidity: {}%", self.main.humidity)?;
-        let mut wind_str = StackString::new();
-        write!(
-            wind_str,
+        );
+        let humidity_str = format_sstr!("\tRelative Humidity: {}%", self.main.humidity);
+        let wind_str = format_sstr!(
             "\tWind: {} degrees at {:0.2} mph",
             self.wind.deg.unwrap_or_else(|| 0.0.into()),
             (self.wind.speed.mph())
-        )?;
-        let mut conditions_str = StackString::new();
-        write!(
-            conditions_str,
-            "\tConditions: {}",
-            self.weather[0].description
-        )?;
-        let mut sunrise_str = StackString::new();
-        write!(sunrise_str, "\tSunrise: {}", sunrise)?;
-        let mut sunset_str = StackString::new();
-        write!(sunset_str, "\tSunset: {}", sunset)?;
-        let mut rain_str = StackString::new();
-        if let Some(rain) = &self.rain {
-            write!(
-                rain_str,
+        );
+        let conditions_str = format_sstr!("\tConditions: {}", self.weather[0].description);
+        let sunrise_str = format_sstr!("\tSunrise: {}", sunrise);
+        let sunset_str = format_sstr!("\tSunset: {}", sunset);
+        let rain_str = if let Some(rain) = &self.rain {
+            format_sstr!(
                 "\n\tRain: {} in",
                 rain.three_hour.map_or(0.0, Precipitation::inches)
-            )?;
-        }
-        let mut snow_str = StackString::new();
-        if let Some(snow) = &self.snow {
-            write!(
-                snow_str,
+            )
+        } else {
+            StackString::new()
+        };
+        let snow_str = if let Some(snow) = &self.snow {
+            format_sstr!(
                 "\n\tSnow: {} in",
                 snow.three_hour.map_or(0.0, Precipitation::inches)
-            )?;
-        }
-        Ok(format!(
+            )
+        } else {
+            StackString::new()
+        };
+        Ok(format_sstr!(
             "Current conditions {} {}\n{}\n{}\n{}\n{}\n{}\n{}\n{}{}{}\n",
             country_str,
             lat_lon,

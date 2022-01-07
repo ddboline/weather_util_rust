@@ -121,7 +121,7 @@ impl WeatherCommands {
 
 impl fmt::Display for WeatherCommands {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
-        write!(f, "{}", self.to_str())
+        f.write_str(self.to_str())
     }
 }
 
@@ -183,7 +183,7 @@ impl WeatherApi {
                 country_code,
             } => {
                 let country_code = country_code.map_or("US", |c| c.alpha2());
-                let zipcode_str = StackString::from_display(zipcode)?;
+                let zipcode_str = StackString::from_display(zipcode);
                 vec![
                     ("zip", zipcode_str),
                     ("country_code", country_code.into()),
@@ -198,8 +198,8 @@ impl WeatherApi {
                 latitude,
                 longitude,
             } => {
-                let latitude_str = StackString::from_display(latitude)?;
-                let longitude_str = StackString::from_display(longitude)?;
+                let latitude_str = StackString::from_display(latitude);
+                let longitude_str = StackString::from_display(longitude);
                 vec![
                     ("lat", latitude_str),
                     ("lon", longitude_str),

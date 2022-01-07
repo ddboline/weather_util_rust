@@ -100,7 +100,7 @@ impl WeatherOpts {
         Ok(loc)
     }
 
-    async fn run_opts(&self, config: &Config) -> Result<Vec<String>, Error> {
+    async fn run_opts(&self, config: &Config) -> Result<Vec<StackString>, Error> {
         let api = self.get_api(config)?;
         let loc = self.get_location()?;
 
