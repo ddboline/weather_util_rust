@@ -2,6 +2,7 @@ use anyhow::Error;
 use assert_cmd::{cargo::cargo_bin, Command};
 use weather_util_rust::config::TestEnvs;
 
+#[ignore]
 #[test]
 fn test_default() -> Result<(), Error> {
     let _env = TestEnvs::new(&["API_KEY", "API_ENDPOINT", "ZIPCODE", "API_PATH"]);
