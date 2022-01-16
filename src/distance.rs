@@ -16,7 +16,7 @@ impl TryFrom<f64> for Distance {
         if item >= 0.0 {
             Ok(Self(item))
         } else {
-            Err(format_err!("{} is not a valid distance", item))
+            Err(format_err!("{item} is not a valid distance"))
         }
     }
 }

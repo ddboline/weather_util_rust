@@ -17,7 +17,7 @@ impl TryFrom<f64> for Speed {
         if item >= 0.0 {
             Ok(Self(item))
         } else {
-            Err(format_err!("{} is not a valid speed", item))
+            Err(format_err!("{item} is not a valid speed"))
         }
     }
 }

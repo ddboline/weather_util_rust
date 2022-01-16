@@ -1,4 +1,4 @@
-use anyhow::{format_err, Error};
+use anyhow::Error;
 use isocountry::CountryCode;
 use log::error;
 use reqwest::{Client, Url};
@@ -90,17 +90,15 @@ impl PartialEq for WeatherApi {
 
 impl fmt::Debug for WeatherApi {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
-        write!(
-            f,
-            "WeatherApi(key={},endpoint={})",
-            self.api_key, self.api_endpoint
-        )
+        let api_key = &self.api_key;
+        let api_endpoint = &self.api_endpoint;
+        write!(f, "WeatherApi(key={api_key},endpoint={api_endpoint})")
     }
 }
 
 impl Hash for WeatherApi {
     fn hash<H: Hasher>(&self, state: &mut H) {
-        format!("{:?}", self).hash(state);
+        format!("{self:?}").hash(state);
     }
 }
 
@@ -215,7 +213,9 @@ impl WeatherApi {
         command: WeatherCommands,
         options: &[(&'static str, StackString)],
     ) -> Result<T, Error> {
-        let base_url = format!("https://{}/{}{}", self.api_endpoint, self.api_path, command);
+        let api_endpoint = &self.api_endpoint;
+        let api_path = &self.api_path;
+        let base_url = format!("https://{api_endpoint}/{api_path}{command}");
         let url = Url::parse_with_params(&base_url, options)?;
         self.client
             .get(url)
@@ -286,7 +286,7 @@ mod tests {
         assert_eq!(api, api2);
 
         assert_eq!(
-            format!("{:?}", api),
+            format!("{api:?}"),
             "WeatherApi(key=8675309,endpoint=api.openweathermap.org)".to_string()
         );
 

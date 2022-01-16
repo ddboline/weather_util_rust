@@ -18,7 +18,7 @@ impl TryFrom<f64> for Temperature {
         if item >= 0.0 {
             Ok(Self(item))
         } else {
-            Err(format_err!("{} is not a valid Temperature", item))
+            Err(format_err!("{item} is not a valid Temperature"))
         }
     }
 }
@@ -39,7 +39,7 @@ impl Temperature {
         if t >= -FREEZING_POINT_KELVIN {
             Ok(Self(t + FREEZING_POINT_KELVIN))
         } else {
-            Err(format_err!("{} is not a valid temperature in Celcius", t))
+            Err(format_err!("{t} is not a valid temperature in Celcius"))
         }
     }
     pub fn from_fahrenheit(t: f64) -> Result<Self, Error> {
@@ -47,8 +47,7 @@ impl Temperature {
             Ok(Self((t + FAHRENHEIT_OFFSET) / FAHRENHEIT_FACTOR))
         } else {
             Err(format_err!(
-                "{} is not a valid temperature in Fahrenheit",
-                t
+                "{t} is not a valid temperature in Fahrenheit",
             ))
         }
     }

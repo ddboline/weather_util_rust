@@ -15,7 +15,7 @@ impl TryFrom<i32> for TimeZone {
         if item > -86400 && item < 86400 {
             Ok(Self(item))
         } else {
-            Err(format_err!("{} is not a valid timezone", item))
+            Err(format_err!("{item} is not a valid timezone"))
         }
     }
 }

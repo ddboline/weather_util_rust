@@ -34,7 +34,7 @@ impl TryFrom<f64> for Precipitation {
     type Error = Error;
     fn try_from(item: f64) -> Result<Self, Self::Error> {
         if item < 0.0 {
-            Err(format_err!("{} is not a valid precipitation amount", item))
+            Err(format_err!("{item} is not a valid precipitation amount"))
         } else {
             Ok(Self(item))
         }

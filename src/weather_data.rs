@@ -108,26 +108,27 @@ impl WeatherData {
         let sunrise = self.sys.sunrise.with_timezone(&fo);
         let sunset = self.sys.sunset.with_timezone(&fo);
         let country_str = if let Some(country) = &self.sys.country {
-            format_sstr!("{} {}", self.name, country)
+            let name = &self.name;
+            format_sstr!("{name} {country}")
         } else {
             StackString::new()
         };
         let lat_lon = format_sstr!("{:0.5}N {:0.5}E", self.coord.lat, self.coord.lon);
-        let dt_str = format_sstr!("Last Updated {}", dt,);
+        let dt_str = format_sstr!("Last Updated {dt}");
         let temp_str = format_sstr!(
-            "\tTemperature: {:0.2} F ({:0.2} C)",
-            self.main.temp.fahrenheit(),
-            self.main.temp.celcius(),
+            "\tTemperature: {f:0.2} F ({c:0.2} C)",
+            f = self.main.temp.fahrenheit(),
+            c = self.main.temp.celcius(),
         );
         let humidity_str = format_sstr!("\tRelative Humidity: {}%", self.main.humidity);
         let wind_str = format_sstr!(
-            "\tWind: {} degrees at {:0.2} mph",
-            self.wind.deg.unwrap_or_else(|| 0.0.into()),
-            (self.wind.speed.mph())
+            "\tWind: {d} degrees at {s:0.2} mph",
+            d = self.wind.deg.unwrap_or_else(|| 0.0.into()),
+            s = self.wind.speed.mph(),
         );
         let conditions_str = format_sstr!("\tConditions: {}", self.weather[0].description);
-        let sunrise_str = format_sstr!("\tSunrise: {}", sunrise);
-        let sunset_str = format_sstr!("\tSunset: {}", sunset);
+        let sunrise_str = format_sstr!("\tSunrise: {sunrise}");
+        let sunset_str = format_sstr!("\tSunset: {sunset}");
         let rain_str = if let Some(rain) = &self.rain {
             format_sstr!(
                 "\n\tRain: {} in",

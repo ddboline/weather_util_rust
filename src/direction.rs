@@ -1,4 +1,4 @@
-use anyhow::{format_err, Error};
+use anyhow::Error;
 use derive_more::{Deref, Display, From, Into};
 use serde::{Deserialize, Serialize};
 use std::{convert::TryFrom, f64::consts::PI};

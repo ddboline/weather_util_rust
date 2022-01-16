@@ -185,13 +185,13 @@ mod test {
         opts.apply_defaults(&config);
         let api = opts.get_api(&config)?;
         assert_eq!(
-            format!("{:?}", api),
+            format!("{api:?}"),
             "WeatherApi(key=1234567,endpoint=test.local1)".to_string()
         );
 
         let loc = opts.get_location()?;
         assert_eq!(
-            format!("{:?}", loc),
+            format!("{loc:?}"),
             "ZipCode { zipcode: 8675309, country_code: None }".to_string()
         );
         Ok(())

@@ -31,7 +31,7 @@ impl TryFrom<f64> for Latitude {
         if item >= -90.0 && item <= 90.0 {
             Ok(Self(Angle::from_deg(item)))
         } else {
-            Err(format_err!("{} is not a valid latitude", item))
+            Err(format_err!("{item} is not a valid latitude"))
         }
     }
 }

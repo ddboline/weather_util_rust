@@ -14,7 +14,7 @@ impl TryFrom<i64> for Humidity {
         if (0..=100).contains(&item) {
             Ok(Self(item))
         } else {
-            Err(format_err!("{} is not a valid relative humidity", item))
+            Err(format_err!("{item} is not a valid relative humidity"))
         }
     }
 }

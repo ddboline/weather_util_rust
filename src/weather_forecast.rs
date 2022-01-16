@@ -155,9 +155,10 @@ impl WeatherForecast {
                 rain_snow.push_str(&format_sstr!("Rain {:0.2} in", r.inches()));
             }
             if s.millimeters() > 0.0 {
+                if !rain_snow.is_empty() {rain_snow.push_str("\t");}
                 rain_snow.push_str(&format_sstr!("Snow {:0.2} in", s.inches()));
             }
-            format_sstr!("\t{} {:25} {:25} {:25}\n", d, high, low, rain_snow,)
+            format_sstr!("\t{d} {high:25} {low:25} {rain_snow:25}\n")
         }));
         Ok(output)
     }

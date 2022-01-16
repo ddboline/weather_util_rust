@@ -19,7 +19,7 @@ impl TryFrom<f64> for Pressure {
         if item > 0.0 {
             Ok(Self(item))
         } else {
-            Err(format_err!("{} is not a valid pressure value", item))
+            Err(format_err!("{item} is not a valid pressure value"))
         }
     }
 }
