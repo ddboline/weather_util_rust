@@ -46,9 +46,7 @@ impl Temperature {
         if t >= -FAHRENHEIT_OFFSET {
             Ok(Self((t + FAHRENHEIT_OFFSET) / FAHRENHEIT_FACTOR))
         } else {
-            Err(format_err!(
-                "{t} is not a valid temperature in Fahrenheit",
-            ))
+            Err(format_err!("{t} is not a valid temperature in Fahrenheit",))
         }
     }
     pub fn kelvin(self) -> f64 {
