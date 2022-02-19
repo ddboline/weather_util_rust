@@ -38,7 +38,7 @@ envy = "0.4"
 isocountry = "0.3"
 lazy_static = "1.4"
 parking_lot = "0.12"
-stack-string = {version="0.5"}
+stack-string = {version="0.6"}
 
 [dev-dependencies]
 approx = "0.5"
