@@ -145,7 +145,7 @@ impl WeatherForecast {
     /// # Ok(())
     /// # }
     /// ```
-    pub fn get_forecast(&self) -> Result<Vec<StackString>, Error> {
+    pub fn get_forecast(&self) -> Result<Vec<String>, Error> {
         let mut output = vec!["\nForecast:\n".into()];
         output.extend(self.get_high_low().into_iter().map(|(d, (h, l, r, s))| {
             let high = format_sstr!("High: {:0.1} F / {:0.1} C", h.fahrenheit(), h.celcius());
@@ -160,7 +160,7 @@ impl WeatherForecast {
                 }
                 rain_snow.push_str(&format_sstr!("Snow {:0.2} in", s.inches()));
             }
-            format_sstr!("\t{d} {high:25} {low:25} {rain_snow:25}\n")
+            format!("\t{d} {high:25} {low:25} {rain_snow:25}\n")
         }));
         Ok(output)
     }
@@ -200,11 +200,15 @@ mod test {
     fn test_get_forecast() -> Result<(), Error> {
         let buf = include_str!("../tests/forecast.json");
         let data: WeatherForecast = serde_json::from_str(&buf)?;
-        let buf = data.get_forecast()?.join("");
+        let forecasts = data.get_forecast()?;
+        let buf = forecasts.join("");
         println!("{}", buf);
         assert!(buf.starts_with("\nForecast:"));
         assert!(buf.contains("2020-01-23 High: 37.7 F / 3.2 C"));
         assert!(buf.contains("Low: 30.1 F / -1.1 C"));
+        for f in forecasts {
+            println!("{}", f.len());
+        }
         Ok(())
     }
 }

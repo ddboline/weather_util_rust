@@ -2,7 +2,7 @@ use anyhow::{format_err, Error};
 use futures::future::join;
 use reqwest::Url;
 use serde::{Deserialize, Serialize};
-use stack_string::StackString;
+use stack_string::{SmallString, StackString};
 use structopt::StructOpt;
 use tokio::io::{stdout, AsyncWriteExt};
 
@@ -39,7 +39,7 @@ pub struct WeatherOpts {
     /// Api key (optional but either this or API_KEY environment variable must
     /// exist)
     #[structopt(short = "k", long)]
-    api_key: Option<StackString>,
+    api_key: Option<SmallString<32>>,
     /// Print forecast
     #[serde(default)]
     #[structopt(short, long)]
@@ -100,7 +100,7 @@ impl WeatherOpts {
         Ok(loc)
     }
 
-    async fn run_opts(&self, config: &Config) -> Result<Vec<StackString>, Error> {
+    async fn run_opts(&self, config: &Config) -> Result<Vec<String>, Error> {
         let api = self.get_api(config)?;
         let loc = self.get_location()?;
 

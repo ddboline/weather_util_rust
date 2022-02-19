@@ -102,7 +102,7 @@ impl WeatherData {
     /// # Ok(())
     /// # }
     /// ```
-    pub fn get_current_conditions(&self) -> Result<StackString, Error> {
+    pub fn get_current_conditions(&self) -> Result<String, Error> {
         let fo: FixedOffset = self.timezone.into();
         let dt = self.dt.with_timezone(&fo);
         let sunrise = self.sys.sunrise.with_timezone(&fo);
@@ -145,7 +145,7 @@ impl WeatherData {
         } else {
             StackString::new()
         };
-        Ok(format_sstr!(
+        let buf = format!(
             "Current conditions {} {}\n{}\n{}\n{}\n{}\n{}\n{}\n{}{}{}\n",
             country_str,
             lat_lon,
@@ -158,7 +158,8 @@ impl WeatherData {
             sunset_str,
             rain_str,
             snow_str,
-        ))
+        );
+        Ok(buf)
     }
 }
 
@@ -177,7 +178,7 @@ mod test {
 
         assert!(buf.starts_with("Current conditions Astoria US 40.76"));
         assert!(buf.contains("Temperature: 41.05 F (5.03 C)"));
-
+        println!("{} {} {}", buf.len(), data.name, data.name.len());
         Ok(())
     }
 }

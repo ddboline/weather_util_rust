@@ -2,7 +2,7 @@ use anyhow::{format_err, Error};
 use lazy_static::lazy_static;
 use parking_lot::{Mutex, MutexGuard};
 use serde::Deserialize;
-use stack_string::StackString;
+use stack_string::{SmallString, StackString};
 use std::{
     env::{remove_var, set_var, var_os},
     ffi::{OsStr, OsString},
@@ -17,7 +17,7 @@ use crate::{latitude::Latitude, longitude::Longitude};
 #[derive(Default, Debug, Deserialize, PartialEq)]
 pub struct ConfigInner {
     /// openweathermap.org api key
-    pub api_key: Option<StackString>,
+    pub api_key: Option<SmallString<32>>,
     /// openweathermap.org api endpoint
     #[serde(default = "default_api_endpoint")]
     pub api_endpoint: StackString,
@@ -161,7 +161,7 @@ mod tests {
 
         let _env = TestEnvs::new(&["API_KEY", "API_ENDPOINT", "ZIPCODE", "API_PATH"]);
 
-        set_var("API_KEY", "1234567");
+        set_var("API_KEY", "fb2380d74189c9983ea52f55914da824");
         set_var("API_ENDPOINT", "test.local");
         set_var("ZIPCODE", "8675309");
         set_var("API_PATH", "weather/");
@@ -169,7 +169,12 @@ mod tests {
         let conf = Config::init_config()?;
         drop(_env);
 
-        assert_eq!(conf.api_key, Some("1234567".into()));
+        println!("{}", conf.api_key.as_ref().unwrap());
+        assert_eq!(
+            conf.api_key.as_ref().unwrap().as_str(),
+            "fb2380d74189c9983ea52f55914da824"
+        );
+        assert!(conf.api_key.as_ref().unwrap().is_inline());
         assert_eq!(&conf.api_endpoint, "test.local");
         assert_eq!(conf.zipcode, Some(8675309));
         assert_eq!(&conf.api_path, "weather/");
