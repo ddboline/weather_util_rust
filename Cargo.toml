@@ -1,6 +1,6 @@
 [package]
 name = "weather_util_rust"
-version = "0.10.11"
+version = "0.10.12"
 authors = ["Daniel Boline <ddboline@gmail.com>"]
 edition = "2018"
 license-file = "LICENSE"
@@ -23,7 +23,7 @@ exclude = [
 dotenv = "0.15"
 anyhow = "1.0"
 reqwest = { version="0.11", features=["json", "rustls-tls", "gzip"], default-features=false}
-tokio = { version="1.10", features=["full"]}
+tokio = { version="1.17", features=["full"]}
 serde = { version = "1.0", features = ["derive"] }
 serde_json = "1.0"
 structopt = "0.3"
@@ -32,7 +32,7 @@ derive_more = "0.99"
 rayon = "1.5"
 futures = "0.3"
 dirs = "4.0"
-retry = "1.2"
+retry = "1.3"
 log = "0.4"
 envy = "0.4"
 isocountry = "0.3"
@@ -43,7 +43,7 @@ stack-string = {version="0.6"}
 [dev-dependencies]
 approx = "0.5"
 assert_cmd = "2.0"
-predicates = "2.0"
+predicates = "2.1"
 
 [[bin]]
 name = "weather-util-rust"
