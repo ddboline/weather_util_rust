@@ -116,7 +116,7 @@ impl WeatherData {
     /// let buf = data.get_current_conditions()?;
     ///
     /// assert!(buf.starts_with("Current conditions Astoria US 40.76"));
-    /// assert!(buf.contains("Temperature: 41.05 F (5.03 C)"));
+    /// assert!(buf.contains("Temperature: 38.50 F (3.61 C)"));
     /// # Ok(())
     /// # }
     /// ```
@@ -195,7 +195,7 @@ mod test {
         let buf = data.get_current_conditions()?;
 
         assert!(buf.starts_with("Current conditions Astoria US 40.76"));
-        assert!(buf.contains("Temperature: 41.05 F (5.03 C)"));
+        assert!(buf.contains("Temperature: 38.50 F (3.61 C)"));
         println!("{} {} {}", buf.len(), data.name, data.name.len());
         Ok(())
     }
