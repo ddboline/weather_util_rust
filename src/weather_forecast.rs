@@ -67,6 +67,8 @@ impl WeatherForecast {
     /// # use std::fs::File;
     /// # use std::convert::TryFrom;
     /// # use chrono::NaiveDate;
+    /// # use std::collections::BTreeSet;
+    /// # use stack_string::StackString;
     /// use weather_util_rust::weather_forecast::WeatherForecast;
     /// use weather_util_rust::temperature::Temperature;
     /// use weather_util_rust::precipitation::Precipitation;
@@ -79,6 +81,7 @@ impl WeatherForecast {
     /// let high_low = data.get_high_low();
     /// assert_eq!(high_low.len(), 6);
     /// let date: NaiveDate = "2022-02-27".parse()?;
+    /// let icons: BTreeSet<StackString> = ["04n"].iter().map(|s| (*s).into()).collect();
     /// assert_eq!(
     ///     high_low.get(&date),
     ///     Some(
@@ -87,6 +90,7 @@ impl WeatherForecast {
     ///             Temperature::try_from(275.01)?,
     ///             Precipitation::default(),
     ///             Precipitation::default(),
+    ///             icons,
     ///         )
     ///     )
     /// );
