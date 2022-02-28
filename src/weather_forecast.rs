@@ -2,7 +2,11 @@ use anyhow::Error;
 use chrono::{DateTime, FixedOffset, NaiveDate, Utc};
 use serde::{Deserialize, Serialize};
 use stack_string::{format_sstr, StackString};
-use std::{collections::BTreeMap, fmt::Write as FmtWrite, io::Write};
+use std::{
+    collections::{BTreeMap, BTreeSet},
+    fmt::Write as FmtWrite,
+    io::Write,
+};
 
 use crate::{
     humidity::Humidity,
@@ -91,7 +95,16 @@ impl WeatherForecast {
     /// ```
     pub fn get_high_low(
         &self,
-    ) -> BTreeMap<NaiveDate, (Temperature, Temperature, Precipitation, Precipitation)> {
+    ) -> BTreeMap<
+        NaiveDate,
+        (
+            Temperature,
+            Temperature,
+            Precipitation,
+            Precipitation,
+            BTreeSet<StackString>,
+        ),
+    > {
         let fo: FixedOffset = self.city.timezone.into();
         self.list.iter().fold(BTreeMap::new(), |mut hmap, entry| {
             let date = entry.dt.with_timezone(&fo).date().naive_local();
@@ -107,18 +120,25 @@ impl WeatherForecast {
             } else {
                 Precipitation::default()
             };
+            let mut icons: BTreeSet<StackString> =
+                entry.weather.iter().map(|w| w.icon.clone()).collect();
 
-            if let Some((h, l, r, s)) = hmap.get(&date) {
+            if let Some((h, l, r, s, i)) = hmap.get(&date) {
                 let high = if high > *h { high } else { *h };
                 let low = if low < *l { low } else { *l };
                 let rain = *r + rain;
                 let snow = *s + snow;
+                for ic in i {
+                    if !icons.contains(ic) {
+                        icons.insert(ic.clone());
+                    }
+                }
 
                 if (high, low) != (*h, *l) {
-                    hmap.insert(date, (high, low, rain, snow));
+                    hmap.insert(date, (high, low, rain, snow, icons));
                 }
             } else {
-                hmap.insert(date, (high, low, rain, snow));
+                hmap.insert(date, (high, low, rain, snow, icons));
             }
             hmap
         })
@@ -148,7 +168,7 @@ impl WeatherForecast {
     /// ```
     pub fn get_forecast(&self) -> Result<Vec<String>, Error> {
         let mut output = vec!["\nForecast:\n".into()];
-        output.extend(self.get_high_low().into_iter().map(|(d, (h, l, r, s))| {
+        output.extend(self.get_high_low().into_iter().map(|(d, (h, l, r, s, _))| {
             let high = format_sstr!("High: {:0.1} F / {:0.1} C", h.fahrenheit(), h.celcius());
             let low = format_sstr!("Low: {:0.1} F / {:0.1} C", l.fahrenheit(), l.celcius());
             let mut rain_snow = StackString::new();
@@ -171,7 +191,8 @@ impl WeatherForecast {
 mod test {
     use anyhow::Error;
     use chrono::NaiveDate;
-    use std::convert::TryFrom;
+    use stack_string::StackString;
+    use std::{collections::BTreeSet, convert::TryFrom};
 
     use crate::{
         precipitation::Precipitation, temperature::Temperature, weather_forecast::WeatherForecast,
@@ -184,6 +205,7 @@ mod test {
         let high_low = data.get_high_low();
         assert_eq!(high_low.len(), 6);
         let date: NaiveDate = "2022-02-27".parse()?;
+        let icons: BTreeSet<StackString> = ["04n"].iter().map(|s| (*s).into()).collect();
         assert_eq!(
             high_low.get(&date),
             Some(&(
@@ -191,6 +213,7 @@ mod test {
                 Temperature::try_from(275.01)?,
                 Precipitation::default(),
                 Precipitation::default(),
+                icons,
             ))
         );
 
