@@ -13,7 +13,7 @@ use crate::{
     temperature::Temperature,
     timestamp,
     timezone::TimeZone,
-    weather_data::{Rain, Snow},
+    weather_data::{Rain, Snow, WeatherCond},
 };
 
 #[derive(Deserialize, Serialize, Debug, Clone, Copy)]
@@ -28,11 +28,12 @@ pub struct ForecastMain {
     pub humidity: Humidity,
 }
 
-#[derive(Deserialize, Serialize, Debug, Clone, Copy)]
+#[derive(Deserialize, Serialize, Debug, Clone)]
 pub struct ForecastEntry {
     #[serde(with = "timestamp")]
     pub dt: DateTime<Utc>,
     pub main: ForecastMain,
+    pub weather: Vec<WeatherCond>,
     #[serde(skip_serializing_if = "Option::is_none")]
     pub rain: Option<Rain>,
     #[serde(skip_serializing_if = "Option::is_none")]
@@ -73,13 +74,13 @@ impl WeatherForecast {
     ///
     /// let high_low = data.get_high_low();
     /// assert_eq!(high_low.len(), 6);
-    /// let date: NaiveDate = "2020-01-21".parse()?;
+    /// let date: NaiveDate = "2022-02-27".parse()?;
     /// assert_eq!(
     ///     high_low.get(&date),
     ///     Some(
     ///         &(
-    ///             Temperature::try_from(272.65)?,
-    ///             Temperature::try_from(266.76)?,
+    ///             Temperature::try_from(276.76)?,
+    ///             Temperature::try_from(275.01)?,
     ///             Precipitation::default(),
     ///             Precipitation::default(),
     ///         )
@@ -140,8 +141,8 @@ impl WeatherForecast {
     /// let buf = data.get_forecast()?.join("");
     ///
     /// assert!(buf.starts_with("\nForecast:"), buf);
-    /// assert!(buf.contains("2020-01-23 High: 37.7 F / 3.2 C"));
-    /// assert!(buf.contains("Low: 30.1 F / -1.1 C"));
+    /// assert!(buf.contains("2022-02-27 High: 38.5 F / 3.6 C"));
+    /// assert!(buf.contains("Low: 35.3 F / 1.9 C"));
     /// # Ok(())
     /// # }
     /// ```
@@ -182,12 +183,12 @@ mod test {
         let data: WeatherForecast = serde_json::from_str(&buf)?;
         let high_low = data.get_high_low();
         assert_eq!(high_low.len(), 6);
-        let date: NaiveDate = "2020-01-21".parse()?;
+        let date: NaiveDate = "2022-02-27".parse()?;
         assert_eq!(
             high_low.get(&date),
             Some(&(
-                Temperature::try_from(272.65)?,
-                Temperature::try_from(266.76)?,
+                Temperature::try_from(276.76)?,
+                Temperature::try_from(275.01)?,
                 Precipitation::default(),
                 Precipitation::default(),
             ))
@@ -204,8 +205,8 @@ mod test {
         let buf = forecasts.join("");
         println!("{}", buf);
         assert!(buf.starts_with("\nForecast:"));
-        assert!(buf.contains("2020-01-23 High: 37.7 F / 3.2 C"));
-        assert!(buf.contains("Low: 30.1 F / -1.1 C"));
+        assert!(buf.contains("2022-02-27 High: 38.5 F / 3.6 C"));
+        assert!(buf.contains("Low: 35.3 F / 1.9 C"));
         for f in forecasts {
             println!("{}", f.len());
         }
