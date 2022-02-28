@@ -1,5 +1,5 @@
 use anyhow::Error;
-use chrono::{DateTime, FixedOffset, NaiveDate, Utc, format::Fixed};
+use chrono::{format::Fixed, DateTime, FixedOffset, NaiveDate, Utc};
 use serde::{Deserialize, Serialize};
 use stack_string::{format_sstr, StackString};
 use std::{collections::BTreeMap, fmt::Write as FmtWrite, io::Write};
