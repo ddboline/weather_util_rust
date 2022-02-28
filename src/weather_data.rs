@@ -1,5 +1,5 @@
 use anyhow::Error;
-use chrono::{DateTime, FixedOffset, NaiveDate, Utc};
+use chrono::{DateTime, FixedOffset, NaiveDate, Utc, format::Fixed};
 use serde::{Deserialize, Serialize};
 use stack_string::{format_sstr, StackString};
 use std::{collections::BTreeMap, fmt::Write as FmtWrite, io::Write};
@@ -18,8 +18,10 @@ pub struct Coord {
 
 #[derive(Serialize, Deserialize, Debug, Clone)]
 pub struct WeatherCond {
+    pub id: usize,
     pub main: StackString,
     pub description: StackString,
+    pub icon: StackString,
 }
 
 #[derive(Serialize, Deserialize, Debug, Clone, Copy)]
@@ -82,6 +84,22 @@ pub struct WeatherData {
 }
 
 impl WeatherData {
+    pub fn get_offset(&self) -> FixedOffset {
+        self.timezone.into()
+    }
+
+    pub fn get_dt(&self) -> DateTime<FixedOffset> {
+        self.dt.with_timezone(&self.get_offset())
+    }
+
+    pub fn get_sunrise(&self) -> DateTime<FixedOffset> {
+        self.sys.sunrise.with_timezone(&self.get_offset())
+    }
+
+    pub fn get_sunset(&self) -> DateTime<FixedOffset> {
+        self.sys.sunset.with_timezone(&self.get_offset())
+    }
+
     /// Write out formatted information about current conditions for a mutable
     /// buffer.
     /// ```
