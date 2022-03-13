@@ -44,10 +44,16 @@ impl Precipitation {
     /// # Ok(())
     /// # }
     /// ```
+    /// # Errors
+    ///
+    /// Will return error if input is less than zero
     pub fn from_millimeters(precip: f64) -> Result<Self, Error> {
         Self::try_from(precip)
     }
 
+    /// # Errors
+    ///
+    /// Will return error if input is less than zero
     pub fn from_inches(precip: f64) -> Result<Self, Error> {
         Self::try_from(precip * MM_PER_INCH)
     }

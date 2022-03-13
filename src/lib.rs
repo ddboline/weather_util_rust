@@ -4,8 +4,6 @@
 #![allow(clippy::too_many_lines)]
 #![allow(clippy::module_name_repetitions)]
 #![allow(clippy::similar_names)]
-#![allow(clippy::missing_errors_doc)]
-#![allow(clippy::manual_range_contains)]
 
 //! Utility to retreive and format weather data from openweathermap.org
 //!

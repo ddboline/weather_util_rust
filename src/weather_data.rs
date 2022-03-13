@@ -1,4 +1,3 @@
-use anyhow::Error;
 use chrono::{DateTime, FixedOffset, Utc};
 use serde::{Deserialize, Serialize};
 use stack_string::{format_sstr, StackString};
@@ -117,14 +116,15 @@ impl WeatherData {
     /// # f.read_to_string(&mut buf)?;
     /// let data: WeatherData = serde_json::from_str(&buf)?;
     ///
-    /// let buf = data.get_current_conditions()?;
+    /// let buf = data.get_current_conditions();
     ///
     /// assert!(buf.starts_with("Current conditions Astoria US 40.76"));
     /// assert!(buf.contains("Temperature: 38.50 F (3.61 C)"));
     /// # Ok(())
     /// # }
     /// ```
-    pub fn get_current_conditions(&self) -> Result<String, Error> {
+    #[must_use]
+    pub fn get_current_conditions(&self) -> StackString {
         let fo: FixedOffset = self.timezone.into();
         let dt = self.dt.with_timezone(&fo);
         let sunrise = self.sys.sunrise.with_timezone(&fo);
@@ -167,7 +167,7 @@ impl WeatherData {
         } else {
             StackString::new()
         };
-        let buf = format!(
+        format_sstr!(
             "Current conditions {} {}\n{}\n{}\n{}\n{}\n{}\n{}\n{}{}{}\n",
             country_str,
             lat_lon,
@@ -180,8 +180,7 @@ impl WeatherData {
             sunset_str,
             rain_str,
             snow_str,
-        );
-        Ok(buf)
+        )
     }
 }
 
@@ -196,7 +195,7 @@ mod test {
         let buf = include_str!("../tests/weather.json");
         let data: WeatherData = serde_json::from_str(buf)?;
 
-        let buf = data.get_current_conditions()?;
+        let buf = data.get_current_conditions();
 
         assert!(buf.starts_with("Current conditions Astoria US 40.76"));
         assert!(buf.contains("Temperature: 38.50 F (3.61 C)"));

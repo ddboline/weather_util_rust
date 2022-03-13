@@ -23,10 +23,16 @@ impl TryFrom<f64> for Speed {
 }
 
 impl Speed {
+    /// # Errors
+    ///
+    /// Will return error if input is less than zero
     pub fn from_mps(mps: f64) -> Result<Self, Error> {
         Self::try_from(mps)
     }
 
+    /// # Errors
+    ///
+    /// Will return error if input is less than zero
     pub fn from_mph(mph: f64) -> Result<Self, Error> {
         Self::try_from(mph * METERS_PER_MILE / SECONDS_PER_HOUR)
     }

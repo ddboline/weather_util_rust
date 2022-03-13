@@ -1,4 +1,4 @@
-use anyhow::{format_err, Error};
+use anyhow::Error;
 use lazy_static::lazy_static;
 use parking_lot::{Mutex, MutexGuard};
 use serde::Deserialize;
@@ -85,9 +85,12 @@ impl Config {
     /// # Ok(())
     /// # }
     /// ```
+    /// # Errors
+    ///
+    /// Will return Error if unable to deserialize env variables
     pub fn init_config() -> Result<Self, Error> {
         let fname = Path::new("config.env");
-        let config_dir = dirs::config_dir().ok_or_else(|| format_err!("No CONFIG directory"))?;
+        let config_dir = dirs::config_dir().unwrap_or_else(|| "./".into());
         let default_fname = config_dir.join("weather_util").join("config.env");
 
         let env_file = if fname.exists() {

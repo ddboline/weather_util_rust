@@ -25,22 +25,37 @@ impl TryFrom<f64> for Pressure {
 }
 
 impl Pressure {
+    /// # Errors
+    ///
+    /// Will return error if input is less than zero
     pub fn from_kpa(kpa: f64) -> Result<Self, Error> {
         Self::try_from(kpa * HECTO / KILO)
     }
 
+    /// # Errors
+    ///
+    /// Will return error if input is less than zero
     pub fn from_hpa(hpa: f64) -> Result<Self, Error> {
         Self::try_from(hpa)
     }
 
+    /// # Errors
+    ///
+    /// Will return error if input is less than zero
     pub fn from_atmosphere(atm: f64) -> Result<Self, Error> {
         Self::try_from(atm * ATM)
     }
 
+    /// # Errors
+    ///
+    /// Will return error if input is less than zero
     pub fn from_atm(atm: f64) -> Result<Self, Error> {
         Self::from_atmosphere(atm)
     }
 
+    /// # Errors
+    ///
+    /// Will return error if input is less than zero
     pub fn from_psi(psi: f64) -> Result<Self, Error> {
         Self::try_from(psi / PSI)
     }

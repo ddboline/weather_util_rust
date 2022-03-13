@@ -1,4 +1,3 @@
-use anyhow::Error;
 use chrono::{DateTime, FixedOffset, NaiveDate, Utc};
 use serde::{Deserialize, Serialize};
 use stack_string::{format_sstr, StackString};
@@ -160,7 +159,7 @@ impl WeatherForecast {
     /// # f.read_to_string(&mut buf)?;
     /// let data: WeatherForecast = serde_json::from_str(&buf)?;
     ///
-    /// let buf = data.get_forecast()?.join("");
+    /// let buf = data.get_forecast().join("");
     ///
     /// assert!(buf.starts_with("\nForecast:"), buf);
     /// assert!(buf.contains("2022-02-27 High: 38.5 F / 3.6 C"));
@@ -168,7 +167,8 @@ impl WeatherForecast {
     /// # Ok(())
     /// # }
     /// ```
-    pub fn get_forecast(&self) -> Result<Vec<String>, Error> {
+    #[must_use]
+    pub fn get_forecast(&self) -> Vec<StackString> {
         let mut output = vec!["\nForecast:\n".into()];
         output.extend(self.get_high_low().into_iter().map(|(d, (h, l, r, s, _))| {
             let high = format_sstr!("High: {:0.1} F / {:0.1} C", h.fahrenheit(), h.celcius());
@@ -183,9 +183,9 @@ impl WeatherForecast {
                 }
                 rain_snow.push_str(&format_sstr!("Snow {:0.2} in", s.inches()));
             }
-            format!("\t{d} {high:25} {low:25} {rain_snow:25}\n")
+            format_sstr!("\t{d} {high:25} {low:25} {rain_snow:25}\n")
         }));
-        Ok(output)
+        output
     }
 }
 
@@ -226,7 +226,7 @@ mod test {
     fn test_get_forecast() -> Result<(), Error> {
         let buf = include_str!("../tests/forecast.json");
         let data: WeatherForecast = serde_json::from_str(&buf)?;
-        let forecasts = data.get_forecast()?;
+        let forecasts = data.get_forecast();
         let buf = forecasts.join("");
         println!("{}", buf);
         assert!(buf.starts_with("\nForecast:"));

@@ -51,6 +51,10 @@ macro_rules! set_default {
 
 impl WeatherOpts {
     /// Parse options from stdin, requires `Config` instance.
+    /// # Errors
+    ///
+    /// Returns error if call to retreive weather data fails or if write to
+    /// stdout fails
     pub async fn parse_opts(config: &Config) -> Result<(), Error> {
         let mut opts = Self::from_args();
         opts.apply_defaults(config);
@@ -62,6 +66,8 @@ impl WeatherOpts {
         Ok(())
     }
 
+    /// # Errors
+    /// Return Error if api key cannot be found
     fn get_api(&self, config: &Config) -> Result<WeatherApi, Error> {
         let api_key = self
             .api_key
@@ -75,6 +81,8 @@ impl WeatherOpts {
     }
 
     /// Extract options from `WeatherOpts` and apply to `WeatherApi`
+    /// # Errors
+    /// Returns Error if clap help output fails
     pub fn get_location(&self) -> Result<WeatherLocation, Error> {
         let loc = if let Some(zipcode) = self.zipcode {
             if let Some(country_code) = &self.country_code {
@@ -98,7 +106,10 @@ impl WeatherOpts {
         Ok(loc)
     }
 
-    async fn run_opts(&self, config: &Config) -> Result<Vec<String>, Error> {
+    /// # Errors
+    ///
+    /// Returns error if call to retreive weather data fails
+    async fn run_opts(&self, config: &Config) -> Result<Vec<StackString>, Error> {
         let api = self.get_api(config)?;
         let loc = self.get_location()?;
 
@@ -110,9 +121,9 @@ impl WeatherOpts {
         } else {
             (data.await?, None)
         };
-        let mut output = vec![data.get_current_conditions()?];
+        let mut output = vec![data.get_current_conditions()];
         if let Some(forecast) = forecast {
-            output.extend(forecast.get_forecast()?);
+            output.extend(forecast.get_forecast());
         }
         Ok(output)
     }

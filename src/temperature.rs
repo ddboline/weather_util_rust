@@ -35,6 +35,9 @@ impl Temperature {
     /// # Ok(())
     /// # }
     /// ```
+    /// # Errors
+    ///
+    /// Will return error if input is less than zero
     pub fn from_celcius(t: f64) -> Result<Self, Error> {
         if t >= -FREEZING_POINT_KELVIN {
             Ok(Self(t + FREEZING_POINT_KELVIN))
@@ -42,6 +45,10 @@ impl Temperature {
             Err(format_err!("{t} is not a valid temperature in Celcius"))
         }
     }
+
+    /// # Errors
+    ///
+    /// Will return error if input is less than zero
     pub fn from_fahrenheit(t: f64) -> Result<Self, Error> {
         if t >= -FAHRENHEIT_OFFSET {
             Ok(Self((t + FAHRENHEIT_OFFSET) / FAHRENHEIT_FACTOR))

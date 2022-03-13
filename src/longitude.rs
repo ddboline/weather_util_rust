@@ -20,7 +20,7 @@ impl From<Longitude> for f64 {
 impl TryFrom<f64> for Longitude {
     type Error = Error;
     fn try_from(item: f64) -> Result<Self, Self::Error> {
-        if item >= -180.0 && item <= 180.0 {
+        if (-180.0..180.0).contains(&item) {
             Ok(Self(Angle::from_deg(item)))
         } else {
             Err(format_err!("{item} is not a valid longitude"))

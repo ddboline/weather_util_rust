@@ -23,7 +23,7 @@ impl From<Latitude> for f64 {
 impl TryFrom<f64> for Latitude {
     type Error = Error;
     fn try_from(item: f64) -> Result<Self, Self::Error> {
-        if item >= -90.0 && item <= 90.0 {
+        if (-90.0..90.0).contains(&item) {
             Ok(Self(Angle::from_deg(item)))
         } else {
             Err(format_err!("{item} is not a valid latitude"))

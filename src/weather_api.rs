@@ -166,12 +166,18 @@ impl WeatherApi {
     }
 
     /// Get `WeatherData` from api
+    /// # Errors
+    ///
+    /// Will return error if `WeatherApi::run_api` fails
     pub async fn get_weather_data(&self, location: &WeatherLocation) -> Result<WeatherData, Error> {
         let options = self.get_options(location);
         self.run_api(WeatherCommands::Weather, &options).await
     }
 
     /// Get `WeatherForecast` from api
+    /// # Errors
+    ///
+    /// Will return error if `WeatherApi::run_api` fails
     pub async fn get_weather_forecast(
         &self,
         location: &WeatherLocation,
@@ -213,6 +219,12 @@ impl WeatherApi {
         }
     }
 
+    /// # Errors
+    ///
+    /// Will return error if :
+    ///     * `base_url` is invalid
+    ///     * request fails
+    ///     * deserializing json response fails
     async fn run_api<T: serde::de::DeserializeOwned>(
         &self,
         command: WeatherCommands,

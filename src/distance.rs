@@ -22,10 +22,16 @@ impl TryFrom<f64> for Distance {
 }
 
 impl Distance {
+    /// # Errors
+    ///
+    /// Will return error if input is less than zero
     pub fn from_meters(meters: f64) -> Result<Self, Error> {
         Self::try_from(meters)
     }
 
+    /// # Errors
+    ///
+    /// Will return error if input is less than zero
     pub fn from_miles(miles: f64) -> Result<Self, Error> {
         Self::try_from(miles * METERS_PER_MILE)
     }
