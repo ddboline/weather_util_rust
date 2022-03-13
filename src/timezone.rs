@@ -1,6 +1,6 @@
 use anyhow::{format_err, Error};
 use chrono::offset::FixedOffset;
-use derive_more::{Display, From, Into};
+use derive_more::{Display, Into};
 use serde::{Deserialize, Serialize};
 use std::convert::TryFrom;
 

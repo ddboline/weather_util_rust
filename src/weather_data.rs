@@ -1,8 +1,8 @@
 use anyhow::Error;
-use chrono::{format::Fixed, DateTime, FixedOffset, NaiveDate, Utc};
+use chrono::{DateTime, FixedOffset, Utc};
 use serde::{Deserialize, Serialize};
 use stack_string::{format_sstr, StackString};
-use std::{collections::BTreeMap, fmt::Write as FmtWrite, io::Write};
+use std::fmt::Write as FmtWrite;
 
 use crate::{
     direction::Direction, distance::Distance, humidity::Humidity, latitude::Latitude,
@@ -84,18 +84,22 @@ pub struct WeatherData {
 }
 
 impl WeatherData {
+    #[must_use]
     pub fn get_offset(&self) -> FixedOffset {
         self.timezone.into()
     }
 
+    #[must_use]
     pub fn get_dt(&self) -> DateTime<FixedOffset> {
         self.dt.with_timezone(&self.get_offset())
     }
 
+    #[must_use]
     pub fn get_sunrise(&self) -> DateTime<FixedOffset> {
         self.sys.sunrise.with_timezone(&self.get_offset())
     }
 
+    #[must_use]
     pub fn get_sunset(&self) -> DateTime<FixedOffset> {
         self.sys.sunset.with_timezone(&self.get_offset())
     }

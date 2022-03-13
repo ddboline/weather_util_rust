@@ -1,14 +1,7 @@
 use anyhow::{format_err, Error};
 use derive_more::{Add, Display, FromStr, Into};
-use serde::{
-    de::{self, Visitor},
-    Deserialize, Deserializer, Serialize, Serializer,
-};
-use std::{
-    convert::{From, TryFrom},
-    fmt::{self, Formatter},
-    io::Write,
-};
+use serde::{Deserialize, Serialize};
+use std::convert::TryFrom;
 
 const MM_PER_INCH: f64 = 25.4;
 
@@ -60,11 +53,13 @@ impl Precipitation {
     }
 
     #[inline]
+    #[must_use]
     pub fn millimeters(self) -> f64 {
         self.0
     }
 
     #[inline]
+    #[must_use]
     pub fn inches(self) -> f64 {
         self.0 / MM_PER_INCH
     }

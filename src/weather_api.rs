@@ -1,10 +1,9 @@
 use anyhow::Error;
 use isocountry::CountryCode;
-use log::error;
 use reqwest::{Client, Url};
 use stack_string::{SmallString, StackString};
 use std::{
-    fmt::{self, Write},
+    fmt::{self},
     hash::{Hash, Hasher},
 };
 
@@ -36,6 +35,8 @@ impl Default for WeatherLocation {
 }
 
 impl WeatherLocation {
+    #[inline]
+    #[must_use]
     pub fn from_zipcode(zipcode: u64) -> Self {
         WeatherLocation::ZipCode {
             zipcode,
@@ -43,6 +44,7 @@ impl WeatherLocation {
         }
     }
 
+    #[must_use]
     pub fn from_zipcode_country_code(zipcode: u64, country_code: CountryCode) -> Self {
         WeatherLocation::ZipCode {
             zipcode,
@@ -50,6 +52,7 @@ impl WeatherLocation {
         }
     }
 
+    #[must_use]
     pub fn from_zipcode_country_code_str(zipcode: u64, country_code: &str) -> Self {
         let country_code = CountryCode::for_alpha2(country_code).ok();
         WeatherLocation::ZipCode {
@@ -58,10 +61,12 @@ impl WeatherLocation {
         }
     }
 
+    #[must_use]
     pub fn from_city_name(city_name: &str) -> Self {
         WeatherLocation::CityName(city_name.into())
     }
 
+    #[must_use]
     pub fn from_lat_lon(latitude: Latitude, longitude: Longitude) -> Self {
         WeatherLocation::LatLon {
             latitude,
@@ -126,6 +131,7 @@ impl fmt::Display for WeatherCommands {
 impl WeatherApi {
     /// Create `WeatherApi` instance specifying `api_key`, `api_endpoint` and
     /// `api_path`
+    #[must_use]
     pub fn new(api_key: &str, api_endpoint: &str, api_path: &str) -> Self {
         Self {
             client: Client::new(),
@@ -135,6 +141,7 @@ impl WeatherApi {
         }
     }
 
+    #[must_use]
     pub fn with_key(self, api_key: &str) -> Self {
         Self {
             api_key: api_key.into(),
@@ -142,6 +149,7 @@ impl WeatherApi {
         }
     }
 
+    #[must_use]
     pub fn with_endpoint(self, api_endpoint: &str) -> Self {
         Self {
             api_endpoint: api_endpoint.into(),
@@ -149,6 +157,7 @@ impl WeatherApi {
         }
     }
 
+    #[must_use]
     pub fn with_path(self, api_path: &str) -> Self {
         Self {
             api_path: api_path.into(),
@@ -158,7 +167,7 @@ impl WeatherApi {
 
     /// Get `WeatherData` from api
     pub async fn get_weather_data(&self, location: &WeatherLocation) -> Result<WeatherData, Error> {
-        let options = self.get_options(location)?;
+        let options = self.get_options(location);
         self.run_api(WeatherCommands::Weather, &options).await
     }
 
@@ -167,15 +176,12 @@ impl WeatherApi {
         &self,
         location: &WeatherLocation,
     ) -> Result<WeatherForecast, Error> {
-        let options = self.get_options(location)?;
+        let options = self.get_options(location);
         self.run_api(WeatherCommands::Forecast, &options).await
     }
 
-    fn get_options(
-        &self,
-        location: &WeatherLocation,
-    ) -> Result<Vec<(&'static str, SmallString<32>)>, Error> {
-        let options: Vec<(&'static str, SmallString<32>)> = match location {
+    fn get_options(&self, location: &WeatherLocation) -> Vec<(&'static str, SmallString<32>)> {
+        match location {
             WeatherLocation::ZipCode {
                 zipcode,
                 country_code,
@@ -204,8 +210,7 @@ impl WeatherApi {
                     ("APPID", self.api_key.clone()),
                 ]
             }
-        };
-        Ok(options)
+        }
     }
 
     async fn run_api<T: serde::de::DeserializeOwned>(
@@ -233,7 +238,7 @@ mod tests {
     use anyhow::Error;
     use futures::future::join;
     use isocountry::CountryCode;
-    use stack_string::{SmallString, StackString};
+    use stack_string::SmallString;
     use std::{
         collections::hash_map::DefaultHasher,
         convert::TryInto,
@@ -301,7 +306,7 @@ mod tests {
         assert_eq!(hasher0.finish(), hasher1.finish());
 
         let loc = WeatherLocation::from_zipcode_country_code(10001, CountryCode::USA);
-        let opts = api.get_options(&loc)?;
+        let opts = api.get_options(&loc);
         let expected: Vec<(&str, SmallString<32>)> = vec![
             ("zip", "10001".into()),
             ("country_code", "US".into()),
@@ -310,13 +315,13 @@ mod tests {
         assert_eq!(opts, expected);
 
         let loc = WeatherLocation::from_city_name("New York");
-        let opts = api.get_options(&loc)?;
+        let opts = api.get_options(&loc);
         let expected: Vec<(&str, SmallString<32>)> =
             vec![("q", "New York".into()), ("APPID", "8675309".into())];
         assert_eq!(opts, expected);
 
         let loc = WeatherLocation::from_lat_lon(41.0f64.try_into()?, 39.0f64.try_into()?);
-        let opts = api.get_options(&loc)?;
+        let opts = api.get_options(&loc);
         let expected: Vec<(&str, SmallString<32>)> = vec![
             ("lat", "41.00000".into()),
             ("lon", "39.00000".into()),

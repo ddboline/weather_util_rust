@@ -30,10 +30,12 @@ impl Distance {
         Self::try_from(miles * METERS_PER_MILE)
     }
 
+    #[must_use]
     pub fn meters(self) -> f64 {
         self.0
     }
 
+    #[must_use]
     pub fn miles(self) -> f64 {
         self.0 / METERS_PER_MILE
     }

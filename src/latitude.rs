@@ -1,14 +1,9 @@
 use anyhow::{format_err, Error};
 use derive_more::{Display, FromStr, Into};
-use serde::{
-    de::{self, Visitor},
-    Deserialize, Deserializer, Serialize, Serializer,
-};
+use serde::{Deserialize, Serialize};
 use std::{
     convert::{From, TryFrom},
-    fmt::{self, Formatter},
-    hash::{Hash, Hasher},
-    io::Write,
+    hash::Hash,
 };
 
 use crate::angle::Angle;

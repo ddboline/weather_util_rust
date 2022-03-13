@@ -5,13 +5,10 @@ use stack_string::{format_sstr, StackString};
 use std::{
     collections::{BTreeMap, BTreeSet},
     fmt::Write as FmtWrite,
-    io::Write,
 };
 
 use crate::{
     humidity::Humidity,
-    latitude::Latitude,
-    longitude::Longitude,
     precipitation::Precipitation,
     pressure::Pressure,
     temperature::Temperature,
@@ -97,6 +94,7 @@ impl WeatherForecast {
     /// # Ok(())
     /// # }
     /// ```
+    #[must_use]
     pub fn get_high_low(
         &self,
     ) -> BTreeMap<

@@ -1,6 +1,5 @@
 use anyhow::{format_err, Error};
 use futures::future::join;
-use reqwest::Url;
 use serde::{Deserialize, Serialize};
 use stack_string::{SmallString, StackString};
 use structopt::StructOpt;
@@ -11,8 +10,6 @@ use crate::{
     latitude::Latitude,
     longitude::Longitude,
     weather_api::{WeatherApi, WeatherLocation},
-    weather_data::WeatherData,
-    weather_forecast::WeatherForecast,
 };
 
 /// Utility to retreive and format weather data from openweathermap.org
@@ -87,11 +84,12 @@ impl WeatherOpts {
             }
         } else if let Some(city_name) = &self.city_name {
             WeatherLocation::from_city_name(city_name)
-        } else if self.lat.is_some() && self.lon.is_some() {
-            let lat = self.lat.unwrap();
-            let lon = self.lon.unwrap();
-            WeatherLocation::from_lat_lon(lat, lon)
         } else {
+            if let Some(lat) = self.lat {
+                if let Some(lon) = self.lon {
+                    return Ok(WeatherLocation::from_lat_lon(lat, lon));
+                }
+            }
             Self::clap().print_help()?;
             return Err(format_err!(
                 "\n\nERROR: You must specify at least one option"
@@ -155,11 +153,7 @@ impl WeatherOpts {
 mod test {
     use anyhow::Error;
     use isocountry::CountryCode;
-    use std::{
-        convert::TryFrom,
-        env::{set_var, var_os},
-        ffi::{OsStr, OsString},
-    };
+    use std::{convert::TryFrom, env::set_var};
 
     use crate::{
         config::{Config, TestEnvs},

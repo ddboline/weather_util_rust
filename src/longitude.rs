@@ -1,10 +1,7 @@
 use anyhow::{format_err, Error};
 use derive_more::{Display, FromStr, Into};
-use serde::{Deserialize, Deserializer, Serialize, Serializer};
-use std::{
-    convert::TryFrom,
-    hash::{Hash, Hasher},
-};
+use serde::{Deserialize, Serialize};
+use std::{convert::TryFrom, hash::Hash};
 
 use crate::angle::Angle;
 

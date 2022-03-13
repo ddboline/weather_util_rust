@@ -1,8 +1,7 @@
 use anyhow::Error;
-use derive_more::{Display, Into};
+use derive_more::Into;
 use serde::{Deserialize, Serialize};
 use std::{
-    convert::TryFrom,
     f64::consts::PI,
     fmt,
     hash::{Hash, Hasher},
@@ -66,6 +65,7 @@ impl From<Angle> for f64 {
 }
 
 impl Angle {
+    #[must_use]
     pub fn from_deg_min_sec(degree: i16, minute: i8, sec: f32) -> Self {
         let degree = degree % 360;
         let minute = minute % 60;
@@ -79,6 +79,7 @@ impl Angle {
         }
     }
 
+    #[must_use]
     pub fn from_deg(deg: f64) -> Self {
         let deg = deg % 360.0;
         let degree = deg as i64;
@@ -97,15 +98,19 @@ impl Angle {
         }
     }
 
+    #[must_use]
     pub fn from_radian(rad: f64) -> Self {
         Self::from(rad * 360.0 / RADIANS_PER_TURN)
     }
 
     #[inline]
+    #[must_use]
     pub fn deg(self) -> f64 {
         self.degree as f64 + (self.minute as f64 / 60.0) + (self.second as f64 / 3600.0)
     }
 
+    #[inline]
+    #[must_use]
     pub fn deg_min_sec(self) -> (i16, i8, f64) {
         (
             self.degree,
@@ -115,6 +120,7 @@ impl Angle {
     }
 
     #[inline]
+    #[must_use]
     pub fn radian(self) -> f64 {
         self.deg() * RADIANS_PER_TURN / 360.0
     }

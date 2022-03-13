@@ -49,6 +49,7 @@ fn default_api_path() -> StackString {
 pub struct Config(Arc<ConfigInner>);
 
 impl Config {
+    #[must_use]
     pub fn new() -> Self {
         Self::default()
     }
@@ -127,12 +128,15 @@ pub struct TestEnvs<'a> {
 impl<'a> TestEnvs<'a> {
     #[allow(dead_code)]
     pub fn new(keys: &[impl AsRef<OsStr>]) -> Self {
-        let _guard = TEST_MUTEX.lock();
+        let guard = TEST_MUTEX.lock();
         let envs = keys
             .iter()
             .map(|k| (k.as_ref().to_os_string(), var_os(k)))
             .collect();
-        Self { _guard, envs }
+        Self {
+            _guard: guard,
+            envs,
+        }
     }
 }
 

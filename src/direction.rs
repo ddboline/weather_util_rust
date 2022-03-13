@@ -1,7 +1,5 @@
-use anyhow::Error;
 use derive_more::{Deref, Display, From, Into};
 use serde::{Deserialize, Serialize};
-use std::{convert::TryFrom, f64::consts::PI};
 
 use crate::angle::Angle;
 
@@ -18,10 +16,12 @@ impl From<f64> for Direction {
 }
 
 impl Direction {
+    #[must_use]
     pub fn from_deg(deg: f64) -> Self {
         Self(Angle::from_deg(deg))
     }
 
+    #[must_use]
     pub fn from_radian(rad: f64) -> Self {
         Self(Angle::from_radian(rad))
     }

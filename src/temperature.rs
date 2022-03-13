@@ -1,5 +1,5 @@
 use anyhow::{format_err, Error};
-use derive_more::{From, Into};
+use derive_more::Into;
 use serde::{Deserialize, Serialize};
 use std::convert::TryFrom;
 
@@ -49,12 +49,21 @@ impl Temperature {
             Err(format_err!("{t} is not a valid temperature in Fahrenheit",))
         }
     }
+
+    #[inline]
+    #[must_use]
     pub fn kelvin(self) -> f64 {
         self.0
     }
+
+    #[inline]
+    #[must_use]
     pub fn celcius(self) -> f64 {
         self.0 - FREEZING_POINT_KELVIN
     }
+
+    #[inline]
+    #[must_use]
     pub fn fahrenheit(self) -> f64 {
         self.0 * FAHRENHEIT_FACTOR - FAHRENHEIT_OFFSET
     }

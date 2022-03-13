@@ -45,22 +45,32 @@ impl Pressure {
         Self::try_from(psi / PSI)
     }
 
+    #[inline]
+    #[must_use]
     pub fn kpa(self) -> f64 {
         self.0 * KILO / HECTO
     }
 
+    #[inline]
+    #[must_use]
     pub fn hpa(self) -> f64 {
         self.0
     }
 
+    #[inline]
+    #[must_use]
     pub fn atmosphere(self) -> f64 {
         self.0 / ATM
     }
 
+    #[inline]
+    #[must_use]
     pub fn atm(self) -> f64 {
         self.atmosphere()
     }
 
+    #[inline]
+    #[must_use]
     pub fn psi(self) -> f64 {
         self.0 * PSI
     }

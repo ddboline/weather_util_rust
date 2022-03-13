@@ -31,10 +31,14 @@ impl Speed {
         Self::try_from(mph * METERS_PER_MILE / SECONDS_PER_HOUR)
     }
 
+    #[inline]
+    #[must_use]
     pub fn mps(self) -> f64 {
         self.0
     }
 
+    #[inline]
+    #[must_use]
     pub fn mph(self) -> f64 {
         self.0 * SECONDS_PER_HOUR / METERS_PER_MILE
     }
