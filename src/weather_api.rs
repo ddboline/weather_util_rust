@@ -38,7 +38,7 @@ impl WeatherLocation {
     #[inline]
     #[must_use]
     pub fn from_zipcode(zipcode: u64) -> Self {
-        WeatherLocation::ZipCode {
+        Self::ZipCode {
             zipcode,
             country_code: None,
         }
@@ -46,7 +46,7 @@ impl WeatherLocation {
 
     #[must_use]
     pub fn from_zipcode_country_code(zipcode: u64, country_code: CountryCode) -> Self {
-        WeatherLocation::ZipCode {
+        Self::ZipCode {
             zipcode,
             country_code: Some(country_code),
         }
@@ -55,7 +55,7 @@ impl WeatherLocation {
     #[must_use]
     pub fn from_zipcode_country_code_str(zipcode: u64, country_code: &str) -> Self {
         let country_code = CountryCode::for_alpha2(country_code).ok();
-        WeatherLocation::ZipCode {
+        Self::ZipCode {
             zipcode,
             country_code,
         }
@@ -63,14 +63,40 @@ impl WeatherLocation {
 
     #[must_use]
     pub fn from_city_name(city_name: &str) -> Self {
-        WeatherLocation::CityName(city_name.into())
+        Self::CityName(city_name.into())
     }
 
     #[must_use]
     pub fn from_lat_lon(latitude: Latitude, longitude: Longitude) -> Self {
-        WeatherLocation::LatLon {
+        Self::LatLon {
             latitude,
             longitude,
+        }
+    }
+
+    #[must_use]
+    pub fn get_options(&self) -> Vec<(&'static str, SmallString<32>)> {
+        match self {
+            Self::ZipCode {
+                zipcode,
+                country_code,
+            } => {
+                let country_code = country_code.map_or("US", |c| c.alpha2());
+                let zipcode_str = SmallString::from_display(zipcode);
+                vec![("zip", zipcode_str), ("country_code", country_code.into())]
+            }
+            Self::CityName(city_name) => {
+                let city_name = city_name.into();
+                vec![("q", city_name)]
+            }
+            Self::LatLon {
+                latitude,
+                longitude,
+            } => {
+                let latitude_str = SmallString::from_display(latitude);
+                let longitude_str = SmallString::from_display(longitude);
+                vec![("lat", latitude_str), ("lon", longitude_str)]
+            }
         }
     }
 }
@@ -187,36 +213,9 @@ impl WeatherApi {
     }
 
     fn get_options(&self, location: &WeatherLocation) -> Vec<(&'static str, SmallString<32>)> {
-        match location {
-            WeatherLocation::ZipCode {
-                zipcode,
-                country_code,
-            } => {
-                let country_code = country_code.map_or("US", |c| c.alpha2());
-                let zipcode_str = SmallString::from_display(zipcode);
-                vec![
-                    ("zip", zipcode_str),
-                    ("country_code", country_code.into()),
-                    ("APPID", self.api_key.clone()),
-                ]
-            }
-            WeatherLocation::CityName(city_name) => {
-                let city_name = city_name.into();
-                vec![("q", city_name), ("APPID", self.api_key.clone())]
-            }
-            WeatherLocation::LatLon {
-                latitude,
-                longitude,
-            } => {
-                let latitude_str = SmallString::from_display(latitude);
-                let longitude_str = SmallString::from_display(longitude);
-                vec![
-                    ("lat", latitude_str),
-                    ("lon", longitude_str),
-                    ("APPID", self.api_key.clone()),
-                ]
-            }
-        }
+        let mut options = location.get_options();
+        options.push(("APPID", self.api_key.clone()));
+        options
     }
 
     /// # Errors
