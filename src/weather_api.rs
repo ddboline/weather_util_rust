@@ -1,11 +1,13 @@
 use anyhow::Error;
 use isocountry::CountryCode;
-use reqwest::{Client, Url};
 use stack_string::{SmallString, StackString};
 use std::{
     fmt::{self},
     hash::{Hash, Hasher},
 };
+
+#[cfg(feature = "cli")]
+use reqwest::{Client, Url};
 
 use crate::{
     latitude::Latitude, longitude::Longitude, weather_data::WeatherData,
@@ -103,6 +105,7 @@ impl WeatherLocation {
 
 /// `WeatherApi` contains a `reqwest` Client and all the metadata required to
 /// query the openweathermap.org api.
+#[cfg(feature = "cli")]
 #[derive(Default, Clone)]
 pub struct WeatherApi {
     client: Client,
@@ -111,6 +114,7 @@ pub struct WeatherApi {
     api_path: StackString,
 }
 
+#[cfg(feature = "cli")]
 impl PartialEq for WeatherApi {
     fn eq(&self, other: &Self) -> bool {
         self.api_key == other.api_key
@@ -119,6 +123,7 @@ impl PartialEq for WeatherApi {
     }
 }
 
+#[cfg(feature = "cli")]
 impl fmt::Debug for WeatherApi {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         let api_key = &self.api_key;
@@ -127,6 +132,7 @@ impl fmt::Debug for WeatherApi {
     }
 }
 
+#[cfg(feature = "cli")]
 impl Hash for WeatherApi {
     fn hash<H: Hasher>(&self, state: &mut H) {
         format!("{self:?}").hash(state);
@@ -154,6 +160,7 @@ impl fmt::Display for WeatherCommands {
     }
 }
 
+#[cfg(feature = "cli")]
 impl WeatherApi {
     /// Create `WeatherApi` instance specifying `api_key`, `api_endpoint` and
     /// `api_path`
@@ -256,8 +263,12 @@ mod tests {
         hash::{Hash, Hasher},
     };
 
-    use crate::weather_api::{WeatherApi, WeatherLocation};
+    use crate::weather_api::WeatherLocation;
 
+    #[cfg(feature = "cli")]
+    use crate::weather_api::WeatherApi;
+
+    #[cfg(feature = "cli")]
     #[tokio::test]
     async fn test_process_opts() -> Result<(), Error> {
         let api_key = "95337ed3a8a87acae620d673fae85b11";
@@ -293,6 +304,7 @@ mod tests {
         Ok(())
     }
 
+    #[cfg(feature = "cli")]
     #[test]
     fn test_weatherapi() -> Result<(), Error> {
         let api = WeatherApi::new("8675309", "api.openweathermap.org", "data/2.5/");

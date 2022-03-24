@@ -3,19 +3,22 @@ use futures::future::join;
 use serde::{Deserialize, Serialize};
 use stack_string::{SmallString, StackString};
 use structopt::StructOpt;
+
+#[cfg(feature = "cli")]
 use tokio::io::{stdout, AsyncWriteExt};
 
 use crate::{
-    config::Config,
-    latitude::Latitude,
-    longitude::Longitude,
-    weather_api::{WeatherApi, WeatherLocation},
+    config::Config, latitude::Latitude, longitude::Longitude, weather_api::WeatherLocation,
 };
+
+#[cfg(feature = "cli")]
+use crate::weather_api::WeatherApi;
 
 /// Utility to retreive and format weather data from openweathermap.org
 ///
 /// Please specify one of `zipcode(country_code)`, `city_name`, or `lat` and
 /// `lon`.
+#[cfg(feature = "cli")]
 #[derive(StructOpt, Default, Serialize, Deserialize)]
 pub struct WeatherOpts {
     /// Zipcode (optional)
@@ -49,6 +52,7 @@ macro_rules! set_default {
     };
 }
 
+#[cfg(feature = "cli")]
 impl WeatherOpts {
     /// Parse options from stdin, requires `Config` instance.
     /// # Errors
@@ -68,6 +72,7 @@ impl WeatherOpts {
 
     /// # Errors
     /// Return Error if api key cannot be found
+    #[cfg(feature = "cli")]
     fn get_api(&self, config: &Config) -> Result<WeatherApi, Error> {
         let api_key = self
             .api_key
@@ -171,9 +176,12 @@ mod test {
         latitude::Latitude,
         longitude::Longitude,
         weather_api::WeatherLocation,
-        weather_opts::WeatherOpts,
     };
 
+    #[cfg(feature = "cli")]
+    use crate::weather_opts::WeatherOpts;
+
+    #[cfg(feature = "cli")]
     #[test]
     fn test_get_api() -> Result<(), Error> {
         let _env = TestEnvs::new(&["API_KEY", "API_ENDPOINT", "ZIPCODE", "API_PATH"]);
@@ -223,6 +231,7 @@ mod test {
         Ok(())
     }
 
+    #[cfg(feature = "cli")]
     #[tokio::test]
     async fn test_run_opts() -> Result<(), Error> {
         let _env = TestEnvs::new(&["API_KEY", "API_ENDPOINT", "ZIPCODE", "API_PATH"]);
