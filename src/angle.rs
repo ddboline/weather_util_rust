@@ -11,7 +11,7 @@ use std::{
 const RADIANS_PER_TURN: f64 = 2.0 * PI;
 
 /// Angle in degrees
-#[derive(Into, Debug, Copy, Clone, PartialOrd, Serialize, Deserialize)]
+#[derive(Into, Debug, Copy, Clone, PartialOrd, Serialize, Deserialize, Default)]
 #[serde(into = "f64", from = "f64")]
 pub struct Angle {
     degree: i16,

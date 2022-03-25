@@ -9,7 +9,7 @@ const ATM: f64 = 98.0665 * HECTO / KILO;
 const PSI: f64 = 14.223 / (98.0665 * HECTO / KILO);
 
 /// Pressure struct, data is stored as hPa (100 Pa)
-#[derive(Into, Debug, PartialEq, Copy, Clone, PartialOrd, Serialize, Deserialize)]
+#[derive(Into, Debug, PartialEq, Copy, Clone, PartialOrd, Serialize, Deserialize, Default)]
 #[serde(into = "f64", try_from = "f64")]
 pub struct Pressure(f64);
 

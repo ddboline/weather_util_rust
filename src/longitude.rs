@@ -7,7 +7,7 @@ use crate::angle::Angle;
 
 /// Longitude in degrees, required be within the range -180.0 to 180.0
 #[derive(
-    Into, Clone, Copy, Display, FromStr, Debug, Serialize, Deserialize, PartialEq, Hash, Eq,
+    Into, Clone, Copy, Display, FromStr, Debug, Serialize, Deserialize, PartialEq, Hash, Eq, Default
 )]
 pub struct Longitude(Angle);
 

@@ -9,13 +9,13 @@ use crate::{
     temperature::Temperature, timestamp, timezone::TimeZone,
 };
 
-#[derive(Serialize, Deserialize, Debug, Clone, Copy)]
+#[derive(Serialize, Deserialize, Debug, Clone, Copy, Default)]
 pub struct Coord {
     pub lon: Longitude,
     pub lat: Latitude,
 }
 
-#[derive(Serialize, Deserialize, Debug, Clone)]
+#[derive(Serialize, Deserialize, Debug, Clone, Default)]
 pub struct WeatherCond {
     pub id: usize,
     pub main: StackString,
@@ -23,7 +23,7 @@ pub struct WeatherCond {
     pub icon: StackString,
 }
 
-#[derive(Serialize, Deserialize, Debug, Clone, Copy)]
+#[derive(Serialize, Deserialize, Debug, Clone, Copy, Default)]
 pub struct WeatherMain {
     pub temp: Temperature,
     pub feels_like: Temperature,
@@ -33,7 +33,7 @@ pub struct WeatherMain {
     pub humidity: Humidity,
 }
 
-#[derive(Deserialize, Serialize, Debug, Clone, Copy)]
+#[derive(Deserialize, Serialize, Debug, Clone, Copy, Default)]
 pub struct Wind {
     pub speed: Speed,
     #[serde(skip_serializing_if = "Option::is_none")]
@@ -48,6 +48,16 @@ pub struct Sys {
     pub sunrise: DateTime<Utc>,
     #[serde(with = "timestamp")]
     pub sunset: DateTime<Utc>,
+}
+
+impl Default for Sys {
+    fn default() -> Self {
+        Self {
+            country: None,
+            sunrise: Utc::now(),
+            sunset: Utc::now(),
+        }
+    }
 }
 
 #[derive(Deserialize, Serialize, Debug, Clone, Copy)]
@@ -80,6 +90,25 @@ pub struct WeatherData {
     pub sys: Sys,
     pub timezone: TimeZone,
     pub name: StackString,
+}
+
+impl Default for WeatherData {
+    fn default() -> Self {
+        Self {
+            coord: Coord::default(),
+            weather: Vec::new(),
+            base: "".into(),
+            main: WeatherMain::default(),
+            visibility: None,
+            wind: Wind::default(),
+            rain: None,
+            snow: None,
+            dt: Utc::now(),
+            sys: Sys::default(),
+            timezone: TimeZone::default(),
+            name: "".into(),
+        }
+    }
 }
 
 impl WeatherData {

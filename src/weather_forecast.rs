@@ -49,7 +49,17 @@ pub struct CityEntry {
     pub sunset: DateTime<Utc>,
 }
 
-#[derive(Deserialize, Serialize, Debug, Clone)]
+impl Default for CityEntry {
+    fn default() -> Self {
+        Self {
+            timezone: TimeZone::default(),
+            sunrise: Utc::now(),
+            sunset: Utc::now(),
+        }
+    }
+}
+
+#[derive(Deserialize, Serialize, Debug, Clone, Default)]
 pub struct WeatherForecast {
     pub list: Vec<ForecastEntry>,
     pub city: CityEntry,
