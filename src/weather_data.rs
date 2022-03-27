@@ -5,7 +5,7 @@ use crate::{
     direction::Direction, distance::Distance, humidity::Humidity, latitude::Latitude,
     longitude::Longitude, precipitation::Precipitation, pressure::Pressure, speed::Speed,
     temperature::Temperature, timestamp, timezone::TimeZone,
-    StringType, format_string,
+    StringType, format_string, default_datetime,
 };
 
 #[derive(Serialize, Deserialize, Debug, Clone, Copy, Default)]
@@ -53,8 +53,8 @@ impl Default for Sys {
     fn default() -> Self {
         Self {
             country: None,
-            sunrise: Utc::now(),
-            sunset: Utc::now(),
+            sunrise: default_datetime(),
+            sunset: default_datetime(),
         }
     }
 }
@@ -102,7 +102,7 @@ impl Default for WeatherData {
             wind: Wind::default(),
             rain: None,
             snow: None,
-            dt: Utc::now(),
+            dt: default_datetime(),
             sys: Sys::default(),
             timezone: TimeZone::default(),
             name: "".into(),

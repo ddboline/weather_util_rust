@@ -12,7 +12,7 @@ use crate::{
     timestamp,
     timezone::TimeZone,
     weather_data::{Rain, Snow, WeatherCond},
-    StringType, format_string,
+    StringType, format_string, default_datetime,
 };
 
 #[derive(Deserialize, Serialize, Debug, Clone, Copy)]
@@ -52,8 +52,8 @@ impl Default for CityEntry {
     fn default() -> Self {
         Self {
             timezone: TimeZone::default(),
-            sunrise: Utc::now(),
-            sunset: Utc::now(),
+            sunrise: default_datetime(),
+            sunset: default_datetime(),
         }
     }
 }

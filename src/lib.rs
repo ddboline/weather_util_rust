@@ -59,6 +59,12 @@ pub mod weather_forecast;
 /// CLI App Options and implementation
 pub mod weather_opts;
 
+use chrono::{DateTime, Utc, NaiveDate};
+
+pub fn default_datetime() -> DateTime<Utc> {
+    DateTime::from_utc(NaiveDate::from_ymd(1970, 1, 1).and_hms(0, 0, 0), Utc)
+}
+
 #[cfg(feature="stackstring")]
 use stack_string::{SmallString, StackString};
 #[cfg(feature="stackstring")]
