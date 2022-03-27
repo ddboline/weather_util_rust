@@ -66,10 +66,20 @@ pub type StringType = StackString;
 #[cfg(feature="stackstring")]
 pub type ApiStringType = SmallString<32>;
 
+#[cfg(feature="stackstring")]
+pub fn apistringtype_from_display(buf: impl std::fmt::Display) -> ApiStringType {
+    SmallString::from_display(buf)
+}
+
 #[cfg(not(feature="stackstring"))]
 pub type StringType = String;
 #[cfg(not(feature="stackstring"))]
 pub type ApiStringType = String;
+
+#[cfg(not(feature="stackstring"))]
+pub fn apistringtype_from_display(buf: impl std::fmt::Display) -> ApiStringType {
+    format!({buf})
+}
 
 #[cfg(feature="stackstring")]
 #[macro_export]

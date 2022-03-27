@@ -11,6 +11,7 @@ use reqwest::{Client, Url};
 use crate::{
     latitude::Latitude, longitude::Longitude, weather_data::WeatherData,
     weather_forecast::WeatherForecast, StringType, ApiStringType,
+    apistringtype_from_display,
 };
 
 #[derive(Clone, Debug, PartialEq, Hash)]
@@ -83,7 +84,7 @@ impl WeatherLocation {
                 country_code,
             } => {
                 let country_code = country_code.map_or("US", |c| c.alpha2());
-                let zipcode_str = ApiStringType::from_display(zipcode);
+                let zipcode_str = apistringtype_from_display(zipcode);
                 vec![("zip", zipcode_str), ("country_code", country_code.into())]
             }
             Self::CityName(city_name) => {
@@ -94,8 +95,8 @@ impl WeatherLocation {
                 latitude,
                 longitude,
             } => {
-                let latitude_str = ApiStringType::from_display(latitude);
-                let longitude_str = ApiStringType::from_display(longitude);
+                let latitude_str = apistringtype_from_display(latitude);
+                let longitude_str = apistringtype_from_display(longitude);
                 vec![("lat", latitude_str), ("lon", longitude_str)]
             }
         }
