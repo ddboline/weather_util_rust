@@ -1,12 +1,11 @@
 use chrono::{DateTime, FixedOffset, Utc};
 use serde::{Deserialize, Serialize};
-use stack_string::{format_sstr, StackString};
-use std::fmt::Write as FmtWrite;
 
 use crate::{
     direction::Direction, distance::Distance, humidity::Humidity, latitude::Latitude,
     longitude::Longitude, precipitation::Precipitation, pressure::Pressure, speed::Speed,
     temperature::Temperature, timestamp, timezone::TimeZone,
+    StringType, format_string,
 };
 
 #[derive(Serialize, Deserialize, Debug, Clone, Copy, Default)]
@@ -18,9 +17,9 @@ pub struct Coord {
 #[derive(Serialize, Deserialize, Debug, Clone, Default)]
 pub struct WeatherCond {
     pub id: usize,
-    pub main: StackString,
-    pub description: StackString,
-    pub icon: StackString,
+    pub main: StringType,
+    pub description: StringType,
+    pub icon: StringType,
 }
 
 #[derive(Serialize, Deserialize, Debug, Clone, Copy, Default)]
@@ -43,7 +42,7 @@ pub struct Wind {
 #[derive(Deserialize, Serialize, Debug, Clone)]
 pub struct Sys {
     #[serde(skip_serializing_if = "Option::is_none")]
-    pub country: Option<StackString>,
+    pub country: Option<StringType>,
     #[serde(with = "timestamp")]
     pub sunrise: DateTime<Utc>,
     #[serde(with = "timestamp")]
@@ -76,7 +75,7 @@ pub struct Snow {
 pub struct WeatherData {
     pub coord: Coord,
     pub weather: Vec<WeatherCond>,
-    pub base: StackString,
+    pub base: StringType,
     pub main: WeatherMain,
     #[serde(skip_serializing_if = "Option::is_none")]
     pub visibility: Option<Distance>,
@@ -89,7 +88,7 @@ pub struct WeatherData {
     pub dt: DateTime<Utc>,
     pub sys: Sys,
     pub timezone: TimeZone,
-    pub name: StackString,
+    pub name: StringType,
 }
 
 impl Default for WeatherData {
@@ -153,50 +152,50 @@ impl WeatherData {
     /// # }
     /// ```
     #[must_use]
-    pub fn get_current_conditions(&self) -> StackString {
+    pub fn get_current_conditions(&self) -> StringType {
         let fo: FixedOffset = self.timezone.into();
         let dt = self.dt.with_timezone(&fo);
         let sunrise = self.sys.sunrise.with_timezone(&fo);
         let sunset = self.sys.sunset.with_timezone(&fo);
         let country_str = if let Some(country) = &self.sys.country {
             let name = &self.name;
-            format_sstr!("{name} {country}")
+            format_string!("{name} {country}")
         } else {
-            StackString::new()
+            StringType::new()
         };
-        let lat_lon = format_sstr!("{:0.5}N {:0.5}E", self.coord.lat, self.coord.lon);
-        let dt_str = format_sstr!("Last Updated {dt}");
-        let temp_str = format_sstr!(
+        let lat_lon = format_string!("{:0.5}N {:0.5}E", self.coord.lat, self.coord.lon);
+        let dt_str = format_string!("Last Updated {dt}");
+        let temp_str = format_string!(
             "\tTemperature: {f:0.2} F ({c:0.2} C)",
             f = self.main.temp.fahrenheit(),
             c = self.main.temp.celcius(),
         );
-        let humidity_str = format_sstr!("\tRelative Humidity: {}%", self.main.humidity);
-        let wind_str = format_sstr!(
+        let humidity_str = format_string!("\tRelative Humidity: {}%", self.main.humidity);
+        let wind_str = format_string!(
             "\tWind: {d} degrees at {s:0.2} mph",
             d = self.wind.deg.unwrap_or_else(|| 0.0.into()),
             s = self.wind.speed.mph(),
         );
-        let conditions_str = format_sstr!("\tConditions: {}", self.weather[0].description);
-        let sunrise_str = format_sstr!("\tSunrise: {sunrise}");
-        let sunset_str = format_sstr!("\tSunset: {sunset}");
+        let conditions_str = format_string!("\tConditions: {}", self.weather[0].description);
+        let sunrise_str = format_string!("\tSunrise: {sunrise}");
+        let sunset_str = format_string!("\tSunset: {sunset}");
         let rain_str = if let Some(rain) = &self.rain {
-            format_sstr!(
+            format_string!(
                 "\n\tRain: {} in",
                 rain.three_hour.map_or(0.0, Precipitation::inches)
             )
         } else {
-            StackString::new()
+            StringType::new()
         };
         let snow_str = if let Some(snow) = &self.snow {
-            format_sstr!(
+            format_string!(
                 "\n\tSnow: {} in",
                 snow.three_hour.map_or(0.0, Precipitation::inches)
             )
         } else {
-            StackString::new()
+            StringType::new()
         };
-        format_sstr!(
+        format_string!(
             "Current conditions {} {}\n{}\n{}\n{}\n{}\n{}\n{}\n{}{}{}\n",
             country_str,
             lat_lon,

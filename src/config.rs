@@ -2,7 +2,6 @@ use anyhow::Error;
 use lazy_static::lazy_static;
 use parking_lot::{Mutex, MutexGuard};
 use serde::Deserialize;
-use stack_string::{SmallString, StackString};
 use std::{
     env::{remove_var, set_var, var_os},
     ffi::{OsStr, OsString},
@@ -11,36 +10,36 @@ use std::{
     sync::Arc,
 };
 
-use crate::{latitude::Latitude, longitude::Longitude};
+use crate::{latitude::Latitude, longitude::Longitude, StringType, ApiStringType};
 
 /// Configuration data
 #[derive(Default, Debug, Deserialize, PartialEq)]
 pub struct ConfigInner {
     /// openweathermap.org api key
-    pub api_key: Option<SmallString<32>>,
+    pub api_key: Option<ApiStringType>,
     /// openweathermap.org api endpoint
     #[serde(default = "default_api_endpoint")]
-    pub api_endpoint: StackString,
+    pub api_endpoint: StringType,
     /// Api path (default is `data/2.5/`)
     #[serde(default = "default_api_path")]
-    pub api_path: StackString,
+    pub api_path: StringType,
     /// optional default zipcode
     pub zipcode: Option<u64>,
     /// optional default country code
-    pub country_code: Option<StackString>,
+    pub country_code: Option<StringType>,
     /// optional default city name
-    pub city_name: Option<StackString>,
+    pub city_name: Option<StringType>,
     /// optional default latitude
     pub lat: Option<Latitude>,
     /// optional default longitude
     pub lon: Option<Longitude>,
 }
 
-fn default_api_endpoint() -> StackString {
+fn default_api_endpoint() -> StringType {
     "api.openweathermap.org".into()
 }
 
-fn default_api_path() -> StackString {
+fn default_api_path() -> StringType {
     "data/2.5/".into()
 }
 

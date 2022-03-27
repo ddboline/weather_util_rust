@@ -1,9 +1,7 @@
 use chrono::{DateTime, FixedOffset, NaiveDate, Utc};
 use serde::{Deserialize, Serialize};
-use stack_string::{format_sstr, StackString};
 use std::{
     collections::{BTreeMap, BTreeSet},
-    fmt::Write as FmtWrite,
 };
 
 use crate::{
@@ -14,6 +12,7 @@ use crate::{
     timestamp,
     timezone::TimeZone,
     weather_data::{Rain, Snow, WeatherCond},
+    StringType, format_string,
 };
 
 #[derive(Deserialize, Serialize, Debug, Clone, Copy)]
@@ -74,7 +73,6 @@ impl WeatherForecast {
     /// # use std::convert::TryFrom;
     /// # use chrono::NaiveDate;
     /// # use std::collections::BTreeSet;
-    /// # use stack_string::StackString;
     /// use weather_util_rust::weather_forecast::WeatherForecast;
     /// use weather_util_rust::temperature::Temperature;
     /// use weather_util_rust::precipitation::Precipitation;
@@ -87,7 +85,7 @@ impl WeatherForecast {
     /// let high_low = data.get_high_low();
     /// assert_eq!(high_low.len(), 6);
     /// let date: NaiveDate = "2022-02-27".parse()?;
-    /// let icons: BTreeSet<StackString> = ["04n"].iter().map(|s| (*s).into()).collect();
+    /// let icons: BTreeSet<_> = ["04n"].iter().map(|s| (*s).into()).collect();
     /// assert_eq!(
     ///     high_low.get(&date),
     ///     Some(
@@ -113,7 +111,7 @@ impl WeatherForecast {
             Temperature,
             Precipitation,
             Precipitation,
-            BTreeSet<StackString>,
+            BTreeSet<StringType>,
         ),
     > {
         let fo: FixedOffset = self.city.timezone.into();
@@ -131,7 +129,7 @@ impl WeatherForecast {
             } else {
                 Precipitation::default()
             };
-            let mut icons: BTreeSet<StackString> =
+            let mut icons: BTreeSet<StringType> =
                 entry.weather.iter().map(|w| w.icon.clone()).collect();
 
             if let Some((h, l, r, s, i)) = hmap.get(&date) {
@@ -178,22 +176,22 @@ impl WeatherForecast {
     /// # }
     /// ```
     #[must_use]
-    pub fn get_forecast(&self) -> Vec<StackString> {
+    pub fn get_forecast(&self) -> Vec<StringType> {
         let mut output = vec!["\nForecast:\n".into()];
         output.extend(self.get_high_low().into_iter().map(|(d, (h, l, r, s, _))| {
-            let high = format_sstr!("High: {:0.1} F / {:0.1} C", h.fahrenheit(), h.celcius());
-            let low = format_sstr!("Low: {:0.1} F / {:0.1} C", l.fahrenheit(), l.celcius());
-            let mut rain_snow = StackString::new();
+            let high = format_string!("High: {:0.1} F / {:0.1} C", h.fahrenheit(), h.celcius());
+            let low = format_string!("Low: {:0.1} F / {:0.1} C", l.fahrenheit(), l.celcius());
+            let mut rain_snow = StringType::new();
             if r.millimeters() > 0.0 {
-                rain_snow.push_str(&format_sstr!("Rain {:0.2} in", r.inches()));
+                rain_snow.push_str(&format_string!("Rain {:0.2} in", r.inches()));
             }
             if s.millimeters() > 0.0 {
                 if !rain_snow.is_empty() {
                     rain_snow.push_str("\t");
                 }
-                rain_snow.push_str(&format_sstr!("Snow {:0.2} in", s.inches()));
+                rain_snow.push_str(&format_string!("Snow {:0.2} in", s.inches()));
             }
-            format_sstr!("\t{d} {high:25} {low:25} {rain_snow:25}\n")
+            format_string!("\t{d} {high:25} {low:25} {rain_snow:25}\n")
         }));
         output
     }
@@ -203,11 +201,11 @@ impl WeatherForecast {
 mod test {
     use anyhow::Error;
     use chrono::NaiveDate;
-    use stack_string::StackString;
     use std::{collections::BTreeSet, convert::TryFrom};
 
     use crate::{
         precipitation::Precipitation, temperature::Temperature, weather_forecast::WeatherForecast,
+        StringType,
     };
 
     #[test]
@@ -217,7 +215,7 @@ mod test {
         let high_low = data.get_high_low();
         assert_eq!(high_low.len(), 6);
         let date: NaiveDate = "2022-02-27".parse()?;
-        let icons: BTreeSet<StackString> = ["04n"].iter().map(|s| (*s).into()).collect();
+        let icons: BTreeSet<StringType> = ["04n"].iter().map(|s| (*s).into()).collect();
         assert_eq!(
             high_low.get(&date),
             Some(&(

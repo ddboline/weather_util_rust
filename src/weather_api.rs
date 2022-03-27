@@ -1,6 +1,5 @@
 use anyhow::Error;
 use isocountry::CountryCode;
-use stack_string::{SmallString, StackString};
 use std::{
     fmt::{self},
     hash::{Hash, Hasher},
@@ -11,7 +10,7 @@ use reqwest::{Client, Url};
 
 use crate::{
     latitude::Latitude, longitude::Longitude, weather_data::WeatherData,
-    weather_forecast::WeatherForecast,
+    weather_forecast::WeatherForecast, StringType, ApiStringType,
 };
 
 #[derive(Clone, Debug, PartialEq, Hash)]
@@ -20,7 +19,7 @@ pub enum WeatherLocation {
         zipcode: u64,
         country_code: Option<CountryCode>,
     },
-    CityName(StackString),
+    CityName(StringType),
     LatLon {
         latitude: Latitude,
         longitude: Longitude,
@@ -77,14 +76,14 @@ impl WeatherLocation {
     }
 
     #[must_use]
-    pub fn get_options(&self) -> Vec<(&'static str, SmallString<32>)> {
+    pub fn get_options(&self) -> Vec<(&'static str, ApiStringType)> {
         match self {
             Self::ZipCode {
                 zipcode,
                 country_code,
             } => {
                 let country_code = country_code.map_or("US", |c| c.alpha2());
-                let zipcode_str = SmallString::from_display(zipcode);
+                let zipcode_str = ApiStringType::from_display(zipcode);
                 vec![("zip", zipcode_str), ("country_code", country_code.into())]
             }
             Self::CityName(city_name) => {
@@ -95,8 +94,8 @@ impl WeatherLocation {
                 latitude,
                 longitude,
             } => {
-                let latitude_str = SmallString::from_display(latitude);
-                let longitude_str = SmallString::from_display(longitude);
+                let latitude_str = ApiStringType::from_display(latitude);
+                let longitude_str = ApiStringType::from_display(longitude);
                 vec![("lat", latitude_str), ("lon", longitude_str)]
             }
         }
@@ -109,9 +108,9 @@ impl WeatherLocation {
 #[derive(Default, Clone)]
 pub struct WeatherApi {
     client: Client,
-    api_key: SmallString<32>,
-    api_endpoint: StackString,
-    api_path: StackString,
+    api_key: ApiStringType,
+    api_endpoint: StringType,
+    api_path: StringType,
 }
 
 #[cfg(feature = "cli")]
@@ -219,7 +218,7 @@ impl WeatherApi {
         self.run_api(WeatherCommands::Forecast, &options).await
     }
 
-    fn get_options(&self, location: &WeatherLocation) -> Vec<(&'static str, SmallString<32>)> {
+    fn get_options(&self, location: &WeatherLocation) -> Vec<(&'static str, ApiStringType)> {
         let mut options = location.get_options();
         options.push(("APPID", self.api_key.clone()));
         options
@@ -234,7 +233,7 @@ impl WeatherApi {
     async fn run_api<T: serde::de::DeserializeOwned>(
         &self,
         command: WeatherCommands,
-        options: &[(&'static str, SmallString<32>)],
+        options: &[(&'static str, ApiStringType)],
     ) -> Result<T, Error> {
         let api_endpoint = &self.api_endpoint;
         let api_path = &self.api_path;
@@ -256,7 +255,6 @@ mod tests {
     use anyhow::Error;
     use futures::future::join;
     use isocountry::CountryCode;
-    use stack_string::SmallString;
     use std::{
         collections::hash_map::DefaultHasher,
         convert::TryInto,
@@ -264,6 +262,7 @@ mod tests {
     };
 
     use crate::weather_api::WeatherLocation;
+    use crate::ApiStringType;
 
     #[cfg(feature = "cli")]
     use crate::weather_api::WeatherApi;
@@ -330,7 +329,7 @@ mod tests {
 
         let loc = WeatherLocation::from_zipcode_country_code(10001, CountryCode::USA);
         let opts = api.get_options(&loc);
-        let expected: Vec<(&str, SmallString<32>)> = vec![
+        let expected: Vec<(&str, ApiStringType)> = vec![
             ("zip", "10001".into()),
             ("country_code", "US".into()),
             ("APPID", "8675309".into()),
@@ -339,13 +338,13 @@ mod tests {
 
         let loc = WeatherLocation::from_city_name("New York");
         let opts = api.get_options(&loc);
-        let expected: Vec<(&str, SmallString<32>)> =
+        let expected: Vec<(&str, ApiStringType)> =
             vec![("q", "New York".into()), ("APPID", "8675309".into())];
         assert_eq!(opts, expected);
 
         let loc = WeatherLocation::from_lat_lon(41.0f64.try_into()?, 39.0f64.try_into()?);
         let opts = api.get_options(&loc);
-        let expected: Vec<(&str, SmallString<32>)> = vec![
+        let expected: Vec<(&str, ApiStringType)> = vec![
             ("lat", "41.00000".into()),
             ("lon", "39.00000".into()),
             ("APPID", "8675309".into()),

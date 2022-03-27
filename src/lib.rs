@@ -58,3 +58,41 @@ pub mod weather_data;
 pub mod weather_forecast;
 /// CLI App Options and implementation
 pub mod weather_opts;
+
+#[cfg(feature="stackstring")]
+use stack_string::{SmallString, StackString};
+#[cfg(feature="stackstring")]
+pub type StringType = StackString;
+#[cfg(feature="stackstring")]
+pub type ApiStringType = SmallString<32>;
+
+#[cfg(not(feature="stackstring"))]
+pub type StringType = String;
+#[cfg(not(feature="stackstring"))]
+pub type ApiStringType = String;
+
+#[cfg(feature="stackstring")]
+#[macro_export]
+macro_rules! format_string {
+    ($($arg:tt)*) => {
+        {
+            use std::fmt::Write;
+            let mut buf = stack_string::StackString::new();
+            std::write!(buf, "{}", std::format_args!($($arg)*)).unwrap();
+            buf
+        }
+    };
+}
+
+#[cfg(not(feature="stackstring"))]
+#[macro_export]
+macro_rules! format_string {
+    ($($arg:tt)*) => {
+        {
+            use std::fmt::Write;
+            let mut buf = String::new();
+            std::write!(buf, "{}", std::format_args!($($arg)*)).unwrap();
+            buf
+        }
+    };
+}
