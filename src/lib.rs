@@ -78,7 +78,7 @@ pub type ApiStringType = String;
 
 #[cfg(not(feature="stackstring"))]
 pub fn apistringtype_from_display(buf: impl std::fmt::Display) -> ApiStringType {
-    format!({buf})
+    format!("{buf}")
 }
 
 #[cfg(feature="stackstring")]
