@@ -8,7 +8,7 @@ use tokio::io::{stdout, AsyncWriteExt};
 
 use crate::{
     config::Config, latitude::Latitude, longitude::Longitude, weather_api::WeatherLocation,
-    StringType, ApiStringType,
+    ApiStringType, StringType,
 };
 
 #[cfg(feature = "cli")]

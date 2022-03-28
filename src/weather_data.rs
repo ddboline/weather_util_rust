@@ -2,10 +2,9 @@ use chrono::{DateTime, FixedOffset, Utc};
 use serde::{Deserialize, Serialize};
 
 use crate::{
-    direction::Direction, distance::Distance, humidity::Humidity, latitude::Latitude,
-    longitude::Longitude, precipitation::Precipitation, pressure::Pressure, speed::Speed,
-    temperature::Temperature, timestamp, timezone::TimeZone,
-    StringType, format_string, default_datetime,
+    default_datetime, direction::Direction, distance::Distance, format_string, humidity::Humidity,
+    latitude::Latitude, longitude::Longitude, precipitation::Precipitation, pressure::Pressure,
+    speed::Speed, temperature::Temperature, timestamp, timezone::TimeZone, StringType,
 };
 
 #[derive(Serialize, Deserialize, Debug, Clone, Copy, Default)]

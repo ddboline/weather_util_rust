@@ -9,9 +9,8 @@ use std::{
 use reqwest::{Client, Url};
 
 use crate::{
-    latitude::Latitude, longitude::Longitude, weather_data::WeatherData,
-    weather_forecast::WeatherForecast, StringType, ApiStringType,
-    apistringtype_from_display,
+    apistringtype_from_display, latitude::Latitude, longitude::Longitude,
+    weather_data::WeatherData, weather_forecast::WeatherForecast, ApiStringType, StringType,
 };
 
 #[derive(Clone, Debug, PartialEq, Hash)]
@@ -262,8 +261,7 @@ mod tests {
         hash::{Hash, Hasher},
     };
 
-    use crate::weather_api::WeatherLocation;
-    use crate::ApiStringType;
+    use crate::{weather_api::WeatherLocation, ApiStringType};
 
     #[cfg(feature = "cli")]
     use crate::weather_api::WeatherApi;

@@ -5,7 +5,18 @@ use crate::angle::Angle;
 
 /// Direction in degrees
 #[derive(
-    Into, Debug, PartialEq, Copy, Clone, PartialOrd, Serialize, Deserialize, Display, Deref, From, Default,
+    Into,
+    Debug,
+    PartialEq,
+    Copy,
+    Clone,
+    PartialOrd,
+    Serialize,
+    Deserialize,
+    Display,
+    Deref,
+    From,
+    Default,
 )]
 pub struct Direction(Angle);
 

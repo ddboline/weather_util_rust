@@ -10,7 +10,7 @@ use crate::angle::Angle;
 
 /// Latitude in degrees, required be within the range -90.0 to 90.0
 #[derive(
-    Into, Clone, Copy, Display, FromStr, Debug, Serialize, Deserialize, PartialEq, Eq, Hash, Default
+    Into, Clone, Copy, Display, FromStr, Debug, Serialize, Deserialize, PartialEq, Eq, Hash, Default,
 )]
 pub struct Latitude(Angle);
 

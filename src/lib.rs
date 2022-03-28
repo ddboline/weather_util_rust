@@ -59,35 +59,36 @@ pub mod weather_forecast;
 /// CLI App Options and implementation
 pub mod weather_opts;
 
-use chrono::{DateTime, Utc, NaiveDate};
+use chrono::{DateTime, NaiveDate, Utc};
 
+#[must_use]
 pub fn default_datetime() -> DateTime<Utc> {
     DateTime::from_utc(NaiveDate::from_ymd(1970, 1, 1).and_hms(0, 0, 0), Utc)
 }
 
-#[cfg(feature="stackstring")]
+#[cfg(feature = "stackstring")]
 use stack_string::{SmallString, StackString};
-#[cfg(feature="stackstring")]
+#[cfg(feature = "stackstring")]
 pub type StringType = StackString;
-#[cfg(feature="stackstring")]
+#[cfg(feature = "stackstring")]
 pub type ApiStringType = SmallString<32>;
 
-#[cfg(feature="stackstring")]
+#[cfg(feature = "stackstring")]
 pub fn apistringtype_from_display(buf: impl std::fmt::Display) -> ApiStringType {
     SmallString::from_display(buf)
 }
 
-#[cfg(not(feature="stackstring"))]
+#[cfg(not(feature = "stackstring"))]
 pub type StringType = String;
-#[cfg(not(feature="stackstring"))]
+#[cfg(not(feature = "stackstring"))]
 pub type ApiStringType = String;
 
-#[cfg(not(feature="stackstring"))]
+#[cfg(not(feature = "stackstring"))]
 pub fn apistringtype_from_display(buf: impl std::fmt::Display) -> ApiStringType {
     format!("{buf}")
 }
 
-#[cfg(feature="stackstring")]
+#[cfg(feature = "stackstring")]
 #[macro_export]
 macro_rules! format_string {
     ($($arg:tt)*) => {
@@ -100,7 +101,7 @@ macro_rules! format_string {
     };
 }
 
-#[cfg(not(feature="stackstring"))]
+#[cfg(not(feature = "stackstring"))]
 #[macro_export]
 macro_rules! format_string {
     ($($arg:tt)*) => {

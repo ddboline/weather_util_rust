@@ -10,7 +10,7 @@ use std::{
     sync::Arc,
 };
 
-use crate::{latitude::Latitude, longitude::Longitude, StringType, ApiStringType};
+use crate::{latitude::Latitude, longitude::Longitude, ApiStringType, StringType};
 
 /// Configuration data
 #[derive(Default, Debug, Deserialize, PartialEq)]

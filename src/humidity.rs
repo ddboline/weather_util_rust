@@ -4,7 +4,9 @@ use serde::{Deserialize, Serialize};
 use std::convert::TryFrom;
 
 /// Relative Humidity as Percent
-#[derive(Into, Debug, PartialEq, Copy, Clone, PartialOrd, Serialize, Deserialize, Display, Default)]
+#[derive(
+    Into, Debug, PartialEq, Copy, Clone, PartialOrd, Serialize, Deserialize, Display, Default,
+)]
 #[serde(into = "i64", try_from = "i64")]
 pub struct Humidity(i64);
 

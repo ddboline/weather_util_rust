@@ -1,10 +1,9 @@
 use chrono::{DateTime, FixedOffset, NaiveDate, Utc};
 use serde::{Deserialize, Serialize};
-use std::{
-    collections::{BTreeMap, BTreeSet},
-};
+use std::collections::{BTreeMap, BTreeSet};
 
 use crate::{
+    default_datetime, format_string,
     humidity::Humidity,
     precipitation::Precipitation,
     pressure::Pressure,
@@ -12,7 +11,7 @@ use crate::{
     timestamp,
     timezone::TimeZone,
     weather_data::{Rain, Snow, WeatherCond},
-    StringType, format_string, default_datetime,
+    StringType,
 };
 
 #[derive(Deserialize, Serialize, Debug, Clone, Copy)]
