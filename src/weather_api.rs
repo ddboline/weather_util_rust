@@ -13,7 +13,7 @@ use crate::{
     weather_data::WeatherData, weather_forecast::WeatherForecast, ApiStringType, StringType,
 };
 
-#[derive(Clone, Debug, PartialEq, Hash)]
+#[derive(Clone, Debug, PartialEq, Hash, Eq)]
 pub enum WeatherLocation {
     ZipCode {
         zipcode: u64,
