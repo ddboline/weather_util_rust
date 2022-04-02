@@ -1,5 +1,5 @@
-use chrono::{DateTime, FixedOffset, Utc};
 use serde::{Deserialize, Serialize};
+use time::{OffsetDateTime, UtcOffset};
 
 use crate::{
     default_datetime, direction::Direction, distance::Distance, format_string, humidity::Humidity,
@@ -43,9 +43,9 @@ pub struct Sys {
     #[serde(skip_serializing_if = "Option::is_none")]
     pub country: Option<StringType>,
     #[serde(with = "timestamp")]
-    pub sunrise: DateTime<Utc>,
+    pub sunrise: OffsetDateTime,
     #[serde(with = "timestamp")]
-    pub sunset: DateTime<Utc>,
+    pub sunset: OffsetDateTime,
 }
 
 impl Default for Sys {
@@ -84,7 +84,7 @@ pub struct WeatherData {
     #[serde(skip_serializing_if = "Option::is_none")]
     pub snow: Option<Snow>,
     #[serde(with = "timestamp")]
-    pub dt: DateTime<Utc>,
+    pub dt: OffsetDateTime,
     pub sys: Sys,
     pub timezone: TimeZone,
     pub name: StringType,
@@ -111,23 +111,23 @@ impl Default for WeatherData {
 
 impl WeatherData {
     #[must_use]
-    pub fn get_offset(&self) -> FixedOffset {
+    pub fn get_offset(&self) -> UtcOffset {
         self.timezone.into()
     }
 
     #[must_use]
-    pub fn get_dt(&self) -> DateTime<FixedOffset> {
-        self.dt.with_timezone(&self.get_offset())
+    pub fn get_dt(&self) -> OffsetDateTime {
+        self.dt.to_offset(self.get_offset())
     }
 
     #[must_use]
-    pub fn get_sunrise(&self) -> DateTime<FixedOffset> {
-        self.sys.sunrise.with_timezone(&self.get_offset())
+    pub fn get_sunrise(&self) -> OffsetDateTime {
+        self.sys.sunrise.to_offset(self.get_offset())
     }
 
     #[must_use]
-    pub fn get_sunset(&self) -> DateTime<FixedOffset> {
-        self.sys.sunset.with_timezone(&self.get_offset())
+    pub fn get_sunset(&self) -> OffsetDateTime {
+        self.sys.sunset.to_offset(self.get_offset())
     }
 
     /// Write out formatted information about current conditions for a mutable
@@ -152,10 +152,10 @@ impl WeatherData {
     /// ```
     #[must_use]
     pub fn get_current_conditions(&self) -> StringType {
-        let fo: FixedOffset = self.timezone.into();
-        let dt = self.dt.with_timezone(&fo);
-        let sunrise = self.sys.sunrise.with_timezone(&fo);
-        let sunset = self.sys.sunset.with_timezone(&fo);
+        let fo: UtcOffset = self.timezone.into();
+        let dt = self.dt.to_offset(fo);
+        let sunrise = self.sys.sunrise.to_offset(fo);
+        let sunset = self.sys.sunset.to_offset(fo);
         let country_str = if let Some(country) = &self.sys.country {
             let name = &self.name;
             format_string!("{name} {country}")
