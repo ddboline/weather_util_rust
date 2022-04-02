@@ -1,6 +1,6 @@
 # weather_util_rust
 
-[![crates.io](https://meritbadge.herokuapp.com/weather_util_rust)](https://crates.io/crates/weather_util_rust)
+[![version](https://img.shields.io/crates/v/time?color=blue&logo=rust&style=flat-square)](https://crates.io/crates/time)
 [![Build Status](https://github.com/ddboline/weather_util_rust/workflows/Rust/badge.svg?branch=master)](https://github.com/ddboline/weather_util_rust/actions?branch=master)
 [![Documentation](https://docs.rs/weather_util_rust/badge.svg)](https://docs.rs/weather_util_rust/)
 [![codecov](https://codecov.io/gh/ddboline/weather_util_rust/branch/master/graph/badge.svg)](https://codecov.io/gh/ddboline/weather_util_rust)
