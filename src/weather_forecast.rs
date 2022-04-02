@@ -1,6 +1,6 @@
-use chrono::{DateTime, FixedOffset, NaiveDate, Utc};
 use serde::{Deserialize, Serialize};
 use std::collections::{BTreeMap, BTreeSet};
+use time::{Date, OffsetDateTime, UtcOffset};
 
 use crate::{
     default_datetime, format_string,
@@ -29,7 +29,7 @@ pub struct ForecastMain {
 #[derive(Deserialize, Serialize, Debug, Clone)]
 pub struct ForecastEntry {
     #[serde(with = "timestamp")]
-    pub dt: DateTime<Utc>,
+    pub dt: OffsetDateTime,
     pub main: ForecastMain,
     pub weather: Vec<WeatherCond>,
     #[serde(skip_serializing_if = "Option::is_none")]
@@ -42,9 +42,9 @@ pub struct ForecastEntry {
 pub struct CityEntry {
     pub timezone: TimeZone,
     #[serde(with = "timestamp")]
-    pub sunrise: DateTime<Utc>,
+    pub sunrise: OffsetDateTime,
     #[serde(with = "timestamp")]
-    pub sunset: DateTime<Utc>,
+    pub sunset: OffsetDateTime,
 }
 
 impl Default for CityEntry {
@@ -70,7 +70,7 @@ impl WeatherForecast {
     /// # use std::io::{stdout, Write, Read};
     /// # use std::fs::File;
     /// # use std::convert::TryFrom;
-    /// # use chrono::NaiveDate;
+    /// # use time::macros::date;
     /// # use std::collections::BTreeSet;
     /// use weather_util_rust::weather_forecast::WeatherForecast;
     /// use weather_util_rust::temperature::Temperature;
@@ -83,7 +83,7 @@ impl WeatherForecast {
     ///
     /// let high_low = data.get_high_low();
     /// assert_eq!(high_low.len(), 6);
-    /// let date: NaiveDate = "2022-02-27".parse()?;
+    /// let date = date!(2022-02-27);
     /// let icons: BTreeSet<_> = ["04n"].iter().map(|s| (*s).into()).collect();
     /// assert_eq!(
     ///     high_low.get(&date),
@@ -104,7 +104,7 @@ impl WeatherForecast {
     pub fn get_high_low(
         &self,
     ) -> BTreeMap<
-        NaiveDate,
+        Date,
         (
             Temperature,
             Temperature,
@@ -113,9 +113,9 @@ impl WeatherForecast {
             BTreeSet<StringType>,
         ),
     > {
-        let fo: FixedOffset = self.city.timezone.into();
+        let fo: UtcOffset = self.city.timezone.into();
         self.list.iter().fold(BTreeMap::new(), |mut hmap, entry| {
-            let date = entry.dt.with_timezone(&fo).date().naive_local();
+            let date = entry.dt.to_offset(fo).date();
             let high = entry.main.temp_max;
             let low = entry.main.temp_min;
             let rain = if let Some(rain) = &entry.rain {
@@ -158,7 +158,6 @@ impl WeatherForecast {
     /// # use std::io::{stdout, Write, Read};
     /// # use std::fs::File;
     /// # use std::convert::TryFrom;
-    /// # use chrono::NaiveDate;
     /// use weather_util_rust::weather_forecast::WeatherForecast;
     /// # fn main() -> Result<(), Error> {
     /// # let mut buf = String::new();
@@ -199,8 +198,8 @@ impl WeatherForecast {
 #[cfg(test)]
 mod test {
     use anyhow::Error;
-    use chrono::NaiveDate;
     use std::{collections::BTreeSet, convert::TryFrom};
+    use time::macros::date;
 
     use crate::{
         precipitation::Precipitation, temperature::Temperature, weather_forecast::WeatherForecast,
@@ -213,7 +212,7 @@ mod test {
         let data: WeatherForecast = serde_json::from_str(&buf)?;
         let high_low = data.get_high_low();
         assert_eq!(high_low.len(), 6);
-        let date: NaiveDate = "2022-02-27".parse()?;
+        let date = date!(2022 - 02 - 27);
         let icons: BTreeSet<StringType> = ["04n"].iter().map(|s| (*s).into()).collect();
         assert_eq!(
             high_low.get(&date),

@@ -1,8 +1,8 @@
 use anyhow::{format_err, Error};
-use chrono::offset::FixedOffset;
 use derive_more::{Display, Into};
 use serde::{Deserialize, Serialize};
 use std::convert::TryFrom;
+use time::UtcOffset;
 
 /// Direction in degrees
 #[derive(
@@ -22,17 +22,20 @@ impl TryFrom<i32> for TimeZone {
     }
 }
 
-impl From<TimeZone> for FixedOffset {
+impl From<TimeZone> for UtcOffset {
     fn from(z: TimeZone) -> Self {
-        Self::east(z.0)
+        match Self::from_whole_seconds(z.0) {
+            Ok(offset) => offset,
+            Err(_) => unreachable!(),
+        }
     }
 }
 
 #[cfg(test)]
 mod test {
     use anyhow::Error;
-    use chrono::offset::FixedOffset;
     use std::convert::TryFrom;
+    use time::UtcOffset;
 
     use crate::timezone::TimeZone;
 
@@ -41,8 +44,8 @@ mod test {
         let t = TimeZone::try_from(4 * 3600)?;
         let offset: i32 = t.into();
         assert_eq!(offset, 4 * 3600);
-        let offset: FixedOffset = t.into();
-        assert_eq!(offset, FixedOffset::east(4 * 3600));
+        let offset: UtcOffset = t.into();
+        assert_eq!(offset, UtcOffset::from_whole_seconds(4 * 3600).unwrap());
 
         let t = TimeZone::try_from(100_000);
         assert!(t.is_err());
