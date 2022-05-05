@@ -1,7 +1,8 @@
-use anyhow::{format_err, Error};
 use futures::future::join;
 use serde::{Deserialize, Serialize};
 use structopt::StructOpt;
+
+use crate::{format_string, Error};
 
 #[cfg(feature = "cli")]
 use tokio::io::{stdout, AsyncWriteExt};
@@ -77,7 +78,7 @@ impl WeatherOpts {
         let api_key = self
             .api_key
             .as_deref()
-            .ok_or_else(|| format_err!(Self::api_help_msg()))?;
+            .ok_or_else(|| Error::InvalidInputError(Self::api_help_msg().into()))?;
         Ok(WeatherApi::new(
             api_key,
             &config.api_endpoint,
@@ -104,9 +105,9 @@ impl WeatherOpts {
                 }
             }
             Self::clap().print_help()?;
-            return Err(format_err!(
+            return Err(Error::InvalidInputError(format_string!(
                 "\n\nERROR: You must specify at least one option"
-            ));
+            )));
         };
         Ok(loc)
     }
@@ -167,7 +168,6 @@ impl WeatherOpts {
 
 #[cfg(test)]
 mod test {
-    use anyhow::Error;
     use isocountry::CountryCode;
     use std::{convert::TryFrom, env::set_var};
 
@@ -176,6 +176,7 @@ mod test {
         latitude::Latitude,
         longitude::Longitude,
         weather_api::WeatherLocation,
+        Error,
     };
 
     #[cfg(feature = "cli")]

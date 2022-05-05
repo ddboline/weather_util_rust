@@ -1,7 +1,8 @@
-use anyhow::{format_err, Error};
 use derive_more::Into;
 use serde::{Deserialize, Serialize};
 use std::convert::TryFrom;
+
+use crate::{format_string, Error};
 
 const METERS_PER_MILE: f64 = 1609.344;
 
@@ -16,7 +17,9 @@ impl TryFrom<f64> for Distance {
         if item >= 0.0 {
             Ok(Self(item))
         } else {
-            Err(format_err!("{item} is not a valid distance"))
+            Err(Error::InvalidValue(format_string!(
+                "{item} is not a valid distance"
+            )))
         }
     }
 }
@@ -49,10 +52,9 @@ impl Distance {
 
 #[cfg(test)]
 mod tests {
-    use anyhow::Error;
     use approx::assert_abs_diff_eq;
 
-    use crate::distance::Distance;
+    use crate::{distance::Distance, Error};
 
     #[test]
     fn test_distance() -> Result<(), Error> {
@@ -72,7 +74,7 @@ mod tests {
         assert!(s.is_err());
         assert_eq!(
             s.err().unwrap().to_string(),
-            format!("{} is not a valid distance", -19312.128)
+            format!("Invalid Value Error {} is not a valid distance", -19312.128)
         );
         Ok(())
     }

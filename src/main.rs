@@ -1,7 +1,5 @@
-use anyhow::Error;
-
 #[cfg(feature = "cli")]
-use weather_util_rust::{config::Config, weather_opts::WeatherOpts};
+use weather_util_rust::{config::Config, weather_opts::WeatherOpts, Error};
 
 #[cfg(feature = "cli")]
 #[tokio::main]

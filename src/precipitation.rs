@@ -1,7 +1,8 @@
-use anyhow::{format_err, Error};
 use derive_more::{Add, Display, FromStr, Into};
 use serde::{Deserialize, Serialize};
 use std::convert::TryFrom;
+
+use crate::{format_string, Error};
 
 const MM_PER_INCH: f64 = 25.4;
 
@@ -27,7 +28,9 @@ impl TryFrom<f64> for Precipitation {
     type Error = Error;
     fn try_from(item: f64) -> Result<Self, Self::Error> {
         if item < 0.0 {
-            Err(format_err!("{item} is not a valid precipitation amount"))
+            Err(Error::InvalidValue(format_string!(
+                "{item} is not a valid precipitation amount"
+            )))
         } else {
             Ok(Self(item))
         }
@@ -73,10 +76,12 @@ impl Precipitation {
 
 #[cfg(test)]
 mod test {
-    use anyhow::Error;
     use std::convert::TryFrom;
 
-    use crate::precipitation::{Precipitation, MM_PER_INCH};
+    use crate::{
+        precipitation::{Precipitation, MM_PER_INCH},
+        Error,
+    };
 
     #[test]
     fn test_precipitation() -> Result<(), Error> {
@@ -92,7 +97,10 @@ mod test {
         assert!(h.is_err());
         assert_eq!(
             h.err().unwrap().to_string(),
-            format!("{} is not a valid precipitation amount", -1.0)
+            format!(
+                "Invalid Value Error {} is not a valid precipitation amount",
+                -1.0
+            )
         );
         Ok(())
     }

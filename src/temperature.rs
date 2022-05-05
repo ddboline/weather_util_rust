@@ -1,7 +1,8 @@
-use anyhow::{format_err, Error};
 use derive_more::Into;
 use serde::{Deserialize, Serialize};
 use std::convert::TryFrom;
+
+use crate::{format_string, Error};
 
 const FREEZING_POINT_KELVIN: f64 = 273.15;
 const FAHRENHEIT_OFFSET: f64 = 459.67;
@@ -18,7 +19,9 @@ impl TryFrom<f64> for Temperature {
         if item >= 0.0 {
             Ok(Self(item))
         } else {
-            Err(format_err!("{item} is not a valid Temperature"))
+            Err(Error::InvalidValue(format_string!(
+                "{item} is not a valid Temperature"
+            )))
         }
     }
 }
@@ -42,7 +45,9 @@ impl Temperature {
         if t >= -FREEZING_POINT_KELVIN {
             Ok(Self(t + FREEZING_POINT_KELVIN))
         } else {
-            Err(format_err!("{t} is not a valid temperature in Celcius"))
+            Err(Error::InvalidValue(format_string!(
+                "{t} is not a valid temperature in Celcius"
+            )))
         }
     }
 
@@ -53,7 +58,9 @@ impl Temperature {
         if t >= -FAHRENHEIT_OFFSET {
             Ok(Self((t + FAHRENHEIT_OFFSET) / FAHRENHEIT_FACTOR))
         } else {
-            Err(format_err!("{t} is not a valid temperature in Fahrenheit",))
+            Err(Error::InvalidValue(format_string!(
+                "{t} is not a valid temperature in Fahrenheit",
+            )))
         }
     }
 
@@ -78,11 +85,10 @@ impl Temperature {
 
 #[cfg(test)]
 mod test {
-    use anyhow::Error;
     use approx::assert_abs_diff_eq;
     use std::convert::TryFrom;
 
-    use crate::temperature::Temperature;
+    use crate::{temperature::Temperature, Error};
 
     #[test]
     fn test_temperature() -> Result<(), Error> {
@@ -99,21 +105,27 @@ mod test {
         assert!(t.is_err());
         assert_eq!(
             t.err().unwrap().to_string(),
-            format!("{} is not a valid Temperature", -15.0)
+            format!("Invalid Value Error {} is not a valid Temperature", -15.0)
         );
 
         let t = Temperature::from_celcius(-300.0);
         assert!(t.is_err());
         assert_eq!(
             t.err().unwrap().to_string(),
-            format!("{} is not a valid temperature in Celcius", -300.0)
+            format!(
+                "Invalid Value Error {} is not a valid temperature in Celcius",
+                -300.0
+            )
         );
 
         let t = Temperature::from_fahrenheit(-500.0);
         assert!(t.is_err());
         assert_eq!(
             t.err().unwrap().to_string(),
-            format!("{} is not a valid temperature in Fahrenheit", -500.0)
+            format!(
+                "Invalid Value Error {} is not a valid temperature in Fahrenheit",
+                -500.0
+            )
         );
         Ok(())
     }

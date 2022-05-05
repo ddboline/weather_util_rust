@@ -1,4 +1,3 @@
-use anyhow::Error;
 use lazy_static::lazy_static;
 use parking_lot::{Mutex, MutexGuard};
 use serde::Deserialize;
@@ -10,7 +9,7 @@ use std::{
     sync::Arc,
 };
 
-use crate::{latitude::Latitude, longitude::Longitude, ApiStringType, StringType};
+use crate::{latitude::Latitude, longitude::Longitude, ApiStringType, Error, StringType};
 
 /// Configuration data
 #[derive(Default, Debug, Deserialize, PartialEq)]
@@ -156,10 +155,12 @@ impl<'a> Drop for TestEnvs<'a> {
 
 #[cfg(test)]
 mod tests {
-    use anyhow::Error;
     use std::env::set_var;
 
-    use crate::config::{Config, TestEnvs};
+    use crate::{
+        config::{Config, TestEnvs},
+        Error,
+    };
 
     #[test]
     fn test_config() -> Result<(), Error> {

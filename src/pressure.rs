@@ -1,7 +1,8 @@
-use anyhow::{format_err, Error};
 use derive_more::Into;
 use serde::{Deserialize, Serialize};
 use std::convert::TryFrom;
+
+use crate::{format_string, Error};
 
 const HECTO: f64 = 1.0; // hPa 100 hundred Pa
 const KILO: f64 = 1_000.0 / 100.0;
@@ -19,7 +20,9 @@ impl TryFrom<f64> for Pressure {
         if item > 0.0 {
             Ok(Self(item))
         } else {
-            Err(format_err!("{item} is not a valid pressure value"))
+            Err(Error::InvalidValue(format_string!(
+                "{item} is not a valid pressure value"
+            )))
         }
     }
 }
@@ -93,10 +96,9 @@ impl Pressure {
 
 #[cfg(test)]
 mod tests {
-    use anyhow::Error;
     use approx::assert_abs_diff_eq;
 
-    use crate::pressure::Pressure;
+    use crate::{pressure::Pressure, Error};
 
     #[test]
     fn test_pressure() -> Result<(), Error> {
@@ -117,7 +119,7 @@ mod tests {
         assert!(p.is_err());
         assert_eq!(
             p.err().unwrap().to_string(),
-            format!("{} is not a valid pressure value", -1.0)
+            format!("Invalid Value Error {} is not a valid pressure value", -1.0)
         );
         Ok(())
     }

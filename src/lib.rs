@@ -59,6 +59,10 @@ pub mod weather_forecast;
 /// CLI App Options and implementation
 pub mod weather_opts;
 
+/// `WeatherUtil` Error
+pub mod error;
+
+pub use error::Error;
 use time::{macros::datetime, OffsetDateTime};
 
 #[must_use]

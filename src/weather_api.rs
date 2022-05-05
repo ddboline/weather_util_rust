@@ -1,9 +1,10 @@
-use anyhow::Error;
 use isocountry::CountryCode;
 use std::{
     fmt::{self},
     hash::{Hash, Hasher},
 };
+
+use crate::Error;
 
 #[cfg(feature = "cli")]
 use reqwest::{Client, Url};
@@ -252,7 +253,6 @@ impl WeatherApi {
 
 #[cfg(test)]
 mod tests {
-    use anyhow::Error;
     use futures::future::join;
     use isocountry::CountryCode;
     use std::{
@@ -261,7 +261,7 @@ mod tests {
         hash::{Hash, Hasher},
     };
 
-    use crate::{weather_api::WeatherLocation, ApiStringType};
+    use crate::{weather_api::WeatherLocation, ApiStringType, Error};
 
     #[cfg(feature = "cli")]
     use crate::weather_api::WeatherApi;

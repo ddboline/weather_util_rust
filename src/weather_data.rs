@@ -213,9 +213,7 @@ impl WeatherData {
 
 #[cfg(test)]
 mod test {
-    use anyhow::Error;
-
-    use crate::weather_data::WeatherData;
+    use crate::{weather_data::WeatherData, Error};
 
     #[test]
     fn test_weather_data() -> Result<(), Error> {

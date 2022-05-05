@@ -197,13 +197,12 @@ impl WeatherForecast {
 
 #[cfg(test)]
 mod test {
-    use anyhow::Error;
     use std::{collections::BTreeSet, convert::TryFrom};
     use time::macros::date;
 
     use crate::{
         precipitation::Precipitation, temperature::Temperature, weather_forecast::WeatherForecast,
-        StringType,
+        Error, StringType,
     };
 
     #[test]

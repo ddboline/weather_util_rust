@@ -1,4 +1,3 @@
-use anyhow::Error;
 use derive_more::Into;
 use serde::{Deserialize, Serialize};
 use std::{
@@ -7,6 +6,8 @@ use std::{
     hash::{Hash, Hasher},
     str::FromStr,
 };
+
+use crate::Error;
 
 const RADIANS_PER_TURN: f64 = 2.0 * PI;
 
@@ -128,11 +129,10 @@ impl Angle {
 
 #[cfg(test)]
 mod tests {
-    use anyhow::Error;
     use approx::assert_abs_diff_eq;
     use std::f64::consts::PI;
 
-    use crate::angle::Angle;
+    use crate::{angle::Angle, Error};
 
     #[test]
     fn test_direction() {

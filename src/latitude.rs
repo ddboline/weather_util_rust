@@ -1,4 +1,3 @@
-use anyhow::{format_err, Error};
 use derive_more::{Display, FromStr, Into};
 use serde::{Deserialize, Serialize};
 use std::{
@@ -6,7 +5,7 @@ use std::{
     hash::Hash,
 };
 
-use crate::angle::Angle;
+use crate::{angle::Angle, format_string, Error};
 
 /// Latitude in degrees, required be within the range -90.0 to 90.0
 #[derive(
@@ -26,21 +25,22 @@ impl TryFrom<f64> for Latitude {
         if (-90.0..90.0).contains(&item) {
             Ok(Self(Angle::from_deg(item)))
         } else {
-            Err(format_err!("{item} is not a valid latitude"))
+            Err(Error::InvalidValue(format_string!(
+                "{item} is not a valid latitude"
+            )))
         }
     }
 }
 
 #[cfg(test)]
 mod test {
-    use anyhow::Error;
     use std::{
         collections::hash_map::DefaultHasher,
         convert::TryFrom,
         hash::{Hash, Hasher},
     };
 
-    use crate::latitude::Latitude;
+    use crate::{latitude::Latitude, Error};
 
     #[test]
     fn test_latitude() -> Result<(), Error> {
@@ -61,7 +61,7 @@ mod test {
         assert!(h.is_err());
         assert_eq!(
             h.err().unwrap().to_string(),
-            format!("{} is not a valid latitude", -360.0)
+            "Invalid Value Error -360 is not a valid latitude",
         );
         Ok(())
     }

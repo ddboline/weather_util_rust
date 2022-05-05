@@ -1,8 +1,9 @@
-use anyhow::{format_err, Error};
 use derive_more::{Display, Into};
 use serde::{Deserialize, Serialize};
 use std::convert::TryFrom;
 use time::UtcOffset;
+
+use crate::{format_string, Error};
 
 /// Direction in degrees
 #[derive(
@@ -17,7 +18,9 @@ impl TryFrom<i32> for TimeZone {
         if item > -86400 && item < 86400 {
             Ok(Self(item))
         } else {
-            Err(format_err!("{item} is not a valid timezone"))
+            Err(Error::InvalidValue(format_string!(
+                "{item} is not a valid timezone"
+            )))
         }
     }
 }
@@ -33,11 +36,10 @@ impl From<TimeZone> for UtcOffset {
 
 #[cfg(test)]
 mod test {
-    use anyhow::Error;
     use std::convert::TryFrom;
     use time::UtcOffset;
 
-    use crate::timezone::TimeZone;
+    use crate::{timezone::TimeZone, Error};
 
     #[test]
     fn test_timezone() -> Result<(), Error> {
@@ -51,7 +53,7 @@ mod test {
         assert!(t.is_err());
         assert_eq!(
             t.err().unwrap().to_string(),
-            format!("{} is not a valid timezone", 100_000)
+            format!("Invalid Value Error {} is not a valid timezone", 100_000)
         );
         Ok(())
     }
