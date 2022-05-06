@@ -1,10 +1,12 @@
 use envy::Error as EnvyError;
-use reqwest::Error as ReqwestError;
 use serde_json::Error as SerdeJsonError;
 use std::{fmt::Error as FmtError, io::Error as IoError, num::ParseFloatError};
 use structopt::clap::Error as ClapError;
 use thiserror::Error;
 use url::ParseError as UrlParseError;
+
+#[cfg(feature = "cli")]
+use reqwest::Error as ReqwestError;
 
 use crate::StringType;
 
@@ -18,8 +20,6 @@ pub enum Error {
     ParseFloatError(#[from] ParseFloatError),
     #[error("Environment Parsing Error {0}")]
     EnvyError(#[from] EnvyError),
-    #[error("Reqwest Error {0}")]
-    ReqwestError(#[from] ReqwestError),
     #[error("URL Parse Error {0}")]
     UrlParseError(#[from] UrlParseError),
     #[error("JSON Serde Error {0}")]
@@ -30,4 +30,8 @@ pub enum Error {
     InvalidInputError(StringType),
     #[error("Clap CLI Parser Error {0}")]
     ClapError(#[from] ClapError),
+
+    #[cfg(feature = "cli")]
+    #[error("Reqwest Error {0}")]
+    ReqwestError(#[from] ReqwestError),
 }
