@@ -47,12 +47,6 @@ pub struct WeatherOpts {
     forecast: bool,
 }
 
-macro_rules! set_default {
-    ($s:ident, $c:ident, $id:ident) => {
-        $s.$id = $c.$id.clone();
-    };
-}
-
 #[cfg(feature = "cli")]
 impl WeatherOpts {
     /// Parse options from stdin, requires `Config` instance.
@@ -136,19 +130,19 @@ impl WeatherOpts {
 
     fn apply_defaults(&mut self, config: &Config) {
         if self.api_key.is_none() {
-            set_default!(self, config, api_key);
+            self.api_key = config.api_key.clone();
         }
         if self.zipcode.is_none()
             && self.country_code.is_none()
             && self.city_name.is_none()
             && (self.lat.is_none() || self.lon.is_none())
         {
-            set_default!(self, config, zipcode);
-            set_default!(self, config, country_code);
-            set_default!(self, config, city_name);
+            self.zipcode = config.zipcode;
+            self.country_code = config.country_code.clone();
+            self.city_name = config.city_name.clone();
             if config.lat.is_some() && config.lon.is_some() {
-                set_default!(self, config, lat);
-                set_default!(self, config, lon);
+                self.lat = config.lat;
+                self.lon = config.lon;
             }
         }
     }
