@@ -7,13 +7,13 @@ use crate::{
     speed::Speed, temperature::Temperature, timestamp, timezone::TimeZone, StringType,
 };
 
-#[derive(Serialize, Deserialize, Debug, Clone, Copy, Default)]
+#[derive(Serialize, Deserialize, Debug, Clone, Copy, Default, PartialEq, Eq)]
 pub struct Coord {
     pub lon: Longitude,
     pub lat: Latitude,
 }
 
-#[derive(Serialize, Deserialize, Debug, Clone, Default)]
+#[derive(Serialize, Deserialize, Debug, Clone, Default, PartialEq, Eq)]
 pub struct WeatherCond {
     pub id: usize,
     pub main: StringType,
@@ -21,7 +21,7 @@ pub struct WeatherCond {
     pub icon: StringType,
 }
 
-#[derive(Serialize, Deserialize, Debug, Clone, Copy, Default)]
+#[derive(Serialize, Deserialize, Debug, Clone, Copy, Default, PartialEq)]
 pub struct WeatherMain {
     pub temp: Temperature,
     pub feels_like: Temperature,
@@ -31,14 +31,14 @@ pub struct WeatherMain {
     pub humidity: Humidity,
 }
 
-#[derive(Deserialize, Serialize, Debug, Clone, Copy, Default)]
+#[derive(Deserialize, Serialize, Debug, Clone, Copy, Default, PartialEq)]
 pub struct Wind {
     pub speed: Speed,
     #[serde(skip_serializing_if = "Option::is_none")]
     pub deg: Option<Direction>,
 }
 
-#[derive(Deserialize, Serialize, Debug, Clone)]
+#[derive(Deserialize, Serialize, Debug, Clone, PartialEq)]
 pub struct Sys {
     #[serde(skip_serializing_if = "Option::is_none")]
     pub country: Option<StringType>,
@@ -58,13 +58,13 @@ impl Default for Sys {
     }
 }
 
-#[derive(Deserialize, Serialize, Debug, Clone, Copy)]
+#[derive(Deserialize, Serialize, Debug, Clone, Copy, PartialEq)]
 pub struct Rain {
     #[serde(alias = "3h", skip_serializing_if = "Option::is_none")]
     pub three_hour: Option<Precipitation>,
 }
 
-#[derive(Deserialize, Serialize, Debug, Clone, Copy)]
+#[derive(Deserialize, Serialize, Debug, Clone, Copy, PartialEq)]
 pub struct Snow {
     #[serde(alias = "3h", skip_serializing_if = "Option::is_none")]
     pub three_hour: Option<Precipitation>,
@@ -175,7 +175,10 @@ impl WeatherData {
             d = self.wind.deg.unwrap_or_else(|| 0.0.into()),
             s = self.wind.speed.mph(),
         );
-        let conditions_str = format_string!("\tConditions: {}", self.weather[0].description);
+        let conditions_str = format_string!(
+            "\tConditions: {}",
+            self.weather.get(0).map_or_else(|| "", |w| &w.description)
+        );
         let sunrise_str = format_string!("\tSunrise: {sunrise}");
         let sunset_str = format_string!("\tSunset: {sunset}");
         let rain_str = if let Some(rain) = &self.rain {
@@ -213,7 +216,12 @@ impl WeatherData {
 
 #[cfg(test)]
 mod test {
-    use crate::{weather_data::WeatherData, Error};
+    use crate::{
+        default_datetime,
+        timezone::TimeZone,
+        weather_data::{Coord, Sys, WeatherData, WeatherMain, Wind},
+        Error,
+    };
 
     #[test]
     fn test_weather_data() -> Result<(), Error> {
@@ -225,6 +233,50 @@ mod test {
         assert!(buf.starts_with("Current conditions Astoria US 40.76"));
         assert!(buf.contains("Temperature: 38.50 F (3.61 C)"));
         println!("{} {} {}", buf.len(), data.name, data.name.len());
+        Ok(())
+    }
+
+    #[test]
+    fn test_default_sys() -> Result<(), Error> {
+        let default_sys = Sys::default();
+        assert_eq!(default_sys.country, None);
+        assert_eq!(default_sys.sunrise, default_datetime());
+        assert_eq!(default_sys.sunset, default_datetime());
+        Ok(())
+    }
+
+    #[test]
+    fn test_default_weather_data() -> Result<(), Error> {
+        let default_data = WeatherData::default();
+        assert_eq!(default_data.coord, Coord::default());
+        assert_eq!(default_data.weather, Vec::new());
+        assert_eq!(&default_data.base, "");
+        assert_eq!(default_data.main, WeatherMain::default());
+        assert_eq!(default_data.visibility, None);
+        assert_eq!(default_data.wind, Wind::default());
+        assert_eq!(default_data.rain, None);
+        assert_eq!(default_data.snow, None);
+        assert_eq!(default_data.dt, default_datetime());
+        assert_eq!(default_data.sys, Sys::default());
+        assert_eq!(default_data.timezone, TimeZone::default());
+        assert_eq!(&default_data.name, "");
+        let default_offset = default_data.get_offset();
+        assert_eq!(default_data.get_offset(), TimeZone::default().into());
+        assert_eq!(
+            default_data.get_dt(),
+            default_datetime().to_offset(default_offset)
+        );
+        assert_eq!(
+            default_data.get_sunrise(),
+            Sys::default().sunrise.to_offset(default_offset)
+        );
+        assert_eq!(
+            default_data.get_sunset(),
+            Sys::default().sunset.to_offset(default_offset)
+        );
+
+        let conditions = default_data.get_current_conditions();
+        assert!(conditions.contains("Relative Humidity: 0%"));
         Ok(())
     }
 }

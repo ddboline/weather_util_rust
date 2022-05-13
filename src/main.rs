@@ -1,6 +1,7 @@
 #[cfg(feature = "cli")]
 use weather_util_rust::{config::Config, weather_opts::WeatherOpts, Error};
 
+#[cfg(not(tarpaulin_include))]
 #[cfg(feature = "cli")]
 #[tokio::main]
 async fn main() -> Result<(), Error> {
@@ -10,6 +11,7 @@ async fn main() -> Result<(), Error> {
     Ok(())
 }
 
+#[cfg(not(tarpaulin_include))]
 #[cfg(not(feature = "cli"))]
 fn main() -> Result<(), Error> {
     Ok(())
