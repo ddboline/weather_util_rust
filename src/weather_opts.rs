@@ -186,7 +186,7 @@ mod test {
         set_var("ZIPCODE", "8675309");
         set_var("API_PATH", "weather/");
 
-        let config = Config::init_config()?;
+        let config = Config::init_config(None)?;
         drop(_env);
 
         let mut opts = WeatherOpts::default();
@@ -215,7 +215,7 @@ mod test {
         set_var("LON", "11.1");
         set_var("API_PATH", "weather/");
 
-        let config = Config::init_config()?;
+        let config = Config::init_config(None)?;
         drop(_env);
 
         let mut opts = WeatherOpts::default();
@@ -231,7 +231,7 @@ mod test {
     async fn test_run_opts() -> Result<(), Error> {
         let _env = TestEnvs::new(&["API_KEY", "API_ENDPOINT", "ZIPCODE", "API_PATH"]);
 
-        let config = Config::init_config()?;
+        let config = Config::init_config(None)?;
         drop(_env);
 
         let mut opts = WeatherOpts::default();

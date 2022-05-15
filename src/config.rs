@@ -76,7 +76,7 @@ impl Config {
     /// # let _env = TestEnvs::new(&["API_KEY", "API_ENDPOINT", "ZIPCODE", "API_PATH"]);
     /// # set_var("API_KEY", "api_key_value");
     /// # set_var("API_ENDPOINT", "api.openweathermap.org");
-    /// let config = Config::init_config()?;
+    /// let config = Config::init_config(None)?;
     /// # drop(_env);
     /// assert_eq!(config.api_key, Some("api_key_value".into()));
     /// assert_eq!(&config.api_endpoint, "api.openweathermap.org");
@@ -86,8 +86,8 @@ impl Config {
     /// # Errors
     ///
     /// Will return Error if unable to deserialize env variables
-    pub fn init_config() -> Result<Self, Error> {
-        let fname = Path::new("config.env");
+    pub fn init_config(config_path: Option<&Path>) -> Result<Self, Error> {
+        let fname = config_path.unwrap_or_else(|| Path::new("config.env"));
         let config_dir = dirs::config_dir().unwrap_or_else(|| "./".into());
         let default_fname = config_dir.join("weather_util").join("config.env");
 
@@ -156,6 +156,7 @@ impl<'a> Drop for TestEnvs<'a> {
 #[cfg(test)]
 mod tests {
     use std::env::set_var;
+    use std::path::Path;
 
     use crate::{
         config::{Config, TestEnvs},
@@ -173,10 +174,26 @@ mod tests {
         set_var("ZIPCODE", "8675309");
         set_var("API_PATH", "weather/");
 
-        let conf = Config::init_config()?;
+        let conf = Config::init_config(None)?;
         drop(_env);
 
         println!("{}", conf.api_key.as_ref().unwrap());
+        assert_eq!(
+            conf.api_key.as_ref().unwrap().as_str(),
+            "fb2380d74189c9983ea52f55914da824"
+        );
+        assert!(conf.api_key.as_ref().unwrap().is_inline());
+        assert_eq!(&conf.api_endpoint, "test.local");
+        assert_eq!(conf.zipcode, Some(8675309));
+        assert_eq!(&conf.api_path, "weather/");
+        Ok(())
+    }
+
+    #[test]
+    fn test_config_file() -> Result<(), Error> {
+        let _env = TestEnvs::new(&["API_KEY", "API_ENDPOINT", "ZIPCODE", "API_PATH"]);
+        let config_path = Path::new("tests/config.env");
+        let conf = Config::init_config(Some(config_path))?;
         assert_eq!(
             conf.api_key.as_ref().unwrap().as_str(),
             "fb2380d74189c9983ea52f55914da824"
