@@ -155,8 +155,7 @@ impl<'a> Drop for TestEnvs<'a> {
 
 #[cfg(test)]
 mod tests {
-    use std::env::set_var;
-    use std::path::Path;
+    use std::{env::set_var, path::Path};
 
     use crate::{
         config::{Config, TestEnvs},
