@@ -194,6 +194,8 @@ mod tests {
         let _env = TestEnvs::new(&["API_KEY", "API_ENDPOINT", "ZIPCODE", "API_PATH"]);
         remove_var("API_KEY");
         remove_var("API_ENDPOINT");
+        remove_var("ZIPCODE");
+        remove_var("API_PATH");
         let config_data = include_bytes!("../tests/config.env");
         let config_file = NamedTempFile::new()?;
         let config_path = config_file.path();
