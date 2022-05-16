@@ -155,7 +155,8 @@ impl<'a> Drop for TestEnvs<'a> {
 
 #[cfg(test)]
 mod tests {
-    use std::{env::set_var, path::Path};
+    use std::{env::set_var, fs::write};
+    use tempfile::NamedTempFile;
 
     use crate::{
         config::{Config, TestEnvs},
@@ -191,7 +192,10 @@ mod tests {
     #[test]
     fn test_config_file() -> Result<(), Error> {
         let _env = TestEnvs::new(&["API_KEY", "API_ENDPOINT", "ZIPCODE", "API_PATH"]);
-        let config_path = Path::new("tests/config.env");
+        let config_data = include_bytes!("../tests/config.env");
+        let config_file = NamedTempFile::new()?;
+        let config_path = config_file.path();
+        write(config_file.path(), config_data)?;
         let conf = Config::init_config(Some(config_path))?;
         assert_eq!(
             conf.api_key.as_ref().unwrap().as_str(),
