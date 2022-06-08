@@ -155,7 +155,10 @@ impl<'a> Drop for TestEnvs<'a> {
 
 #[cfg(test)]
 mod tests {
-    use std::{env::{set_var, remove_var}, fs::write};
+    use std::{
+        env::{remove_var, set_var},
+        fs::write,
+    };
     use tempfile::NamedTempFile;
 
     use crate::{
