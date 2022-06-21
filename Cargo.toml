@@ -46,6 +46,7 @@ approx = "0.5"
 assert_cmd = "2.0"
 predicates = "2.1"
 tempfile = "3.3"
+criterion = "0.3"
 
 [features]
 default = ["cli", "stackstring"]
@@ -56,3 +57,7 @@ stackstring = ["stack-string"]
 name = "weather-util-rust"
 path = "src/main.rs"
 doc = false
+
+[[bench]]
+name = "weather_benchmark"
+harness = false
