@@ -255,6 +255,7 @@ impl WeatherApi {
 mod tests {
     use futures::future::join;
     use isocountry::CountryCode;
+    use log::info;
     use std::{
         collections::hash_map::DefaultHasher,
         convert::TryInto,
@@ -283,8 +284,8 @@ mod tests {
         // tokio::fs::write("forecast.json", serde_json::to_vec(&forecast)?).await?;
         assert!(data.name == "Astoria");
         let timezone: i32 = forecast.city.timezone.into();
-        println!("{}", timezone);
-        println!("{:?}", forecast);
+        info!("{}", timezone);
+        info!("{:?}", forecast);
         assert!(timezone == -18000 || timezone == -14400);
 
         let mut hasher0 = DefaultHasher::new();
@@ -323,7 +324,7 @@ mod tests {
         "WeatherApi(key=8675309,endpoint=api.openweathermap.org)"
             .to_string()
             .hash(&mut hasher1);
-        println!("{:?}", api);
+        info!("{:?}", api);
         assert_eq!(hasher0.finish(), hasher1.finish());
 
         let loc = WeatherLocation::from_zipcode_country_code(10001, CountryCode::USA);

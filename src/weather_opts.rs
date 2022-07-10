@@ -109,7 +109,7 @@ impl WeatherOpts {
     /// # Errors
     ///
     /// Returns error if call to retreive weather data fails
-    async fn run_opts(&self, config: &Config) -> Result<Vec<StringType>, Error> {
+    async fn run_opts(&self, config: &Config) -> Result<Vec<String>, Error> {
         let api = self.get_api(config)?;
         let loc = self.get_location()?;
 
@@ -163,6 +163,7 @@ impl WeatherOpts {
 #[cfg(test)]
 mod test {
     use isocountry::CountryCode;
+    use log::info;
     use std::{convert::TryFrom, env::set_var};
 
     use crate::{
@@ -246,7 +247,7 @@ mod test {
         opts.forecast = true;
         let output = opts.run_opts(&config).await?;
         assert!(output.len() == 7 || output.len() == 8);
-        println!("{:#?}", output);
+        info!("{:#?}", output);
         assert!(output[1].contains("Forecast:"));
         assert!(output[2].contains("High:"));
         assert!(output[2].contains("Low:"));

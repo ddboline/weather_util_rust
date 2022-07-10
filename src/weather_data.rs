@@ -2,7 +2,7 @@ use serde::{Deserialize, Serialize};
 use time::{OffsetDateTime, UtcOffset};
 
 use crate::{
-    default_datetime, direction::Direction, distance::Distance, format_string, humidity::Humidity,
+    default_datetime, direction::Direction, distance::Distance, humidity::Humidity,
     latitude::Latitude, longitude::Longitude, precipitation::Precipitation, pressure::Pressure,
     speed::Speed, temperature::Temperature, timestamp, timezone::TimeZone, StringType,
 };
@@ -151,53 +151,53 @@ impl WeatherData {
     /// # }
     /// ```
     #[must_use]
-    pub fn get_current_conditions(&self) -> StringType {
+    pub fn get_current_conditions(&self) -> String {
         let fo: UtcOffset = self.timezone.into();
         let dt = self.dt.to_offset(fo);
         let sunrise = self.sys.sunrise.to_offset(fo);
         let sunset = self.sys.sunset.to_offset(fo);
         let country_str = if let Some(country) = &self.sys.country {
             let name = &self.name;
-            format_string!("{name} {country}")
+            format!("{name} {country}")
         } else {
-            StringType::new()
+            String::new()
         };
-        let lat_lon = format_string!("{:0.5}N {:0.5}E", self.coord.lat, self.coord.lon);
-        let dt_str = format_string!("Last Updated {dt}");
-        let temp_str = format_string!(
+        let lat_lon = format!("{:0.5}N {:0.5}E", self.coord.lat, self.coord.lon);
+        let dt_str = format!("Last Updated {dt}");
+        let temp_str = format!(
             "\tTemperature: {f:0.2} F ({c:0.2} C)",
             f = self.main.temp.fahrenheit(),
             c = self.main.temp.celcius(),
         );
-        let humidity_str = format_string!("\tRelative Humidity: {}%", self.main.humidity);
-        let wind_str = format_string!(
+        let humidity_str = format!("\tRelative Humidity: {}%", self.main.humidity);
+        let wind_str = format!(
             "\tWind: {d} degrees at {s:0.2} mph",
             d = self.wind.deg.unwrap_or_else(|| 0.0.into()),
             s = self.wind.speed.mph(),
         );
-        let conditions_str = format_string!(
+        let conditions_str = format!(
             "\tConditions: {}",
             self.weather.get(0).map_or_else(|| "", |w| &w.description)
         );
-        let sunrise_str = format_string!("\tSunrise: {sunrise}");
-        let sunset_str = format_string!("\tSunset: {sunset}");
+        let sunrise_str = format!("\tSunrise: {sunrise}");
+        let sunset_str = format!("\tSunset: {sunset}");
         let rain_str = if let Some(rain) = &self.rain {
-            format_string!(
+            format!(
                 "\n\tRain: {} in",
                 rain.three_hour.map_or(0.0, Precipitation::inches)
             )
         } else {
-            StringType::new()
+            String::new()
         };
         let snow_str = if let Some(snow) = &self.snow {
-            format_string!(
+            format!(
                 "\n\tSnow: {} in",
                 snow.three_hour.map_or(0.0, Precipitation::inches)
             )
         } else {
-            StringType::new()
+            String::new()
         };
-        format_string!(
+        format!(
             "Current conditions {} {}\n{}\n{}\n{}\n{}\n{}\n{}\n{}{}{}\n",
             country_str,
             lat_lon,
@@ -222,6 +222,7 @@ mod test {
         weather_data::{Coord, Sys, WeatherData, WeatherMain, Wind},
         Error,
     };
+    use log::info;
 
     #[test]
     fn test_weather_data() -> Result<(), Error> {
@@ -232,7 +233,7 @@ mod test {
 
         assert!(buf.starts_with("Current conditions Astoria US 40.76"));
         assert!(buf.contains("Temperature: 38.50 F (3.61 C)"));
-        println!("{} {} {}", buf.len(), data.name, data.name.len());
+        info!("{} {} {}", buf.len(), data.name, data.name.len());
         Ok(())
     }
 

@@ -155,6 +155,7 @@ impl<'a> Drop for TestEnvs<'a> {
 
 #[cfg(test)]
 mod tests {
+    use log::info;
     use std::{
         env::{remove_var, set_var},
         fs::write,
@@ -180,12 +181,15 @@ mod tests {
         let conf = Config::init_config(None)?;
         drop(_env);
 
-        println!("{}", conf.api_key.as_ref().unwrap());
+        info!("{}", conf.api_key.as_ref().unwrap());
         assert_eq!(
             conf.api_key.as_ref().unwrap().as_str(),
             "fb2380d74189c9983ea52f55914da824"
         );
+
+        #[cfg(feature = "stackstring")]
         assert!(conf.api_key.as_ref().unwrap().is_inline());
+
         assert_eq!(&conf.api_endpoint, "test.local");
         assert_eq!(conf.zipcode, Some(8675309));
         assert_eq!(&conf.api_path, "weather/");
@@ -208,7 +212,10 @@ mod tests {
             conf.api_key.as_ref().unwrap().as_str(),
             "fb2380d74189c9983ea52f55914da824"
         );
+
+        #[cfg(feature = "stackstring")]
         assert!(conf.api_key.as_ref().unwrap().is_inline());
+
         assert_eq!(&conf.api_endpoint, "test.local");
         assert_eq!(conf.zipcode, Some(8675309));
         assert_eq!(&conf.api_path, "weather/");

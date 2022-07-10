@@ -3,7 +3,7 @@ use std::collections::{BTreeMap, BTreeSet};
 use time::{Date, OffsetDateTime, UtcOffset};
 
 use crate::{
-    default_datetime, format_string,
+    default_datetime,
     humidity::Humidity,
     precipitation::Precipitation,
     pressure::Pressure,
@@ -174,22 +174,22 @@ impl WeatherForecast {
     /// # }
     /// ```
     #[must_use]
-    pub fn get_forecast(&self) -> Vec<StringType> {
+    pub fn get_forecast(&self) -> Vec<String> {
         let mut output = vec!["\nForecast:\n".into()];
         output.extend(self.get_high_low().into_iter().map(|(d, (h, l, r, s, _))| {
-            let high = format_string!("High: {:0.1} F / {:0.1} C", h.fahrenheit(), h.celcius());
-            let low = format_string!("Low: {:0.1} F / {:0.1} C", l.fahrenheit(), l.celcius());
-            let mut rain_snow = StringType::new();
+            let high = format!("High: {:0.1} F / {:0.1} C", h.fahrenheit(), h.celcius());
+            let low = format!("Low: {:0.1} F / {:0.1} C", l.fahrenheit(), l.celcius());
+            let mut rain_snow = String::new();
             if r.millimeters() > 0.0 {
-                rain_snow.push_str(&format_string!("Rain {:0.2} in", r.inches()));
+                rain_snow.push_str(&format!("Rain {:0.2} in", r.inches()));
             }
             if s.millimeters() > 0.0 {
                 if !rain_snow.is_empty() {
                     rain_snow.push_str("\t");
                 }
-                rain_snow.push_str(&format_string!("Snow {:0.2} in", s.inches()));
+                rain_snow.push_str(&format!("Snow {:0.2} in", s.inches()));
             }
-            format_string!("\t{d} {high:25} {low:25} {rain_snow:25}\n")
+            format!("\t{d} {high:25} {low:25} {rain_snow:25}\n")
         }));
         output
     }
@@ -197,6 +197,7 @@ impl WeatherForecast {
 
 #[cfg(test)]
 mod test {
+    use log::info;
     use std::{collections::BTreeSet, convert::TryFrom};
     use time::macros::date;
 
@@ -233,12 +234,12 @@ mod test {
         let data: WeatherForecast = serde_json::from_str(&buf)?;
         let forecasts = data.get_forecast();
         let buf = forecasts.join("");
-        println!("{}", buf);
+        info!("{}", buf);
         assert!(buf.starts_with("\nForecast:"));
         assert!(buf.contains("2022-02-27 High: 38.5 F / 3.6 C"));
         assert!(buf.contains("Low: 35.3 F / 1.9 C"));
         for f in forecasts {
-            println!("{}", f.len());
+            info!("{}", f.len());
         }
         Ok(())
     }
