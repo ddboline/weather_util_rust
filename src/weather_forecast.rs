@@ -1,5 +1,8 @@
 use serde::{Deserialize, Serialize};
-use std::collections::{BTreeMap, BTreeSet};
+use std::{
+    collections::{BTreeMap, BTreeSet},
+    fmt::Write,
+};
 use time::{Date, OffsetDateTime, UtcOffset};
 
 use crate::{
@@ -181,13 +184,13 @@ impl WeatherForecast {
             let low = format!("Low: {:0.1} F / {:0.1} C", l.fahrenheit(), l.celcius());
             let mut rain_snow = String::new();
             if r.millimeters() > 0.0 {
-                rain_snow.push_str(&format!("Rain {:0.2} in", r.inches()));
+                write!(rain_snow, "Rain {:0.2} in", r.inches()).unwrap_or_else(|_| ());
             }
             if s.millimeters() > 0.0 {
                 if !rain_snow.is_empty() {
-                    rain_snow.push_str("\t");
+                    rain_snow.push('\t');
                 }
-                rain_snow.push_str(&format!("Snow {:0.2} in", s.inches()));
+                write!(rain_snow, "Snow {:0.2} in", s.inches()).unwrap_or_else(|_| ());
             }
             format!("\t{d} {high:25} {low:25} {rain_snow:25}\n")
         }));
