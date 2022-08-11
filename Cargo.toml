@@ -29,7 +29,6 @@ time = {version="0.3", features=["serde-human-readable", "macros"]}
 derive_more = "0.99"
 futures = "0.3"
 dirs = "4.0"
-retry = "1.3"
 log = "0.4"
 envy = "0.4"
 isocountry = "0.3"
