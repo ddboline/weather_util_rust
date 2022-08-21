@@ -8,6 +8,7 @@ use crate::angle::Angle;
     Into,
     Debug,
     PartialEq,
+    Eq,
     Copy,
     Clone,
     PartialOrd,

@@ -12,7 +12,7 @@ use std::{
 use crate::{latitude::Latitude, longitude::Longitude, ApiStringType, Error, StringType};
 
 /// Configuration data
-#[derive(Default, Debug, Deserialize, PartialEq)]
+#[derive(Default, Debug, Deserialize, PartialEq, Eq)]
 pub struct ConfigInner {
     /// openweathermap.org api key
     pub api_key: Option<ApiStringType>,
@@ -43,7 +43,7 @@ fn default_api_path() -> StringType {
 }
 
 /// Configuration struct
-#[derive(Default, Debug, Clone, PartialEq)]
+#[derive(Default, Debug, Clone, PartialEq, Eq)]
 pub struct Config(Arc<ConfigInner>);
 
 impl Config {

@@ -38,7 +38,7 @@ pub struct Wind {
     pub deg: Option<Direction>,
 }
 
-#[derive(Deserialize, Serialize, Debug, Clone, PartialEq)]
+#[derive(Deserialize, Serialize, Debug, Clone, PartialEq, Eq)]
 pub struct Sys {
     #[serde(skip_serializing_if = "Option::is_none")]
     pub country: Option<StringType>,

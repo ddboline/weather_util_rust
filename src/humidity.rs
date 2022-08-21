@@ -6,7 +6,7 @@ use crate::{format_string, Error};
 
 /// Relative Humidity as Percent
 #[derive(
-    Into, Debug, PartialEq, Copy, Clone, PartialOrd, Serialize, Deserialize, Display, Default,
+    Into, Debug, PartialEq, Copy, Clone, PartialOrd, Serialize, Deserialize, Display, Default, Eq,
 )]
 #[serde(into = "i64", try_from = "i64")]
 pub struct Humidity(i64);
