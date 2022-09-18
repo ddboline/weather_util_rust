@@ -7,7 +7,9 @@ use weather_util_rust::{config::Config, weather_opts::WeatherOpts, Error};
 async fn main() -> Result<(), Error> {
     let config = Config::init_config(None)?;
 
-    WeatherOpts::parse_opts(&config).await?;
+    tokio::spawn(async move { WeatherOpts::parse_opts(&config).await })
+        .await
+        .unwrap()?;
     Ok(())
 }
 
