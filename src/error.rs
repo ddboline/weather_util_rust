@@ -1,7 +1,7 @@
+use clap::Error as ClapError;
 use envy::Error as EnvyError;
 use serde_json::Error as SerdeJsonError;
 use std::{fmt::Error as FmtError, io::Error as IoError, num::ParseFloatError};
-use structopt::clap::Error as ClapError;
 use thiserror::Error;
 use url::ParseError as UrlParseError;
 

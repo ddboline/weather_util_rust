@@ -1,6 +1,6 @@
+use clap::Parser;
 use futures::future::join;
 use serde::{Deserialize, Serialize};
-use structopt::StructOpt;
 
 use crate::{format_string, Error};
 
@@ -20,30 +20,30 @@ use crate::weather_api::WeatherApi;
 /// Please specify one of `zipcode(country_code)`, `city_name`, or `lat` and
 /// `lon`.
 #[cfg(feature = "cli")]
-#[derive(StructOpt, Default, Serialize, Deserialize)]
+#[derive(Parser, Default, Serialize, Deserialize)]
 pub struct WeatherOpts {
     /// Zipcode (optional)
-    #[structopt(short, long)]
+    #[clap(short, long)]
     zipcode: Option<u64>,
     /// Country Code (optional), if not specified `us` will be assumed
-    #[structopt(short, long)]
+    #[clap(short, long)]
     country_code: Option<StringType>,
     /// City Name (optional)
-    #[structopt(long)]
+    #[clap(long)]
     city_name: Option<StringType>,
     /// Latitude (must also specify Longitude)
-    #[structopt(long)]
+    #[clap(long)]
     lat: Option<Latitude>,
     /// Longitude (must also specify Latitude)
-    #[structopt(long)]
+    #[clap(long)]
     lon: Option<Longitude>,
     /// Api key (optional but either this or API_KEY environment variable must
     /// exist)
-    #[structopt(short = "k", long)]
+    #[clap(short = 'k', long)]
     api_key: Option<ApiStringType>,
     /// Print forecast
     #[serde(default)]
-    #[structopt(short, long)]
+    #[clap(short, long)]
     forecast: bool,
 }
 
