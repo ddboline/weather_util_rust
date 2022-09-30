@@ -98,9 +98,9 @@ impl WeatherOpts {
                     return Ok(WeatherLocation::from_lat_lon(lat, lon));
                 }
             }
-            Self::command().print_help()?;
+            let help_message = Self::command().render_help();
             return Err(Error::InvalidInputError(format_string!(
-                "\n\nERROR: You must specify at least one option"
+                "\nERROR: You must specify at least one option\n\n{help_message}"
             )));
         };
         Ok(loc)

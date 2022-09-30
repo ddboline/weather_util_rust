@@ -7,10 +7,17 @@ use weather_util_rust::{config::Config, weather_opts::WeatherOpts, Error};
 async fn main() -> Result<(), Error> {
     let config = Config::init_config(None)?;
 
-    tokio::spawn(async move { WeatherOpts::parse_opts(&config).await })
+    match tokio::spawn(async move { WeatherOpts::parse_opts(&config).await })
         .await
-        .unwrap()?;
-    Ok(())
+        .unwrap()
+    {
+        Ok(_) => Ok(()),
+        Err(Error::InvalidInputError(s)) => {
+            println!("{s}");
+            Ok(())
+        }
+        Err(e) => Err(e),
+    }
 }
 
 #[cfg(not(tarpaulin_include))]
