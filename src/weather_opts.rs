@@ -1,4 +1,4 @@
-use clap::Parser;
+use clap::{CommandFactory, Parser};
 use futures::future::join;
 use serde::{Deserialize, Serialize};
 
@@ -55,7 +55,7 @@ impl WeatherOpts {
     /// Returns error if call to retreive weather data fails or if write to
     /// stdout fails
     pub async fn parse_opts(config: &Config) -> Result<(), Error> {
-        let mut opts = Self::from_args();
+        let mut opts = Self::parse();
         opts.apply_defaults(config);
 
         let mut stdout = stdout();
@@ -98,7 +98,7 @@ impl WeatherOpts {
                     return Ok(WeatherLocation::from_lat_lon(lat, lon));
                 }
             }
-            Self::clap().print_help()?;
+            Self::command().print_help()?;
             return Err(Error::InvalidInputError(format_string!(
                 "\n\nERROR: You must specify at least one option"
             )));
