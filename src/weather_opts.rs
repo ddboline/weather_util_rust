@@ -109,7 +109,7 @@ impl WeatherOpts {
     /// # Errors
     ///
     /// Returns error if call to retreive weather data fails
-    async fn run_opts(&self, config: &Config) -> Result<Vec<String>, Error> {
+    async fn run_opts(&self, config: &Config) -> Result<Vec<StringType>, Error> {
         let api = self.get_api(config)?;
         let loc = self.get_location()?;
 

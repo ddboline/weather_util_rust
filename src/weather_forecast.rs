@@ -6,7 +6,7 @@ use std::{
 use time::{Date, OffsetDateTime, UtcOffset};
 
 use crate::{
-    default_datetime,
+    default_datetime, format_string,
     humidity::Humidity,
     precipitation::Precipitation,
     pressure::Pressure,
@@ -177,11 +177,11 @@ impl WeatherForecast {
     /// # }
     /// ```
     #[must_use]
-    pub fn get_forecast(&self) -> Vec<String> {
+    pub fn get_forecast(&self) -> Vec<StringType> {
         let mut output = vec!["\nForecast:\n".into()];
         output.extend(self.get_high_low().into_iter().map(|(d, (h, l, r, s, _))| {
-            let high = format!("High: {:0.1} F / {:0.1} C", h.fahrenheit(), h.celcius());
-            let low = format!("Low: {:0.1} F / {:0.1} C", l.fahrenheit(), l.celcius());
+            let high = format_string!("High: {:0.1} F / {:0.1} C", h.fahrenheit(), h.celcius());
+            let low = format_string!("Low: {:0.1} F / {:0.1} C", l.fahrenheit(), l.celcius());
             let mut rain_snow = String::new();
             if r.millimeters() > 0.0 {
                 write!(rain_snow, "Rain {:0.2} in", r.inches()).unwrap_or_else(|_| ());
@@ -192,7 +192,7 @@ impl WeatherForecast {
                 }
                 write!(rain_snow, "Snow {:0.2} in", s.inches()).unwrap_or_else(|_| ());
             }
-            format!("\t{d} {high:25} {low:25} {rain_snow:25}\n")
+            format_string!("\t{d} {high:25} {low:25} {rain_snow:25}\n")
         }));
         output
     }

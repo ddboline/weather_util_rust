@@ -1,4 +1,5 @@
 use serde::{Deserialize, Serialize};
+use std::fmt::Write;
 use time::{OffsetDateTime, UtcOffset};
 
 use crate::{
@@ -151,66 +152,59 @@ impl WeatherData {
     /// # }
     /// ```
     #[must_use]
-    pub fn get_current_conditions(&self) -> String {
+    pub fn get_current_conditions(&self) -> StringType {
+        let mut output: StringType = "Current conditions ".into();
         let fo: UtcOffset = self.timezone.into();
         let dt = self.dt.to_offset(fo);
         let sunrise = self.sys.sunrise.to_offset(fo);
         let sunset = self.sys.sunset.to_offset(fo);
-        let country_str = if let Some(country) = &self.sys.country {
+        if let Some(country) = &self.sys.country {
             let name = &self.name;
-            format!("{name} {country}")
-        } else {
-            String::new()
+            write!(output, "{name} {country} ").unwrap_or(());
         };
-        let lat_lon = format!("{:0.5}N {:0.5}E", self.coord.lat, self.coord.lon);
-        let dt_str = format!("Last Updated {dt}");
-        let temp_str = format!(
+        writeln!(output, "{:0.5}N {:0.5}E", self.coord.lat, self.coord.lon).unwrap_or(());
+        writeln!(output, "Last Updated {dt}").unwrap_or(());
+        writeln!(
+            output,
             "\tTemperature: {f:0.2} F ({c:0.2} C)",
             f = self.main.temp.fahrenheit(),
             c = self.main.temp.celcius(),
-        );
-        let humidity_str = format!("\tRelative Humidity: {}%", self.main.humidity);
-        let wind_str = format!(
+        )
+        .unwrap_or(());
+        writeln!(output, "\tRelative Humidity: {}%", self.main.humidity).unwrap_or(());
+        writeln!(
+            output,
             "\tWind: {d} degrees at {s:0.2} mph",
             d = self.wind.deg.unwrap_or_else(|| 0.0.into()),
             s = self.wind.speed.mph(),
-        );
-        let conditions_str = format!(
+        )
+        .unwrap_or(());
+        writeln!(
+            output,
             "\tConditions: {}",
             self.weather.get(0).map_or_else(|| "", |w| &w.description)
-        );
-        let sunrise_str = format!("\tSunrise: {sunrise}");
-        let sunset_str = format!("\tSunset: {sunset}");
-        let rain_str = if let Some(rain) = &self.rain {
-            format!(
+        )
+        .unwrap_or(());
+        writeln!(output, "\tSunrise: {sunrise}").unwrap_or(());
+        write!(output, "\tSunset: {sunset}").unwrap_or(());
+        if let Some(rain) = &self.rain {
+            write!(
+                output,
                 "\n\tRain: {} in",
                 rain.three_hour.map_or(0.0, Precipitation::inches)
             )
-        } else {
-            String::new()
+            .unwrap_or(());
         };
-        let snow_str = if let Some(snow) = &self.snow {
-            format!(
+        if let Some(snow) = &self.snow {
+            write!(
+                output,
                 "\n\tSnow: {} in",
                 snow.three_hour.map_or(0.0, Precipitation::inches)
             )
-        } else {
-            String::new()
+            .unwrap_or(());
         };
-        format!(
-            "Current conditions {} {}\n{}\n{}\n{}\n{}\n{}\n{}\n{}{}{}\n",
-            country_str,
-            lat_lon,
-            dt_str,
-            temp_str,
-            humidity_str,
-            wind_str,
-            conditions_str,
-            sunrise_str,
-            sunset_str,
-            rain_str,
-            snow_str,
-        )
+        output.push('\n');
+        output
     }
 }
 
