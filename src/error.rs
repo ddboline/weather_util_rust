@@ -12,8 +12,6 @@ use crate::StringType;
 
 #[derive(Error, Debug)]
 pub enum Error {
-    #[error("Invalid Value Error {0}")]
-    InvalidValue(StringType),
     #[error("Format Error {0}")]
     FmtError(#[from] FmtError),
     #[error("Float Parse Error {0}")]
@@ -26,6 +24,8 @@ pub enum Error {
     SerdeJsonError(#[from] SerdeJsonError),
     #[error("IO Error {0}")]
     IoError(#[from] IoError),
+    #[error("Invalid Value Error {0}")]
+    InvalidValue(StringType),
     #[error("Invalid Input Error {0}")]
     InvalidInputError(StringType),
     #[error("Clap CLI Parser Error {0}")]

@@ -72,7 +72,8 @@ impl WeatherOpts {
         let api_key = self
             .api_key
             .as_deref()
-            .ok_or_else(|| Error::InvalidInputError(Self::api_help_msg().into()))?;
+            .ok_or_else(|| Error::InvalidInputError(format_string!("invalid api key")))?;
+
         Ok(WeatherApi::new(
             api_key,
             &config.api_endpoint,
@@ -98,9 +99,8 @@ impl WeatherOpts {
                     return Ok(WeatherLocation::from_lat_lon(lat, lon));
                 }
             }
-            let help_message = Self::command().render_help();
             return Err(Error::InvalidInputError(format_string!(
-                "\nERROR: You must specify at least one option\n\n{help_message}"
+                "\nERROR: You must specify at least one option\n"
             )));
         };
         Ok(loc)
@@ -147,16 +147,9 @@ impl WeatherOpts {
         }
     }
 
-    fn api_help_msg() -> String {
-        let config_dir = dirs::config_dir().expect("This shouldn't happen");
-        format!(
-            "API_KEY environment variable must be set\nEither set them directly or place them in \
-             {}",
-            config_dir
-                .join("weather_util")
-                .join("config.env")
-                .to_string_lossy()
-        )
+    #[must_use]
+    pub fn api_help_msg() -> StringType {
+        format_string!("{}", Self::command().render_help())
     }
 }
 

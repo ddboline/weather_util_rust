@@ -9,15 +9,15 @@ async fn main() -> Result<(), Error> {
 
     match tokio::spawn(async move { WeatherOpts::parse_opts(&config).await })
         .await
-        .unwrap()
-    {
-        Ok(_) => Ok(()),
-        Err(Error::InvalidInputError(s)) => {
-            println!("{s}");
-            Ok(())
+        .unwrap() {
+            Ok(_) => Ok(()),
+            Err(Error::InvalidInputError(e)) => {
+                let help_message = WeatherOpts::api_help_msg();
+                println!("{e}\n{help_message}");
+                Ok(())
+            }
+            Err(e) => Err(e),
         }
-        Err(e) => Err(e),
-    }
 }
 
 #[cfg(not(tarpaulin_include))]
