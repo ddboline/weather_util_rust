@@ -36,6 +36,34 @@ impl Default for WeatherLocation {
     }
 }
 
+impl fmt::Display for WeatherLocation {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        match self {
+            Self::ZipCode {
+                zipcode,
+                country_code: None,
+            } => {
+                write!(f, "{zipcode}")
+            }
+            Self::ZipCode {
+                zipcode,
+                country_code: Some(country_code),
+            } => {
+                write!(f, "{zipcode} {country_code}")
+            }
+            Self::CityName(name) => {
+                write!(f, "{name}")
+            }
+            Self::LatLon {
+                latitude,
+                longitude,
+            } => {
+                write!(f, "{latitude},{longitude}")
+            }
+        }
+    }
+}
+
 impl WeatherLocation {
     #[inline]
     #[must_use]
