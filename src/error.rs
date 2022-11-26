@@ -1,9 +1,11 @@
-use clap::Error as ClapError;
 use envy::Error as EnvyError;
 use serde_json::Error as SerdeJsonError;
 use std::{fmt::Error as FmtError, io::Error as IoError, num::ParseFloatError};
 use thiserror::Error;
 use url::ParseError as UrlParseError;
+
+#[cfg(feature = "cli")]
+use clap::Error as ClapError;
 
 #[cfg(feature = "cli")]
 use reqwest::Error as ReqwestError;
@@ -28,6 +30,8 @@ pub enum Error {
     InvalidValue(StringType),
     #[error("Invalid Input Error {0}")]
     InvalidInputError(StringType),
+
+    #[cfg(feature = "cli")]
     #[error("Clap CLI Parser Error {0}")]
     ClapError(#[from] ClapError),
 

@@ -1,8 +1,10 @@
-use clap::{CommandFactory, Parser};
 use futures::future::join;
 use serde::{Deserialize, Serialize};
 
 use crate::{format_string, Error};
+
+#[cfg(feature = "cli")]
+use clap::{CommandFactory, Parser};
 
 #[cfg(feature = "cli")]
 use tokio::io::{stdout, AsyncWriteExt};
