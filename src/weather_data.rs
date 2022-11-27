@@ -71,7 +71,7 @@ pub struct Snow {
     pub three_hour: Option<Precipitation>,
 }
 
-#[derive(Deserialize, Serialize, Debug, Clone)]
+#[derive(Deserialize, Serialize, Debug, Clone, PartialEq)]
 pub struct WeatherData {
     pub coord: Coord,
     pub weather: Vec<WeatherCond>,

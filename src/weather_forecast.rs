@@ -17,7 +17,7 @@ use crate::{
     StringType,
 };
 
-#[derive(Deserialize, Serialize, Debug, Clone, Copy)]
+#[derive(Deserialize, Serialize, Debug, Clone, Copy, PartialEq)]
 pub struct ForecastMain {
     pub temp: Temperature,
     pub feels_like: Temperature,
@@ -29,7 +29,7 @@ pub struct ForecastMain {
     pub humidity: Humidity,
 }
 
-#[derive(Deserialize, Serialize, Debug, Clone)]
+#[derive(Deserialize, Serialize, Debug, Clone, PartialEq)]
 pub struct ForecastEntry {
     #[serde(with = "timestamp")]
     pub dt: OffsetDateTime,
@@ -41,7 +41,7 @@ pub struct ForecastEntry {
     pub snow: Option<Snow>,
 }
 
-#[derive(Deserialize, Serialize, Debug, Clone, Copy)]
+#[derive(Deserialize, Serialize, Debug, Clone, Copy, PartialEq)]
 pub struct CityEntry {
     pub timezone: TimeZone,
     #[serde(with = "timestamp")]
@@ -60,7 +60,7 @@ impl Default for CityEntry {
     }
 }
 
-#[derive(Deserialize, Serialize, Debug, Clone, Default)]
+#[derive(Deserialize, Serialize, Debug, Clone, Default, PartialEq)]
 pub struct WeatherForecast {
     pub list: Vec<ForecastEntry>,
     pub city: CityEntry,
