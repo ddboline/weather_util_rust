@@ -41,7 +41,7 @@ pub struct ForecastEntry {
     pub snow: Option<Snow>,
 }
 
-#[derive(Deserialize, Serialize, Debug, Clone, Copy, PartialEq)]
+#[derive(Deserialize, Serialize, Debug, Clone, Copy, PartialEq, Eq)]
 pub struct CityEntry {
     pub timezone: TimeZone,
     #[serde(with = "timestamp")]

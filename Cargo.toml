@@ -1,6 +1,6 @@
 [package]
 name = "weather_util_rust"
-version = "0.14.13"
+version = "0.15.0"
 authors = ["Daniel Boline <ddboline@gmail.com>"]
 edition = "2018"
 license-file = "LICENSE"
@@ -34,7 +34,7 @@ isocountry = "0.3"
 lazy_static = "1.4"
 parking_lot = "0.12"
 url = "2.3"
-stack-string = {version="0.7", optional=true}
+stack-string = {version="0.8", optional=true}
 clap = {version="4.0", features=["derive"], optional=true}
 reqwest = { version="0.11", features=["json", "rustls-tls", "gzip"], default-features=false, optional=true}
 tokio = { version="1.21", features=["full"], optional=true}
