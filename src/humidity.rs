@@ -1,47 +1,29 @@
-use derive_more::{Display, Into};
-use serde::{Deserialize, Serialize};
-use std::convert::TryFrom;
-
-use crate::{format_string, Error};
+use nutype::nutype;
 
 /// Relative Humidity as Percent
-#[derive(
-    Into, Debug, PartialEq, Copy, Clone, PartialOrd, Serialize, Deserialize, Display, Default, Eq,
-)]
-#[serde(into = "i64", try_from = "i64")]
+#[nutype(validate(min=0, max=100))]
+#[derive(*, Serialize, Deserialize, Display)]
 pub struct Humidity(i64);
 
-impl TryFrom<i64> for Humidity {
-    type Error = Error;
-    fn try_from(item: i64) -> Result<Self, Self::Error> {
-        if (0..=100).contains(&item) {
-            Ok(Self(item))
-        } else {
-            Err(Error::InvalidValue(format_string!(
-                "{item} is not a valid relative humidity"
-            )))
-        }
+impl Default for Humidity {
+    fn default() -> Self {
+        Self::new(0).unwrap()
     }
 }
 
 #[cfg(test)]
 mod test {
-    use std::convert::TryFrom;
 
-    use crate::{humidity::Humidity, Error};
+    use crate::{format_string, humidity::Humidity, Error};
 
     #[test]
     fn test_humidity() -> Result<(), Error> {
-        let h = Humidity::try_from(86)?;
-        let v: i64 = h.into();
+        let h = Humidity::new(86).map_err(|e| Error::InvalidValue(format_string!("{e}")))?;
+        let v: i64 = h.into_inner();
         assert_eq!(v, 86);
 
-        let h = Humidity::try_from(-86);
+        let h = Humidity::new(-86);
         assert!(h.is_err());
-        assert_eq!(
-            h.err().unwrap().to_string(),
-            "Invalid Value Error -86 is not a valid relative humidity"
-        );
         Ok(())
     }
 }

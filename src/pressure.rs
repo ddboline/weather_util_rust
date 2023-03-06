@@ -1,6 +1,4 @@
-use derive_more::Into;
-use serde::{Deserialize, Serialize};
-use std::convert::TryFrom;
+use nutype::nutype;
 
 use crate::{format_string, Error};
 
@@ -10,20 +8,13 @@ const ATM: f64 = 98.0665 * HECTO / KILO;
 const PSI: f64 = 14.223 / (98.0665 * HECTO / KILO);
 
 /// Pressure struct, data is stored as hPa (100 Pa)
-#[derive(Into, Debug, PartialEq, Copy, Clone, PartialOrd, Serialize, Deserialize, Default)]
-#[serde(into = "f64", try_from = "f64")]
+#[nutype(validate(min=0.0))]
+#[derive(*, Serialize, Deserialize)]
 pub struct Pressure(f64);
 
-impl TryFrom<f64> for Pressure {
-    type Error = Error;
-    fn try_from(item: f64) -> Result<Self, Self::Error> {
-        if item > 0.0 {
-            Ok(Self(item))
-        } else {
-            Err(Error::InvalidValue(format_string!(
-                "{item} is not a valid pressure value"
-            )))
-        }
+impl Default for Pressure {
+    fn default() -> Self {
+        Self::new(0.0).unwrap()
     }
 }
 
@@ -32,21 +23,21 @@ impl Pressure {
     ///
     /// Will return error if input is less than zero
     pub fn from_kpa(kpa: f64) -> Result<Self, Error> {
-        Self::try_from(kpa * HECTO / KILO)
+        Self::new(kpa * HECTO / KILO).map_err(|e| Error::InvalidValue(format_string!("{e}")))
     }
 
     /// # Errors
     ///
     /// Will return error if input is less than zero
     pub fn from_hpa(hpa: f64) -> Result<Self, Error> {
-        Self::try_from(hpa)
+        Self::new(hpa).map_err(|e| Error::InvalidValue(format_string!("{e}")))
     }
 
     /// # Errors
     ///
     /// Will return error if input is less than zero
     pub fn from_atmosphere(atm: f64) -> Result<Self, Error> {
-        Self::try_from(atm * ATM)
+        Self::new(atm * ATM).map_err(|e| Error::InvalidValue(format_string!("{e}")))
     }
 
     /// # Errors
@@ -60,25 +51,25 @@ impl Pressure {
     ///
     /// Will return error if input is less than zero
     pub fn from_psi(psi: f64) -> Result<Self, Error> {
-        Self::try_from(psi / PSI)
+        Self::new(psi / PSI).map_err(|e| Error::InvalidValue(format_string!("{e}")))
     }
 
     #[inline]
     #[must_use]
     pub fn kpa(self) -> f64 {
-        self.0 * KILO / HECTO
+        self.into_inner() * KILO / HECTO
     }
 
     #[inline]
     #[must_use]
     pub fn hpa(self) -> f64 {
-        self.0
+        self.into_inner()
     }
 
     #[inline]
     #[must_use]
     pub fn atmosphere(self) -> f64 {
-        self.0 / ATM
+        self.into_inner() / ATM
     }
 
     #[inline]
@@ -90,7 +81,7 @@ impl Pressure {
     #[inline]
     #[must_use]
     pub fn psi(self) -> f64 {
-        self.0 * PSI
+        self.into_inner() * PSI
     }
 }
 
@@ -117,10 +108,6 @@ mod tests {
 
         let p = Pressure::from_hpa(-1.0);
         assert!(p.is_err());
-        assert_eq!(
-            p.err().unwrap().to_string(),
-            format!("Invalid Value Error {} is not a valid pressure value", -1.0)
-        );
         Ok(())
     }
 }

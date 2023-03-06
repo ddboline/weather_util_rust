@@ -1,6 +1,4 @@
-use derive_more::Into;
-use serde::{Deserialize, Serialize};
-use std::convert::TryFrom;
+use nutype::nutype;
 
 use crate::{format_string, Error};
 
@@ -8,20 +6,13 @@ const SECONDS_PER_HOUR: f64 = 3600.;
 const METERS_PER_MILE: f64 = 1609.344;
 
 /// Speed in meters per second
-#[derive(Into, Debug, PartialEq, Copy, Clone, PartialOrd, Serialize, Deserialize, Default)]
-#[serde(into = "f64", try_from = "f64")]
+#[nutype(validate(min=0.0))]
+#[derive(*, Serialize, Deserialize)]
 pub struct Speed(f64);
 
-impl TryFrom<f64> for Speed {
-    type Error = Error;
-    fn try_from(item: f64) -> Result<Self, Self::Error> {
-        if item >= 0.0 {
-            Ok(Self(item))
-        } else {
-            Err(Error::InvalidValue(format_string!(
-                "{item} is not a valid speed"
-            )))
-        }
+impl Default for Speed {
+    fn default() -> Self {
+        Self::new(0.0).unwrap()
     }
 }
 
@@ -30,26 +21,27 @@ impl Speed {
     ///
     /// Will return error if input is less than zero
     pub fn from_mps(mps: f64) -> Result<Self, Error> {
-        Self::try_from(mps)
+        Self::new(mps).map_err(|e| Error::InvalidValue(format_string!("{e}")))
     }
 
     /// # Errors
     ///
     /// Will return error if input is less than zero
     pub fn from_mph(mph: f64) -> Result<Self, Error> {
-        Self::try_from(mph * METERS_PER_MILE / SECONDS_PER_HOUR)
+        Self::new(mph * METERS_PER_MILE / SECONDS_PER_HOUR)
+            .map_err(|e| Error::InvalidValue(format_string!("{e}")))
     }
 
     #[inline]
     #[must_use]
     pub fn mps(self) -> f64 {
-        self.0
+        self.into_inner()
     }
 
     #[inline]
     #[must_use]
     pub fn mph(self) -> f64 {
-        self.0 * SECONDS_PER_HOUR / METERS_PER_MILE
+        self.into_inner() * SECONDS_PER_HOUR / METERS_PER_MILE
     }
 }
 
@@ -70,10 +62,6 @@ mod tests {
 
         let s = Speed::from_mps(-1.0);
         assert!(s.is_err());
-        assert_eq!(
-            s.err().unwrap().to_string(),
-            format!("Invalid Value Error {} is not a valid speed", -1.0)
-        );
         Ok(())
     }
 }
