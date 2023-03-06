@@ -201,7 +201,7 @@ impl WeatherForecast {
 #[cfg(test)]
 mod test {
     use log::info;
-    use std::{collections::BTreeSet, convert::TryFrom};
+    use std::collections::BTreeSet;
     use time::macros::date;
 
     use crate::{
@@ -220,8 +220,8 @@ mod test {
         assert_eq!(
             high_low.get(&date),
             Some(&(
-                Temperature::try_from(276.76)?,
-                Temperature::try_from(275.01)?,
+                Temperature::from_kelvin(276.76)?,
+                Temperature::from_kelvin(275.01)?,
                 Precipitation::default(),
                 Precipitation::default(),
                 icons,

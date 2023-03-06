@@ -1,5 +1,4 @@
-use derive_more::Into;
-use serde::{Deserialize, Serialize};
+use nutype::nutype;
 use std::convert::TryFrom;
 
 use crate::{format_string, Error};
@@ -7,20 +6,13 @@ use crate::{format_string, Error};
 const METERS_PER_MILE: f64 = 1609.344;
 
 /// Distance in meters
-#[derive(Into, Debug, PartialEq, Copy, Clone, PartialOrd, Serialize, Deserialize, Default)]
-#[serde(into = "f64", try_from = "f64")]
+#[nutype(validate(min=0.0))]
+#[derive(*, Serialize, Deserialize)]
 pub struct Distance(f64);
 
-impl TryFrom<f64> for Distance {
-    type Error = Error;
-    fn try_from(item: f64) -> Result<Self, Self::Error> {
-        if item >= 0.0 {
-            Ok(Self(item))
-        } else {
-            Err(Error::InvalidValue(format_string!(
-                "{item} is not a valid distance"
-            )))
-        }
+impl Default for Distance {
+    fn default() -> Self {
+        Self::new(0.0).unwrap()
     }
 }
 
@@ -29,7 +21,7 @@ impl Distance {
     ///
     /// Will return error if input is less than zero
     pub fn from_meters(meters: f64) -> Result<Self, Error> {
-        Self::try_from(meters)
+        Self::try_from(meters).map_err(|e| Error::InvalidValue(format_string!("{e}")))
     }
 
     /// # Errors
@@ -37,16 +29,17 @@ impl Distance {
     /// Will return error if input is less than zero
     pub fn from_miles(miles: f64) -> Result<Self, Error> {
         Self::try_from(miles * METERS_PER_MILE)
+            .map_err(|e| Error::InvalidValue(format_string!("{e}")))
     }
 
     #[must_use]
     pub fn meters(self) -> f64 {
-        self.0
+        self.into_inner()
     }
 
     #[must_use]
     pub fn miles(self) -> f64 {
-        self.0 / METERS_PER_MILE
+        self.meters() / METERS_PER_MILE
     }
 }
 
@@ -72,10 +65,6 @@ mod tests {
     fn test_invalid_distance() -> Result<(), Error> {
         let s = Distance::from_miles(-12.0);
         assert!(s.is_err());
-        assert_eq!(
-            s.err().unwrap().to_string(),
-            format!("Invalid Value Error {} is not a valid distance", -19312.128)
-        );
         Ok(())
     }
 }

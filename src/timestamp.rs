@@ -21,6 +21,6 @@ where
     D: Deserializer<'de>,
 {
     i64::deserialize(deserializer).and_then(|t| {
-        OffsetDateTime::from_unix_timestamp(t).map_err(|e| D::Error::custom(format!("{:?}", e)))
+        OffsetDateTime::from_unix_timestamp(t).map_err(|e| D::Error::custom(format!("{e:?}")))
     })
 }

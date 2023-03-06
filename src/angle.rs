@@ -201,4 +201,14 @@ mod tests {
         assert_eq!(a, b);
         Ok(())
     }
+
+    #[test]
+    fn test_real_lat() -> Result<(), Error> {
+        let a = Angle::from_deg(40.7633578);
+        assert_eq!(a.degree, 40);
+        assert_eq!(a.minute, 45);
+        assert_eq!(a.second, 48);
+        assert!((a.subsec - 0.08808136).abs() < 0.00000001);
+        Ok(())
+    }
 }

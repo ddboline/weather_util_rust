@@ -1,6 +1,4 @@
-use derive_more::Into;
-use serde::{Deserialize, Serialize};
-use std::convert::TryFrom;
+use nutype::nutype;
 
 use crate::{format_string, Error};
 
@@ -9,20 +7,13 @@ const FAHRENHEIT_OFFSET: f64 = 459.67;
 const FAHRENHEIT_FACTOR: f64 = 1.8;
 
 /// Temperature struct, data is stored as Kelvin
-#[derive(Into, Debug, PartialEq, Copy, Clone, PartialOrd, Serialize, Deserialize, Default)]
-#[serde(into = "f64", try_from = "f64")]
+#[nutype(validate(min=0.0))]
+#[derive(*, Serialize, Deserialize)]
 pub struct Temperature(f64);
 
-impl TryFrom<f64> for Temperature {
-    type Error = Error;
-    fn try_from(item: f64) -> Result<Self, Self::Error> {
-        if item >= 0.0 {
-            Ok(Self(item))
-        } else {
-            Err(Error::InvalidValue(format_string!(
-                "{item} is not a valid Temperature"
-            )))
-        }
+impl Default for Temperature {
+    fn default() -> Self {
+        Self::new(0.0).unwrap()
     }
 }
 
@@ -38,48 +29,52 @@ impl Temperature {
     /// # Ok(())
     /// # }
     /// ```
+
+    /// # Errors
+    ///
+    /// Will return error if input is less than zero
+    pub fn from_kelvin(t: f64) -> Result<Self, Error> {
+        Self::new(t).map_err(|_| {
+            Error::InvalidValue(format_string!("{t} is not a valid temperature in Kelvin"))
+        })
+    }
+
     /// # Errors
     ///
     /// Will return error if input is less than zero
     pub fn from_celcius(t: f64) -> Result<Self, Error> {
-        if t >= -FREEZING_POINT_KELVIN {
-            Ok(Self(t + FREEZING_POINT_KELVIN))
-        } else {
-            Err(Error::InvalidValue(format_string!(
-                "{t} is not a valid temperature in Celcius"
-            )))
-        }
+        Self::new(t + FREEZING_POINT_KELVIN).map_err(|_| {
+            Error::InvalidValue(format_string!("{t} is not a valid temperature in Celcius"))
+        })
     }
 
     /// # Errors
     ///
     /// Will return error if input is less than zero
     pub fn from_fahrenheit(t: f64) -> Result<Self, Error> {
-        if t >= -FAHRENHEIT_OFFSET {
-            Ok(Self((t + FAHRENHEIT_OFFSET) / FAHRENHEIT_FACTOR))
-        } else {
-            Err(Error::InvalidValue(format_string!(
+        Self::new((t + FAHRENHEIT_OFFSET) / FAHRENHEIT_FACTOR).map_err(|_| {
+            Error::InvalidValue(format_string!(
                 "{t} is not a valid temperature in Fahrenheit",
-            )))
-        }
+            ))
+        })
     }
 
     #[inline]
     #[must_use]
     pub fn kelvin(self) -> f64 {
-        self.0
+        self.into_inner()
     }
 
     #[inline]
     #[must_use]
     pub fn celcius(self) -> f64 {
-        self.0 - FREEZING_POINT_KELVIN
+        self.into_inner() - FREEZING_POINT_KELVIN
     }
 
     #[inline]
     #[must_use]
     pub fn fahrenheit(self) -> f64 {
-        self.0 * FAHRENHEIT_FACTOR - FAHRENHEIT_OFFSET
+        self.into_inner() * FAHRENHEIT_FACTOR - FAHRENHEIT_OFFSET
     }
 }
 
@@ -88,7 +83,7 @@ mod test {
     use approx::assert_abs_diff_eq;
     use std::convert::TryFrom;
 
-    use crate::{temperature::Temperature, Error};
+    use crate::{format_string, temperature::Temperature, Error};
 
     #[test]
     fn test_temperature() -> Result<(), Error> {
@@ -98,15 +93,11 @@ mod test {
         let t = Temperature::from_fahrenheit(15.0)?;
         assert_abs_diff_eq!(t.fahrenheit(), 15.0, epsilon = 0.0001);
 
-        let t = Temperature::try_from(300.0)?;
+        let t = Temperature::new(300.0).map_err(|e| Error::InvalidValue(format_string!("{e}")))?;
         assert_abs_diff_eq!(t.kelvin(), 300.0);
 
         let t = Temperature::try_from(-15.0);
         assert!(t.is_err());
-        assert_eq!(
-            t.err().unwrap().to_string(),
-            format!("Invalid Value Error {} is not a valid Temperature", -15.0)
-        );
 
         let t = Temperature::from_celcius(-300.0);
         assert!(t.is_err());

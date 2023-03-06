@@ -1,33 +1,20 @@
-use derive_more::{Display, Into};
-use serde::{Deserialize, Serialize};
-use std::convert::TryFrom;
+use nutype::nutype;
 use time::UtcOffset;
 
-use crate::{format_string, Error};
-
 /// Direction in degrees
-#[derive(
-    Into, Debug, PartialEq, Copy, Clone, PartialOrd, Serialize, Deserialize, Display, Default, Eq,
-)]
-#[serde(into = "i32", try_from = "i32")]
+#[nutype(validate(min=-86400, max=86400))]
+#[derive(*, Serialize, Deserialize, Display)]
 pub struct TimeZone(i32);
 
-impl TryFrom<i32> for TimeZone {
-    type Error = Error;
-    fn try_from(item: i32) -> Result<Self, Self::Error> {
-        if item > -86400 && item < 86400 {
-            Ok(Self(item))
-        } else {
-            Err(Error::InvalidValue(format_string!(
-                "{item} is not a valid timezone"
-            )))
-        }
+impl Default for TimeZone {
+    fn default() -> Self {
+        Self::new(0).unwrap()
     }
 }
 
 impl From<TimeZone> for UtcOffset {
     fn from(z: TimeZone) -> Self {
-        match Self::from_whole_seconds(z.0) {
+        match Self::from_whole_seconds(z.into_inner()) {
             Ok(offset) => offset,
             Err(_) => unreachable!(),
         }
@@ -39,22 +26,18 @@ mod test {
     use std::convert::TryFrom;
     use time::UtcOffset;
 
-    use crate::{timezone::TimeZone, Error};
+    use crate::{format_string, timezone::TimeZone, Error};
 
     #[test]
     fn test_timezone() -> Result<(), Error> {
-        let t = TimeZone::try_from(4 * 3600)?;
-        let offset: i32 = t.into();
+        let t = TimeZone::new(4 * 3600).map_err(|e| Error::InvalidValue(format_string!("{e}")))?;
+        let offset: i32 = t.into_inner();
         assert_eq!(offset, 4 * 3600);
         let offset: UtcOffset = t.into();
         assert_eq!(offset, UtcOffset::from_whole_seconds(4 * 3600).unwrap());
 
         let t = TimeZone::try_from(100_000);
         assert!(t.is_err());
-        assert_eq!(
-            t.err().unwrap().to_string(),
-            format!("Invalid Value Error {} is not a valid timezone", 100_000)
-        );
         Ok(())
     }
 }

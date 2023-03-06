@@ -311,7 +311,7 @@ mod tests {
         // tokio::fs::write("weather.json", serde_json::to_vec(&data)?).await?;
         // tokio::fs::write("forecast.json", serde_json::to_vec(&forecast)?).await?;
         assert!(data.name == "Astoria");
-        let timezone: i32 = forecast.city.timezone.into();
+        let timezone: i32 = forecast.city.timezone.into_inner();
         info!("{}", timezone);
         info!("{:?}", forecast);
         assert!(timezone == -18000 || timezone == -14400);
