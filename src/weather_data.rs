@@ -63,12 +63,16 @@ impl Default for Sys {
 pub struct Rain {
     #[serde(alias = "3h", skip_serializing_if = "Option::is_none")]
     pub three_hour: Option<Precipitation>,
+    #[serde(alias = "1h", skip_serializing_if = "Option::is_none")]
+    pub one_hour: Option<Precipitation>,
 }
 
 #[derive(Deserialize, Serialize, Debug, Clone, Copy, PartialEq)]
 pub struct Snow {
     #[serde(alias = "3h", skip_serializing_if = "Option::is_none")]
     pub three_hour: Option<Precipitation>,
+    #[serde(alias = "1h", skip_serializing_if = "Option::is_none")]
+    pub one_hour: Option<Precipitation>,
 }
 
 #[derive(Deserialize, Serialize, Debug, Clone, PartialEq)]
@@ -190,16 +194,16 @@ impl WeatherData {
         if let Some(rain) = &self.rain {
             write!(
                 output,
-                "\n\tRain: {} in",
-                rain.three_hour.map_or(0.0, Precipitation::inches)
+                "\n\tRain: {:0.3} in",
+                rain.one_hour.map_or(0.0, Precipitation::inches)
             )
             .unwrap_or(());
         };
         if let Some(snow) = &self.snow {
             write!(
                 output,
-                "\n\tSnow: {} in",
-                snow.three_hour.map_or(0.0, Precipitation::inches)
+                "\n\tSnow: {:0.3} in",
+                snow.one_hour.map_or(0.0, Precipitation::inches)
             )
             .unwrap_or(());
         };
