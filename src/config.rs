@@ -22,6 +22,9 @@ pub struct ConfigInner {
     /// Api path (default is `data/2.5/`)
     #[serde(default = "default_api_path")]
     pub api_path: StringType,
+    /// Geo Api path (default is `geo/1.0/`)
+    #[serde(default = "default_geo_path")]
+    pub geo_path: StringType,
     /// optional default zipcode
     pub zipcode: Option<u64>,
     /// optional default country code
@@ -40,6 +43,10 @@ fn default_api_endpoint() -> StringType {
 
 fn default_api_path() -> StringType {
     "data/2.5/".into()
+}
+
+fn default_geo_path() -> StringType {
+    "geo/1.0/".into()
 }
 
 /// Configuration struct
