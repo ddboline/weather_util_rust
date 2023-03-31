@@ -1,8 +1,11 @@
 use isocountry::CountryCode;
+use stack_string::format_sstr;
 use std::{
     fmt::{self},
     hash::{Hash, Hasher},
 };
+use serde::{Deserialize, Serialize};
+use std::convert::TryInto;
 
 use crate::Error;
 
@@ -129,6 +132,34 @@ impl WeatherLocation {
             }
         }
     }
+
+    pub async fn to_lat_lon(&self, api: &WeatherApi) -> Result<Self, Error> {
+        let mut options = vec![("APPID", api.api_key.clone())];
+        match self {
+            Self::CityName(city_name) => {
+                options.push(("q", city_name.into()));
+                let result: Vec<GeoLocation> = api.run_geo("direct", &options).await?;
+                if let Some(loc) = result.get(0) {
+                    Ok(Self::LatLon { latitude: loc.lat.try_into()?, longitude: loc.lon.try_into()? })
+                } else {
+                    Err(Error::InvalidValue("no results returned".into()))
+                }
+            },
+            Self::ZipCode { zipcode, country_code } => {
+                if let Some(country_code) = country_code {
+                    options.push(("zip", format_sstr!("{zipcode},{country_code}").into()));
+                } else {
+                    options.push(("zip", format_sstr!("{zipcode},US").into()));
+                }
+                let loc: GeoLocation = api.run_geo("zip", &options).await?;
+                Ok(Self::LatLon { latitude: loc.lat.try_into()?, longitude: loc.lon.try_into()? })
+            },
+            lat_lon => {
+                Ok(lat_lon.clone())
+            }
+        }
+
+    }
 }
 
 /// `WeatherApi` contains a `reqwest` Client and all the metadata required to
@@ -140,6 +171,7 @@ pub struct WeatherApi {
     api_key: ApiStringType,
     api_endpoint: StringType,
     api_path: StringType,
+    geo_path: StringType,
 }
 
 #[cfg(feature = "cli")]
@@ -170,7 +202,7 @@ impl Hash for WeatherApi {
 #[derive(Clone, Copy)]
 enum WeatherCommands {
     Weather,
-    Forecast,
+    Forecast,    
 }
 
 impl WeatherCommands {
@@ -188,17 +220,27 @@ impl fmt::Display for WeatherCommands {
     }
 }
 
+#[derive(Deserialize, Serialize, Debug, Clone, PartialEq)]
+pub struct GeoLocation {
+    name: StringType,
+    lat: f64,
+    lon: f64,
+    country: StringType,
+    zip: Option<StringType>,
+}
+
 #[cfg(feature = "cli")]
 impl WeatherApi {
     /// Create `WeatherApi` instance specifying `api_key`, `api_endpoint` and
     /// `api_path`
     #[must_use]
-    pub fn new(api_key: &str, api_endpoint: &str, api_path: &str) -> Self {
+    pub fn new(api_key: &str, api_endpoint: &str, api_path: &str, geo_path: &str) -> Self {
         Self {
             client: Client::new(),
             api_key: api_key.into(),
             api_endpoint: api_endpoint.into(),
             api_path: api_path.into(),
+            geo_path: geo_path.into(),
         }
     }
 
@@ -222,6 +264,14 @@ impl WeatherApi {
     pub fn with_path(self, api_path: &str) -> Self {
         Self {
             api_path: api_path.into(),
+            ..self
+        }
+    }
+
+    #[must_use]
+    pub fn with_geo(self, geo_path: &str) -> Self {
+        Self {
+            geo_path: geo_path.into(),
             ..self
         }
     }
@@ -253,12 +303,6 @@ impl WeatherApi {
         options
     }
 
-    /// # Errors
-    ///
-    /// Will return error if :
-    ///     * `base_url` is invalid
-    ///     * request fails
-    ///     * deserializing json response fails
     async fn run_api<T: serde::de::DeserializeOwned>(
         &self,
         command: WeatherCommands,
@@ -266,6 +310,27 @@ impl WeatherApi {
     ) -> Result<T, Error> {
         let api_endpoint = &self.api_endpoint;
         let api_path = &self.api_path;
+        let command = format_sstr!("{command}");
+        self._run_api(&command, options, &api_endpoint, &api_path).await
+    }
+
+    async fn run_geo<T: serde::de::DeserializeOwned>(
+        &self,
+        command: &str,
+        options: &[(&'static str, ApiStringType)],
+    ) -> Result<T, Error> {
+        let api_endpoint = &self.api_endpoint;
+        let api_path = &self.geo_path;
+        self._run_api(command, options, api_endpoint, api_path).await
+    }
+
+    async fn _run_api<T: serde::de::DeserializeOwned>(
+        &self,
+        command: &str,
+        options: &[(&'static str, ApiStringType)],
+        api_endpoint: &str,
+        api_path: &str,
+    ) -> Result<T, Error> {
         let base_url = format!("https://{api_endpoint}/{api_path}{command}");
         let url = Url::parse_with_params(&base_url, options)?;
         self.client
@@ -297,28 +362,62 @@ mod tests {
 
     #[cfg(feature = "cli")]
     #[tokio::test]
+    async fn test_geo_location() -> Result<(), Error> {
+        let api_key = "95337ed3a8a87acae620d673fae85b11";
+        let api_endpoint = "api.openweathermap.org";
+        let api_path = "data/2.5/";
+        let geo_path = "geo/1.0/";
+
+        let api = WeatherApi::new(api_key, api_endpoint, api_path, geo_path);
+        let loc = WeatherLocation::from_zipcode(11106);
+
+        if let WeatherLocation::LatLon { latitude, longitude } = loc.to_lat_lon(&api).await? {
+            let lat: f64 = latitude.into();
+            let lon: f64 = longitude.into();
+            assert!((lat - 40.76080).abs() < 0.00001);
+            assert!((lon - -73.92950).abs() < 0.00001);    
+        } else {
+            assert!(false);
+        }
+
+        let loc = WeatherLocation::from_city_name("Astoria,NY,US");
+        if let WeatherLocation::LatLon { latitude, longitude } = loc.to_lat_lon(&api).await? {
+            let lat: f64 = latitude.into();
+            let lon: f64 = longitude.into();
+            assert!((lat - 40.772014).abs() < 0.00001);
+            assert!((lon - -73.93026).abs() < 0.00001);
+        } else {
+            assert!(false);
+        }
+        Ok(())
+    }
+
+    #[cfg(feature = "cli")]
+    #[tokio::test]
     async fn test_process_opts() -> Result<(), Error> {
         let api_key = "95337ed3a8a87acae620d673fae85b11";
         let api_endpoint = "api.openweathermap.org";
         let api_path = "data/2.5/";
+        let geo_path = "geo/1.0/";
 
-        let api = WeatherApi::new(api_key, api_endpoint, api_path);
+        let api = WeatherApi::new(api_key, api_endpoint, api_path, geo_path);
         let loc = WeatherLocation::from_zipcode(11106);
-
-        let (data, forecast) =
-            join(api.get_weather_data(&loc), api.get_weather_forecast(&loc)).await;
-        let (data, forecast) = (data?, forecast?);
-        // tokio::fs::write("weather.json", serde_json::to_vec(&data)?).await?;
-        // tokio::fs::write("forecast.json", serde_json::to_vec(&forecast)?).await?;
-        assert!(data.name == "Astoria");
-        let timezone: i32 = forecast.city.timezone.into_inner();
-        info!("{}", timezone);
-        info!("{:?}", forecast);
-        assert!(timezone == -18000 || timezone == -14400);
 
         let mut hasher0 = DefaultHasher::new();
         loc.hash(&mut hasher0);
         assert_eq!(hasher0.finish(), 3871895985647742457);
+
+        let loc = loc.to_lat_lon(&api).await?;
+
+        let (data, forecast) =
+            join(api.get_weather_data(&loc), api.get_weather_forecast(&loc)).await;
+        let (data, forecast) = (data?, forecast?);
+        println!("{}", data.name);
+        assert!(data.name == "Queensbridge Houses");
+        let timezone: i32 = forecast.city.timezone.into_inner();
+        info!("{}", timezone);
+        info!("{:?}", forecast);
+        assert!(timezone == -18000 || timezone == -14400);
         Ok(())
     }
 
@@ -334,11 +433,12 @@ mod tests {
     #[cfg(feature = "cli")]
     #[test]
     fn test_weatherapi() -> Result<(), Error> {
-        let api = WeatherApi::new("8675309", "api.openweathermap.org", "data/2.5/");
+        let api = WeatherApi::new("8675309", "api.openweathermap.org", "data/2.5/", "geo/1.0/");
         let api2 = WeatherApi::default()
             .with_key("8675309")
             .with_endpoint("api.openweathermap.org")
-            .with_path("data/2.5/");
+            .with_path("data/2.5/")
+            .with_geo("geo/1.0/");
         assert_eq!(api, api2);
 
         assert_eq!(
