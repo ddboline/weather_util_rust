@@ -133,6 +133,10 @@ impl WeatherLocation {
         }
     }
 
+    /// Convert `WeatherLocation` to latitude/longitude
+    /// # Errors
+    ///
+    /// Will return error if `WeatherApi::run_geo` fails
     pub async fn to_lat_lon(&self, api: &WeatherApi) -> Result<Self, Error> {
         let mut options = vec![("APPID", api.api_key.clone())];
         match self {
@@ -154,7 +158,7 @@ impl WeatherLocation {
                 let loc: GeoLocation = api.run_geo("zip", &options).await?;
                 Ok(Self::LatLon { latitude: loc.lat.try_into()?, longitude: loc.lon.try_into()? })
             },
-            lat_lon => {
+            lat_lon @ Self::LatLon { .. } => {
                 Ok(lat_lon.clone())
             }
         }
@@ -311,7 +315,7 @@ impl WeatherApi {
         let api_endpoint = &self.api_endpoint;
         let api_path = &self.api_path;
         let command = format_sstr!("{command}");
-        self._run_api(&command, options, &api_endpoint, &api_path).await
+        self._run_api(&command, options, api_endpoint, api_path).await
     }
 
     async fn run_geo<T: serde::de::DeserializeOwned>(
