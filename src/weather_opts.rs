@@ -80,6 +80,7 @@ impl WeatherOpts {
             api_key,
             &config.api_endpoint,
             &config.api_path,
+            &config.geo_path,
         ))
     }
 
