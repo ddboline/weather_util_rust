@@ -325,6 +325,10 @@ impl WeatherApi {
             .await
     }
 
+    /// Get `GeoLocation`'s from api
+    /// # Errors
+    ///
+    /// Will return error if `WeatherApi::run_geo` fails
     pub async fn get_geo_location(
         &self,
         lat: Latitude,
