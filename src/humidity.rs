@@ -2,7 +2,7 @@ use nutype::nutype;
 
 /// Relative Humidity as Percent
 #[nutype(validate(min=0, max=100))]
-#[derive(*, Serialize, Deserialize, Display)]
+#[derive(*, Serialize, Deserialize, Display, Into)]
 pub struct Humidity(i64);
 
 impl Default for Humidity {
