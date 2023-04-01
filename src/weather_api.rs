@@ -12,9 +12,8 @@ use crate::Error;
 use reqwest::{Client, Url};
 
 use crate::{
-    apistringtype_from_display, latitude::Latitude, longitude::Longitude,
+    apistringtype_from_display, format_string, latitude::Latitude, longitude::Longitude,
     weather_data::WeatherData, weather_forecast::WeatherForecast, ApiStringType, StringType,
-    format_string,
 };
 
 #[derive(Clone, Debug, PartialEq, Hash, Eq)]
@@ -340,6 +339,20 @@ impl WeatherApi {
             ("lon", format_string!("{lon}").into()),
         ];
         self.run_geo("reverse", &options).await
+    }
+
+    pub async fn get_zip_location(
+        &self,
+        zipcode: u64,
+        country_code: Option<CountryCode>,
+    ) -> Result<GeoLocation, Error> {
+        let mut options = vec![("appid", self.api_key.clone())];
+        if let Some(country_code) = &country_code {
+            options.push(("zip", format_string!("{zipcode},{country_code}").into()));
+        } else {
+            options.push(("zip", format_string!("{zipcode},US").into()));
+        }
+        self.run_geo("zip", &options).await
     }
 
     async fn run_geo<T: serde::de::DeserializeOwned>(
