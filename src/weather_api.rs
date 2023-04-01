@@ -232,11 +232,11 @@ impl fmt::Display for WeatherCommands {
 
 #[derive(Deserialize, Serialize, Debug, Clone, PartialEq)]
 pub struct GeoLocation {
-    name: StringType,
-    lat: f64,
-    lon: f64,
-    country: StringType,
-    zip: Option<StringType>,
+    pub name: StringType,
+    pub lat: f64,
+    pub lon: f64,
+    pub country: StringType,
+    pub zip: Option<StringType>,
 }
 
 #[cfg(feature = "cli")]
