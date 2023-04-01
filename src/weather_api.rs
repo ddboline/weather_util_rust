@@ -341,6 +341,10 @@ impl WeatherApi {
         self.run_geo("reverse", &options).await
     }
 
+    /// Get `GeoLocation`'s from api
+    /// # Errors
+    ///
+    /// Will return error if `WeatherApi::run_geo` fails
     pub async fn get_zip_location(
         &self,
         zipcode: u64,

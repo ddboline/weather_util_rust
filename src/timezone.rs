@@ -3,7 +3,7 @@ use time::UtcOffset;
 
 /// Direction in degrees
 #[nutype(validate(min=-86400, max=86400))]
-#[derive(*, Serialize, Deserialize, Display)]
+#[derive(*, Serialize, Deserialize, Display, Into)]
 pub struct TimeZone(i32);
 
 impl Default for TimeZone {
