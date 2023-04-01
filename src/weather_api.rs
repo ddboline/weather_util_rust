@@ -1,13 +1,13 @@
 use isocountry::CountryCode;
+use serde::{Deserialize, Serialize};
 use stack_string::format_sstr;
 use std::{
+    convert::TryInto,
     fmt::{self},
     hash::{Hash, Hasher},
 };
-use serde::{Deserialize, Serialize};
-use std::convert::TryInto;
 
-use crate::{Error, latitude};
+use crate::Error;
 
 #[cfg(feature = "cli")]
 use reqwest::{Client, Url};
@@ -144,23 +144,30 @@ impl WeatherLocation {
                 options.push(("q", city_name.into()));
                 let result: Vec<GeoLocation> = api.run_geo("direct", &options).await?;
                 if let Some(loc) = result.get(0) {
-                    Ok(Self::LatLon { latitude: loc.lat.try_into()?, longitude: loc.lon.try_into()? })
+                    Ok(Self::LatLon {
+                        latitude: loc.lat.try_into()?,
+                        longitude: loc.lon.try_into()?,
+                    })
                 } else {
                     Err(Error::InvalidValue("no results returned".into()))
                 }
-            },
-            Self::ZipCode { zipcode, country_code } => {
+            }
+            Self::ZipCode {
+                zipcode,
+                country_code,
+            } => {
                 if let Some(country_code) = country_code {
                     options.push(("zip", format_sstr!("{zipcode},{country_code}").into()));
                 } else {
                     options.push(("zip", format_sstr!("{zipcode},US").into()));
                 }
                 let loc: GeoLocation = api.run_geo("zip", &options).await?;
-                Ok(Self::LatLon { latitude: loc.lat.try_into()?, longitude: loc.lon.try_into()? })
-            },
-            lat_lon @ Self::LatLon { .. } => {
-                Ok(lat_lon.clone())
+                Ok(Self::LatLon {
+                    latitude: loc.lat.try_into()?,
+                    longitude: loc.lon.try_into()?,
+                })
             }
+            lat_lon @ Self::LatLon { .. } => Ok(lat_lon.clone()),
         }
     }
 }
@@ -205,7 +212,7 @@ impl Hash for WeatherApi {
 #[derive(Clone, Copy)]
 enum WeatherCommands {
     Weather,
-    Forecast,    
+    Forecast,
 }
 
 impl WeatherCommands {
@@ -314,10 +321,15 @@ impl WeatherApi {
         let api_endpoint = &self.api_endpoint;
         let api_path = &self.api_path;
         let command = format_sstr!("{command}");
-        self._run_api(&command, options, api_endpoint, api_path).await
+        self._run_api(&command, options, api_endpoint, api_path)
+            .await
     }
 
-    pub async fn get_geo_location(&self, lat: Latitude, lon: Longitude) -> Result<Vec<GeoLocation>, Error> {
+    pub async fn get_geo_location(
+        &self,
+        lat: Latitude,
+        lon: Longitude,
+    ) -> Result<Vec<GeoLocation>, Error> {
         let options = vec![
             ("appid", self.api_key.clone()),
             ("lat", format_sstr!("{lat}").into()),
@@ -333,7 +345,8 @@ impl WeatherApi {
     ) -> Result<T, Error> {
         let api_endpoint = &self.api_endpoint;
         let api_path = &self.geo_path;
-        self._run_api(command, options, api_endpoint, api_path).await
+        self._run_api(command, options, api_endpoint, api_path)
+            .await
     }
 
     async fn _run_api<T: serde::de::DeserializeOwned>(
@@ -383,11 +396,15 @@ mod tests {
         let api = WeatherApi::new(api_key, api_endpoint, api_path, geo_path);
         let loc = WeatherLocation::from_zipcode(11106);
 
-        if let WeatherLocation::LatLon { latitude, longitude } = loc.to_lat_lon(&api).await? {
+        if let WeatherLocation::LatLon {
+            latitude,
+            longitude,
+        } = loc.to_lat_lon(&api).await?
+        {
             let lat: f64 = latitude.into();
             let lon: f64 = longitude.into();
             assert!((lat - 40.76080).abs() < 0.00001);
-            assert!((lon - -73.92950).abs() < 0.00001);    
+            assert!((lon - -73.92950).abs() < 0.00001);
 
             let locations = api.get_geo_location(latitude, longitude).await?;
             assert_eq!(locations.len(), 1);
@@ -398,7 +415,11 @@ mod tests {
         }
 
         let loc = WeatherLocation::from_city_name("Astoria,NY,US");
-        if let WeatherLocation::LatLon { latitude, longitude } = loc.to_lat_lon(&api).await? {
+        if let WeatherLocation::LatLon {
+            latitude,
+            longitude,
+        } = loc.to_lat_lon(&api).await?
+        {
             let lat: f64 = latitude.into();
             let lon: f64 = longitude.into();
             assert!((lat - 40.772014).abs() < 0.00001);
