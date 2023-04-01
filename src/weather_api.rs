@@ -7,7 +7,7 @@ use std::{
 use serde::{Deserialize, Serialize};
 use std::convert::TryInto;
 
-use crate::Error;
+use crate::{Error, latitude};
 
 #[cfg(feature = "cli")]
 use reqwest::{Client, Url};
@@ -138,7 +138,7 @@ impl WeatherLocation {
     ///
     /// Will return error if `WeatherApi::run_geo` fails
     pub async fn to_lat_lon(&self, api: &WeatherApi) -> Result<Self, Error> {
-        let mut options = vec![("APPID", api.api_key.clone())];
+        let mut options = vec![("appid", api.api_key.clone())];
         match self {
             Self::CityName(city_name) => {
                 options.push(("q", city_name.into()));
@@ -162,7 +162,6 @@ impl WeatherLocation {
                 Ok(lat_lon.clone())
             }
         }
-
     }
 }
 
@@ -303,7 +302,7 @@ impl WeatherApi {
 
     fn get_options(&self, location: &WeatherLocation) -> Vec<(&'static str, ApiStringType)> {
         let mut options = location.get_options();
-        options.push(("APPID", self.api_key.clone()));
+        options.push(("appid", self.api_key.clone()));
         options
     }
 
@@ -316,6 +315,15 @@ impl WeatherApi {
         let api_path = &self.api_path;
         let command = format_sstr!("{command}");
         self._run_api(&command, options, api_endpoint, api_path).await
+    }
+
+    pub async fn get_geo_location(&self, lat: Latitude, lon: Longitude) -> Result<Vec<GeoLocation>, Error> {
+        let options = vec![
+            ("appid", self.api_key.clone()),
+            ("lat", format_sstr!("{lat}").into()),
+            ("lon", format_sstr!("{lon}").into()),
+        ];
+        self.run_geo("reverse", &options).await
     }
 
     async fn run_geo<T: serde::de::DeserializeOwned>(
@@ -380,6 +388,11 @@ mod tests {
             let lon: f64 = longitude.into();
             assert!((lat - 40.76080).abs() < 0.00001);
             assert!((lon - -73.92950).abs() < 0.00001);    
+
+            let locations = api.get_geo_location(latitude, longitude).await?;
+            assert_eq!(locations.len(), 1);
+            let location = &locations[0];
+            assert_eq!(&location.name, "New York County");
         } else {
             assert!(false);
         }
@@ -464,14 +477,14 @@ mod tests {
         let expected: Vec<(&str, ApiStringType)> = vec![
             ("zip", "10001".into()),
             ("country_code", "US".into()),
-            ("APPID", "8675309".into()),
+            ("appid", "8675309".into()),
         ];
         assert_eq!(opts, expected);
 
         let loc = WeatherLocation::from_city_name("New York");
         let opts = api.get_options(&loc);
         let expected: Vec<(&str, ApiStringType)> =
-            vec![("q", "New York".into()), ("APPID", "8675309".into())];
+            vec![("q", "New York".into()), ("appid", "8675309".into())];
         assert_eq!(opts, expected);
 
         let loc = WeatherLocation::from_lat_lon(41.0f64.try_into()?, 39.0f64.try_into()?);
@@ -479,7 +492,7 @@ mod tests {
         let expected: Vec<(&str, ApiStringType)> = vec![
             ("lat", "41.00000".into()),
             ("lon", "39.00000".into()),
-            ("APPID", "8675309".into()),
+            ("appid", "8675309".into()),
         ];
         assert_eq!(opts, expected);
         Ok(())
