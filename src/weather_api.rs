@@ -1,6 +1,5 @@
 use isocountry::CountryCode;
 use serde::{Deserialize, Serialize};
-use stack_string::format_sstr;
 use std::{
     convert::TryInto,
     fmt::{self},
@@ -15,6 +14,7 @@ use reqwest::{Client, Url};
 use crate::{
     apistringtype_from_display, latitude::Latitude, longitude::Longitude,
     weather_data::WeatherData, weather_forecast::WeatherForecast, ApiStringType, StringType,
+    format_string,
 };
 
 #[derive(Clone, Debug, PartialEq, Hash, Eq)]
@@ -157,9 +157,9 @@ impl WeatherLocation {
                 country_code,
             } => {
                 if let Some(country_code) = country_code {
-                    options.push(("zip", format_sstr!("{zipcode},{country_code}").into()));
+                    options.push(("zip", format_string!("{zipcode},{country_code}").into()));
                 } else {
-                    options.push(("zip", format_sstr!("{zipcode},US").into()));
+                    options.push(("zip", format_string!("{zipcode},US").into()));
                 }
                 let loc: GeoLocation = api.run_geo("zip", &options).await?;
                 Ok(Self::LatLon {
@@ -320,7 +320,7 @@ impl WeatherApi {
     ) -> Result<T, Error> {
         let api_endpoint = &self.api_endpoint;
         let api_path = &self.api_path;
-        let command = format_sstr!("{command}");
+        let command = format_string!("{command}");
         self._run_api(&command, options, api_endpoint, api_path)
             .await
     }
@@ -336,8 +336,8 @@ impl WeatherApi {
     ) -> Result<Vec<GeoLocation>, Error> {
         let options = vec![
             ("appid", self.api_key.clone()),
-            ("lat", format_sstr!("{lat}").into()),
-            ("lon", format_sstr!("{lon}").into()),
+            ("lat", format_string!("{lat}").into()),
+            ("lon", format_string!("{lon}").into()),
         ];
         self.run_geo("reverse", &options).await
     }
