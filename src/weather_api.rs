@@ -328,6 +328,15 @@ impl WeatherApi {
     /// # Errors
     ///
     /// Will return error if `WeatherApi::run_geo` fails
+    pub async fn get_direct_location(&self, q: &str) -> Result<Vec<GeoLocation>, Error> {
+        let options = vec![("appid", self.api_key.clone()), ("q", q.into())];
+        self.run_geo("direct", &options).await
+    }
+
+    /// Get `GeoLocation`'s from api
+    /// # Errors
+    ///
+    /// Will return error if `WeatherApi::run_geo` fails
     pub async fn get_geo_location(
         &self,
         lat: Latitude,
