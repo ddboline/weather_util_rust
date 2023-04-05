@@ -51,7 +51,6 @@ impl Default for WeatherLocation {
     }
 }
 
-#[cfg(feature = "cli")]
 impl fmt::Display for WeatherLocation {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         match self {
