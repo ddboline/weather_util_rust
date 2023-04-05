@@ -64,7 +64,7 @@ impl fmt::Display for WeatherLocation {
                 zipcode,
                 country_code: Some(country_code),
             } => {
-                write!(f, "{zipcode} {country_code}")
+                write!(f, "{zipcode} {}", country_code.alpha2())
             }
             Self::CityName(name) => {
                 write!(f, "{name}")
@@ -356,7 +356,10 @@ impl WeatherApi {
     ) -> Result<GeoLocation, Error> {
         let mut options = vec![("appid", self.api_key.clone())];
         if let Some(country_code) = &country_code {
-            options.push(("zip", format_string!("{zipcode},{country_code}").into()));
+            options.push((
+                "zip",
+                format_string!("{zipcode},{}", country_code.alpha2()).into(),
+            ));
         } else {
             options.push(("zip", format_string!("{zipcode},US").into()));
         }
