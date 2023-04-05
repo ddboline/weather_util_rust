@@ -41,6 +41,7 @@ pub enum WeatherLocation {
     },
 }
 
+#[cfg(feature = "cli")]
 impl Default for WeatherLocation {
     fn default() -> Self {
         Self::ZipCode {
@@ -50,6 +51,7 @@ impl Default for WeatherLocation {
     }
 }
 
+#[cfg(feature = "cli")]
 impl fmt::Display for WeatherLocation {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         match self {
@@ -148,6 +150,7 @@ impl WeatherLocation {
     /// # Errors
     ///
     /// Will return error if `WeatherApi::run_geo` fails
+    #[cfg(feature = "cli")]
     pub async fn to_lat_lon(&self, api: &WeatherApi) -> Result<Self, Error> {
         match self {
             Self::CityName(city_name) => {
