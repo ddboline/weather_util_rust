@@ -16,6 +16,18 @@ use crate::{
     weather_data::WeatherData, weather_forecast::WeatherForecast, ApiStringType, StringType,
 };
 
+/// `WeatherApi` contains a `reqwest` Client and all the metadata required to
+/// query the openweathermap.org api.
+#[cfg(feature = "cli")]
+#[derive(Default, Clone)]
+pub struct WeatherApi {
+    client: Client,
+    api_key: ApiStringType,
+    api_endpoint: StringType,
+    api_path: StringType,
+    geo_path: StringType,
+}
+
 #[derive(Clone, Debug, PartialEq, Hash, Eq)]
 pub enum WeatherLocation {
     ZipCode {
@@ -137,11 +149,9 @@ impl WeatherLocation {
     ///
     /// Will return error if `WeatherApi::run_geo` fails
     pub async fn to_lat_lon(&self, api: &WeatherApi) -> Result<Self, Error> {
-        let mut options = vec![("appid", api.api_key.clone())];
         match self {
             Self::CityName(city_name) => {
-                options.push(("q", city_name.into()));
-                let result: Vec<GeoLocation> = api.run_geo("direct", &options).await?;
+                let result = api.get_direct_location(city_name).await?;
                 if let Some(loc) = result.get(0) {
                     Ok(Self::LatLon {
                         latitude: loc.lat.try_into()?,
@@ -155,12 +165,7 @@ impl WeatherLocation {
                 zipcode,
                 country_code,
             } => {
-                if let Some(country_code) = country_code {
-                    options.push(("zip", format_string!("{zipcode},{country_code}").into()));
-                } else {
-                    options.push(("zip", format_string!("{zipcode},US").into()));
-                }
-                let loc: GeoLocation = api.run_geo("zip", &options).await?;
+                let loc = api.get_zip_location(*zipcode, *country_code).await?;
                 Ok(Self::LatLon {
                     latitude: loc.lat.try_into()?,
                     longitude: loc.lon.try_into()?,
@@ -169,18 +174,6 @@ impl WeatherLocation {
             lat_lon @ Self::LatLon { .. } => Ok(lat_lon.clone()),
         }
     }
-}
-
-/// `WeatherApi` contains a `reqwest` Client and all the metadata required to
-/// query the openweathermap.org api.
-#[cfg(feature = "cli")]
-#[derive(Default, Clone)]
-pub struct WeatherApi {
-    client: Client,
-    api_key: ApiStringType,
-    api_endpoint: StringType,
-    api_path: StringType,
-    geo_path: StringType,
 }
 
 #[cfg(feature = "cli")]
