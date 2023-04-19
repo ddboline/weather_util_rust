@@ -238,7 +238,8 @@ mod test {
         let output = opts.run_opts(&config).await?;
 
         assert_eq!(output.len(), 1);
-        assert!(output[0].contains("Current conditions Minneapolis"));
+        println!("{}", output[0]);
+        assert!(output[0].contains("Current conditions Golden Valley US"));
 
         opts.forecast = true;
         let output = opts.run_opts(&config).await?;
