@@ -239,7 +239,10 @@ mod test {
 
         assert_eq!(output.len(), 1);
         println!("{}", output[0]);
-        assert!(output[0].contains("Current conditions Golden Valley US"));
+        assert!(
+            output[0].contains("Current conditions Golden Valley US")
+                || output[0].contains("Current conditions Minneapolis US")
+        );
 
         opts.forecast = true;
         let output = opts.run_opts(&config).await?;

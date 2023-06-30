@@ -486,7 +486,10 @@ mod tests {
         info!("{:?}", forecast);
         assert!(timezone == -18000 || timezone == -14400);
 
-        let loc = WeatherLocation::LatLon { latitude: 0.0.try_into()?, longitude: 0.0.try_into()? };
+        let loc = WeatherLocation::LatLon {
+            latitude: 0.0.try_into()?,
+            longitude: 0.0.try_into()?,
+        };
         let weather = api.get_weather_data(&loc).await?;
         assert_eq!(&weather.name, "Globe");
 
