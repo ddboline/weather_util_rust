@@ -18,54 +18,10 @@ pub struct Angle {
     subsec: f32,
 }
 
-impl PartialEq for Angle {
-    fn eq(&self, other: &Self) -> bool {
-        ((self.degree - other.degree) % 360 == 0)
-            && (self.minute == other.minute)
-            && (self.second == other.second)
-    }
-}
-
-impl Eq for Angle {}
-
-impl Hash for Angle {
-    fn hash<H: Hasher>(&self, state: &mut H) {
-        self.degree.hash(state);
-        self.minute.hash(state);
-        self.second.hash(state);
-    }
-}
-
-impl fmt::Display for Angle {
-    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
-        write!(f, "{:0.5}", self.deg())
-    }
-}
-
-impl FromStr for Angle {
-    type Err = Error;
-    fn from_str(s: &str) -> Result<Self, Self::Err> {
-        let deg: f64 = s.parse()?;
-        Ok(Self::from_deg(deg))
-    }
-}
-
-impl From<f64> for Angle {
-    fn from(item: f64) -> Self {
-        Self::from_deg(item)
-    }
-}
-
-impl From<Angle> for f64 {
-    fn from(item: Angle) -> Self {
-        item.deg()
-    }
-}
-
 impl Angle {
     #[inline]
     #[must_use]
-    fn sign(self) -> i16 {
+    fn sign(self) -> i8 {
         if self.degree >= 0 {
             1
         } else {
@@ -134,6 +90,50 @@ impl Angle {
     #[must_use]
     pub fn radian(self) -> f64 {
         self.deg().to_radians()
+    }
+}
+
+impl PartialEq for Angle {
+    fn eq(&self, other: &Self) -> bool {
+        ((self.degree - other.degree) % 360 == 0)
+            && (self.minute == other.minute)
+            && (self.second == other.second)
+    }
+}
+
+impl Eq for Angle {}
+
+impl Hash for Angle {
+    fn hash<H: Hasher>(&self, state: &mut H) {
+        self.degree.hash(state);
+        self.minute.hash(state);
+        self.second.hash(state);
+    }
+}
+
+impl fmt::Display for Angle {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        write!(f, "{:0.5}", self.deg())
+    }
+}
+
+impl FromStr for Angle {
+    type Err = Error;
+    fn from_str(s: &str) -> Result<Self, Self::Err> {
+        let deg: f64 = s.parse()?;
+        Ok(Self::from_deg(deg))
+    }
+}
+
+impl From<f64> for Angle {
+    fn from(item: f64) -> Self {
+        Self::from_deg(item)
+    }
+}
+
+impl From<Angle> for f64 {
+    fn from(item: Angle) -> Self {
+        item.deg()
     }
 }
 
