@@ -4,6 +4,12 @@ use std::{fmt::Error as FmtError, io::Error as IoError, num::ParseFloatError};
 use thiserror::Error;
 use url::ParseError as UrlParseError;
 
+use crate::{
+    distance::DistanceError, humidity::HumidityError, precipitation::PrecipitationError,
+    pressure::PressureError, speed::SpeedError, temperature::TemperatureError,
+    timezone::TimeZoneError,
+};
+
 #[cfg(feature = "cli")]
 use clap::Error as ClapError;
 
@@ -30,6 +36,24 @@ pub enum Error {
     InvalidValue(StringType),
     #[error("Invalid Input Error {0}")]
     InvalidInputError(StringType),
+    #[error("DistanceError {0}")]
+    DistanceError(#[from] DistanceError),
+    #[error("HumidityError {0}")]
+    HumidityError(#[from] HumidityError),
+    #[error("Invalid Latitude")]
+    InvalidLatitude,
+    #[error("Invalid Longitude")]
+    InvalidLongitude,
+    #[error("PrecipitationError {0}")]
+    PrecipitationError(#[from] PrecipitationError),
+    #[error("PressureError {0}")]
+    PressureError(#[from] PressureError),
+    #[error("SpeedError {0}")]
+    SpeedError(#[from] SpeedError),
+    #[error("TemperatureError {0}")]
+    TemperatureError(#[from] TemperatureError),
+    #[error("TimeZoneError {0}")]
+    TimeZoneError(#[from] TimeZoneError),
 
     #[cfg(feature = "cli")]
     #[error("Clap CLI Parser Error {0}")]
