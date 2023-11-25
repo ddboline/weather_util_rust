@@ -1,13 +1,25 @@
 use nutype::nutype;
 use std::ops::Add;
 
-use crate::{format_string, Error};
+use crate::Error;
 
 const MM_PER_INCH: f64 = 25.4;
 
 /// Precipitation in mm
-#[nutype(validate(min=0.0))]
-#[derive(*, Serialize, Deserialize)]
+#[nutype(
+    validate(greater_or_equal = 0.0),
+    derive(
+        Display,
+        TryFrom,
+        AsRef,
+        Serialize,
+        Deserialize,
+        Copy,
+        Clone,
+        PartialEq,
+        Debug
+    )
+)]
 pub struct Precipitation(f64);
 
 impl Default for Precipitation {
@@ -38,14 +50,14 @@ impl Precipitation {
     ///
     /// Will return error if input is less than zero
     pub fn from_millimeters(precip: f64) -> Result<Self, Error> {
-        Self::new(precip).map_err(|e| Error::InvalidValue(format_string!("{e}")))
+        Self::new(precip).map_err(Into::into)
     }
 
     /// # Errors
     ///
     /// Will return error if input is less than zero
     pub fn from_inches(precip: f64) -> Result<Self, Error> {
-        Self::new(precip * MM_PER_INCH).map_err(|e| Error::InvalidValue(format_string!("{e}")))
+        Self::new(precip * MM_PER_INCH).map_err(Into::into)
     }
 
     #[inline]
@@ -66,14 +78,13 @@ mod test {
     use std::convert::TryFrom;
 
     use crate::{
-        format_string,
         precipitation::{Precipitation, MM_PER_INCH},
         Error,
     };
 
     #[test]
     fn test_precipitation() -> Result<(), Error> {
-        let p = Precipitation::new(1.0).map_err(|e| Error::InvalidValue(format_string!("{e}")))?;
+        let p = Precipitation::new(1.0)?;
         assert_eq!(p.millimeters(), 1.0);
         assert_eq!(p.inches(), 1.0 / MM_PER_INCH);
         let p2 = Precipitation::from_millimeters(1.0)?;
@@ -81,8 +92,8 @@ mod test {
         let p = Precipitation::from_inches(1.0)?;
         assert_eq!(p.inches(), 1.0);
 
-        let h = Precipitation::try_from(-1.0);
-        assert!(h.is_err());
+        let h = Precipitation::try_from(-1.0).map_err(Into::<Error>::into);
+        assert_eq!(&format!("{h:?}"), "Err(PrecipitationError(GreaterOrEqualViolated))");
         Ok(())
     }
 }

@@ -1,13 +1,26 @@
 use nutype::nutype;
 use std::convert::TryFrom;
 
-use crate::{format_string, Error};
+use crate::Error;
 
 const METERS_PER_MILE: f64 = 1609.344;
 
 /// Distance in meters
-#[nutype(validate(min=0.0))]
-#[derive(*, Serialize, Deserialize)]
+#[nutype(
+    validate(greater_or_equal = 0.0),
+    derive(
+        Display,
+        TryFrom,
+        AsRef,
+        Serialize,
+        Deserialize,
+        Copy,
+        Clone,
+        PartialEq,
+        Debug,
+        Into
+    )
+)]
 pub struct Distance(f64);
 
 impl Default for Distance {
@@ -21,15 +34,14 @@ impl Distance {
     ///
     /// Will return error if input is less than zero
     pub fn from_meters(meters: f64) -> Result<Self, Error> {
-        Self::try_from(meters).map_err(|e| Error::InvalidValue(format_string!("{e}")))
+        Self::try_from(meters).map_err(Into::into)
     }
 
     /// # Errors
     ///
     /// Will return error if input is less than zero
     pub fn from_miles(miles: f64) -> Result<Self, Error> {
-        Self::try_from(miles * METERS_PER_MILE)
-            .map_err(|e| Error::InvalidValue(format_string!("{e}")))
+        Self::try_from(miles * METERS_PER_MILE).map_err(Into::into)
     }
 
     #[must_use]
@@ -64,7 +76,7 @@ mod tests {
     #[test]
     fn test_invalid_distance() -> Result<(), Error> {
         let s = Distance::from_miles(-12.0);
-        assert!(s.is_err());
+        assert_eq!(&format!("{s:?}"), "Err(DistanceError(GreaterOrEqualViolated))");
         Ok(())
     }
 }

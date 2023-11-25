@@ -2,11 +2,23 @@ use derive_more::{Display, FromStr, Into};
 use serde::{Deserialize, Serialize};
 use std::{convert::TryFrom, hash::Hash};
 
-use crate::{angle::Angle, format_string, Error};
+use crate::{angle::Angle, Error};
 
 /// Longitude in degrees, required be within the range -180.0 to 180.0
 #[derive(
-    Into, Clone, Copy, Display, FromStr, Debug, Serialize, Deserialize, PartialEq, Hash, Eq, Default,
+    Into,
+    derive_more::From,
+    Clone,
+    Copy,
+    Display,
+    FromStr,
+    Debug,
+    Serialize,
+    Deserialize,
+    PartialEq,
+    Hash,
+    Eq,
+    Default,
 )]
 pub struct Longitude(Angle);
 
@@ -20,11 +32,9 @@ impl TryFrom<f64> for Longitude {
     type Error = Error;
     fn try_from(item: f64) -> Result<Self, Self::Error> {
         if (-180.0..180.0).contains(&item) {
-            Ok(Self(Angle::from_deg(item)))
+            Ok(Angle::from_deg(item).into())
         } else {
-            Err(Error::InvalidValue(format_string!(
-                "{item} is not a valid longitude"
-            )))
+            Err(Error::InvalidLongitude)
         }
     }
 }
@@ -56,10 +66,7 @@ mod test {
 
         let h = Longitude::try_from(-360.0);
         assert!(h.is_err());
-        assert_eq!(
-            h.err().unwrap().to_string(),
-            format!("Invalid Value Error {} is not a valid longitude", -360.0)
-        );
+        assert_eq!(&h.err().unwrap().to_string(), "Invalid Longitude",);
         Ok(())
     }
 

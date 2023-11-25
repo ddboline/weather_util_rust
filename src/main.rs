@@ -11,7 +11,7 @@ async fn main() -> Result<(), Error> {
         .await
         .unwrap()
     {
-        Ok(_) => Ok(()),
+        Ok(()) => Ok(()),
         Err(Error::InvalidInputError(e)) => {
             let help_message = WeatherOpts::api_help_msg();
             println!("{e}\n{help_message}");

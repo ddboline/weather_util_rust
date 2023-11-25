@@ -7,8 +7,22 @@ const FAHRENHEIT_OFFSET: f64 = 459.67;
 const FAHRENHEIT_FACTOR: f64 = 1.8;
 
 /// Temperature struct, data is stored as Kelvin
-#[nutype(validate(min=0.0))]
-#[derive(*, Serialize, Deserialize)]
+#[nutype(
+    validate(greater_or_equal = 0.0),
+    derive(
+        Display,
+        TryFrom,
+        AsRef,
+        Serialize,
+        Deserialize,
+        Copy,
+        Clone,
+        PartialEq,
+        Debug,
+        Into,
+        PartialOrd,
+    )
+)]
 pub struct Temperature(f64);
 
 impl Default for Temperature {
@@ -34,8 +48,10 @@ impl Temperature {
     ///
     /// Will return error if input is less than zero
     pub fn from_kelvin(t: f64) -> Result<Self, Error> {
-        Self::new(t).map_err(|_| {
-            Error::InvalidValue(format_string!("{t} is not a valid temperature in Kelvin"))
+        Self::new(t).map_err(|e| {
+            Error::InvalidValue(format_string!(
+                "{e}: {t} is not a valid temperature in Kelvin"
+            ))
         })
     }
 
@@ -43,8 +59,10 @@ impl Temperature {
     ///
     /// Will return error if input is less than zero
     pub fn from_celcius(t: f64) -> Result<Self, Error> {
-        Self::new(t + FREEZING_POINT_KELVIN).map_err(|_| {
-            Error::InvalidValue(format_string!("{t} is not a valid temperature in Celcius"))
+        Self::new(t + FREEZING_POINT_KELVIN).map_err(|e| {
+            Error::InvalidValue(format_string!(
+                "{e}: {t} is not a valid temperature in Celcius"
+            ))
         })
     }
 
@@ -52,9 +70,9 @@ impl Temperature {
     ///
     /// Will return error if input is less than zero
     pub fn from_fahrenheit(t: f64) -> Result<Self, Error> {
-        Self::new((t + FAHRENHEIT_OFFSET) / FAHRENHEIT_FACTOR).map_err(|_| {
+        Self::new((t + FAHRENHEIT_OFFSET) / FAHRENHEIT_FACTOR).map_err(|e| {
             Error::InvalidValue(format_string!(
-                "{t} is not a valid temperature in Fahrenheit",
+                "{e}: {t} is not a valid temperature in Fahrenheit",
             ))
         })
     }
@@ -104,7 +122,7 @@ mod test {
         assert_eq!(
             t.err().unwrap().to_string(),
             format!(
-                "Invalid Value Error {} is not a valid temperature in Celcius",
+                "Invalid Value Error too small: {} is not a valid temperature in Celcius",
                 -300.0
             )
         );
@@ -114,7 +132,7 @@ mod test {
         assert_eq!(
             t.err().unwrap().to_string(),
             format!(
-                "Invalid Value Error {} is not a valid temperature in Fahrenheit",
+                "Invalid Value Error too small: {} is not a valid temperature in Fahrenheit",
                 -500.0
             )
         );

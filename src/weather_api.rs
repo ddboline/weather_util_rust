@@ -153,11 +153,11 @@ impl WeatherLocation {
     pub async fn to_lat_lon(&self, api: &WeatherApi) -> Result<Self, Error> {
         match self {
             Self::CityName(city_name) => {
-                let result = api.get_direct_location(city_name).await?;
-                if let Some(loc) = result.get(0) {
+                if let Some(loc) = api.get_direct_location(city_name).await?.get(0) {
+                    let (latitude, longitude) = loc.get_lat_lon()?;
                     Ok(Self::LatLon {
-                        latitude: loc.lat.try_into()?,
-                        longitude: loc.lon.try_into()?,
+                        latitude,
+                        longitude,
                     })
                 } else {
                     Err(Error::InvalidValue("no results returned".into()))
@@ -167,10 +167,13 @@ impl WeatherLocation {
                 zipcode,
                 country_code,
             } => {
-                let loc = api.get_zip_location(*zipcode, *country_code).await?;
+                let (latitude, longitude) = api
+                    .get_zip_location(*zipcode, *country_code)
+                    .await?
+                    .get_lat_lon()?;
                 Ok(Self::LatLon {
-                    latitude: loc.lat.try_into()?,
-                    longitude: loc.lon.try_into()?,
+                    latitude,
+                    longitude,
                 })
             }
             lat_lon @ Self::LatLon { .. } => Ok(lat_lon.clone()),
@@ -231,6 +234,12 @@ pub struct GeoLocation {
     pub lon: f64,
     pub country: StringType,
     pub zip: Option<StringType>,
+}
+
+impl GeoLocation {
+    fn get_lat_lon(&self) -> Result<(Latitude, Longitude), Error> {
+        Ok((self.lat.try_into()?, self.lon.try_into()?))
+    }
 }
 
 #[cfg(feature = "cli")]

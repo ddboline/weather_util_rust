@@ -1,6 +1,6 @@
 use nutype::nutype;
 
-use crate::{format_string, Error};
+use crate::Error;
 
 const HECTO: f64 = 1.0; // hPa 100 hundred Pa
 const KILO: f64 = 1_000.0 / 100.0;
@@ -8,8 +8,21 @@ const ATM: f64 = 98.0665 * HECTO / KILO;
 const PSI: f64 = 14.223 / (98.0665 * HECTO / KILO);
 
 /// Pressure struct, data is stored as hPa (100 Pa)
-#[nutype(validate(min=0.0))]
-#[derive(*, Serialize, Deserialize)]
+#[nutype(
+    validate(greater_or_equal = 0.0),
+    derive(
+        Display,
+        TryFrom,
+        AsRef,
+        Serialize,
+        Deserialize,
+        Copy,
+        Clone,
+        PartialEq,
+        Debug,
+        Into
+    )
+)]
 pub struct Pressure(f64);
 
 impl Default for Pressure {
@@ -23,21 +36,21 @@ impl Pressure {
     ///
     /// Will return error if input is less than zero
     pub fn from_kpa(kpa: f64) -> Result<Self, Error> {
-        Self::new(kpa * HECTO / KILO).map_err(|e| Error::InvalidValue(format_string!("{e}")))
+        Self::new(kpa * HECTO / KILO).map_err(Into::into)
     }
 
     /// # Errors
     ///
     /// Will return error if input is less than zero
     pub fn from_hpa(hpa: f64) -> Result<Self, Error> {
-        Self::new(hpa).map_err(|e| Error::InvalidValue(format_string!("{e}")))
+        Self::new(hpa).map_err(Into::into)
     }
 
     /// # Errors
     ///
     /// Will return error if input is less than zero
     pub fn from_atmosphere(atm: f64) -> Result<Self, Error> {
-        Self::new(atm * ATM).map_err(|e| Error::InvalidValue(format_string!("{e}")))
+        Self::new(atm * ATM).map_err(Into::into)
     }
 
     /// # Errors
@@ -51,7 +64,7 @@ impl Pressure {
     ///
     /// Will return error if input is less than zero
     pub fn from_psi(psi: f64) -> Result<Self, Error> {
-        Self::new(psi / PSI).map_err(|e| Error::InvalidValue(format_string!("{e}")))
+        Self::new(psi / PSI).map_err(Into::into)
     }
 
     #[inline]
@@ -107,7 +120,7 @@ mod tests {
         assert_eq!(p.hpa(), 1.0);
 
         let p = Pressure::from_hpa(-1.0);
-        assert!(p.is_err());
+        assert_eq!(&format!("{p:?}"), "Err(PressureError(GreaterOrEqualViolated))");
         Ok(())
     }
 }

@@ -5,11 +5,23 @@ use std::{
     hash::Hash,
 };
 
-use crate::{angle::Angle, format_string, Error};
+use crate::{angle::Angle, Error};
 
 /// Latitude in degrees, required be within the range -90.0 to 90.0
 #[derive(
-    Into, Clone, Copy, Display, FromStr, Debug, Serialize, Deserialize, PartialEq, Eq, Hash, Default,
+    Into,
+    derive_more::From,
+    Clone,
+    Copy,
+    Display,
+    FromStr,
+    Debug,
+    Serialize,
+    Deserialize,
+    PartialEq,
+    Eq,
+    Hash,
+    Default,
 )]
 pub struct Latitude(Angle);
 
@@ -23,11 +35,9 @@ impl TryFrom<f64> for Latitude {
     type Error = Error;
     fn try_from(item: f64) -> Result<Self, Self::Error> {
         if (-90.0..90.0).contains(&item) {
-            Ok(Self(Angle::from_deg(item)))
+            Ok(Angle::from_deg(item).into())
         } else {
-            Err(Error::InvalidValue(format_string!(
-                "{item} is not a valid latitude"
-            )))
+            Err(Error::InvalidLatitude)
         }
     }
 }
@@ -59,10 +69,7 @@ mod test {
 
         let h = Latitude::try_from(-360.0);
         assert!(h.is_err());
-        assert_eq!(
-            h.err().unwrap().to_string(),
-            "Invalid Value Error -360 is not a valid latitude",
-        );
+        assert_eq!(&h.err().unwrap().to_string(), "Invalid Latitude",);
         Ok(())
     }
 
