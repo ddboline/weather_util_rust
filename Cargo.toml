@@ -38,7 +38,7 @@ nutype = {version="0.4", features=["serde"]}
 stack-string = {version="0.8", optional=true}
 clap = {version="4.1", features=["derive"], optional=true}
 reqwest = { version="0.11", features=["json", "rustls-tls", "gzip"], default-features=false, optional=true}
-tokio = { version="1.34", features=["full"], optional=true}
+tokio = { version="1.34", features=["io-std", "rt", "macros", "rt-multi-thread"], optional=true}
 
 [dev-dependencies]
 anyhow = "1.0"
