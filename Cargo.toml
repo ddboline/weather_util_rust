@@ -1,6 +1,6 @@
 [package]
 name = "weather_util_rust"
-version = "0.16.12"
+version = "0.16.13"
 authors = ["Daniel Boline <ddboline@gmail.com>"]
 edition = "2018"
 license-file = "LICENSE"
@@ -31,7 +31,7 @@ dirs = "5.0"
 log = "0.4"
 envy = "0.4"
 isocountry = "0.3"
-lazy_static = "1.4"
+once_cell = "1.0"
 parking_lot = "0.12"
 url = "2.3"
 nutype = {version="0.4", features=["serde"]}

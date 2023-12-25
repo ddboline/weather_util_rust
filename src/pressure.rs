@@ -120,7 +120,10 @@ mod tests {
         assert_eq!(p.hpa(), 1.0);
 
         let p = Pressure::from_hpa(-1.0);
-        assert_eq!(&format!("{p:?}"), "Err(PressureError(GreaterOrEqualViolated))");
+        assert_eq!(
+            &format!("{p:?}"),
+            "Err(PressureError(GreaterOrEqualViolated))"
+        );
         Ok(())
     }
 }

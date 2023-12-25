@@ -36,7 +36,10 @@ mod test {
         assert_eq!(v, 86);
 
         let h = Humidity::new(-86).map_err(Into::<Error>::into);
-        assert_eq!(&format!("{h:?}"), "Err(HumidityError(GreaterOrEqualViolated))");
+        assert_eq!(
+            &format!("{h:?}"),
+            "Err(HumidityError(GreaterOrEqualViolated))"
+        );
         Ok(())
     }
 }

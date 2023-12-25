@@ -93,7 +93,10 @@ mod test {
         assert_eq!(p.inches(), 1.0);
 
         let h = Precipitation::try_from(-1.0).map_err(Into::<Error>::into);
-        assert_eq!(&format!("{h:?}"), "Err(PrecipitationError(GreaterOrEqualViolated))");
+        assert_eq!(
+            &format!("{h:?}"),
+            "Err(PrecipitationError(GreaterOrEqualViolated))"
+        );
         Ok(())
     }
 }

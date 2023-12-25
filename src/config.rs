@@ -1,4 +1,4 @@
-use lazy_static::lazy_static;
+use once_cell::sync::Lazy;
 use parking_lot::{Mutex, MutexGuard};
 use serde::Deserialize;
 use std::{
@@ -124,9 +124,7 @@ impl Deref for Config {
     }
 }
 
-lazy_static! {
-    static ref TEST_MUTEX: Mutex<()> = Mutex::new(());
-}
+static TEST_MUTEX: Lazy<Mutex<()>> = Lazy::new(|| Mutex::new(()));
 
 pub struct TestEnvs<'a> {
     _guard: MutexGuard<'a, ()>,

@@ -76,7 +76,10 @@ mod tests {
     #[test]
     fn test_invalid_distance() -> Result<(), Error> {
         let s = Distance::from_miles(-12.0);
-        assert_eq!(&format!("{s:?}"), "Err(DistanceError(GreaterOrEqualViolated))");
+        assert_eq!(
+            &format!("{s:?}"),
+            "Err(DistanceError(GreaterOrEqualViolated))"
+        );
         Ok(())
     }
 }
