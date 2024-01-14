@@ -58,13 +58,13 @@ impl fmt::Display for WeatherLocation {
                 zipcode,
                 country_code: None,
             } => {
-                write!(f, "{zipcode}")
+                write!(f, "{zipcode:05}")
             }
             Self::ZipCode {
                 zipcode,
                 country_code: Some(country_code),
             } => {
-                write!(f, "{zipcode} {}", country_code.alpha2())
+                write!(f, "{zipcode:05} {}", country_code.alpha2())
             }
             Self::CityName(name) => {
                 write!(f, "{name}")
@@ -127,8 +127,8 @@ impl WeatherLocation {
                 country_code,
             } => {
                 let country_code = country_code.map_or("US", |c| c.alpha2());
-                let zipcode_str = apistringtype_from_display(zipcode);
-                vec![("zip", zipcode_str), ("country_code", country_code.into())]
+                let zipcode_str = format_string!("{zipcode:05}");
+                vec![("zip", zipcode_str.into()), ("country_code", country_code.into())]
             }
             Self::CityName(city_name) => {
                 let city_name = city_name.into();
@@ -367,10 +367,10 @@ impl WeatherApi {
         if let Some(country_code) = &country_code {
             options.push((
                 "zip",
-                format_string!("{zipcode},{}", country_code.alpha2()).into(),
+                format_string!("{zipcode:05},{}", country_code.alpha2()).into(),
             ));
         } else {
-            options.push(("zip", format_string!("{zipcode},US").into()));
+            options.push(("zip", format_string!("{zipcode:05},US").into()));
         }
         self.run_geo("zip", &options).await
     }
@@ -562,6 +562,29 @@ mod tests {
             ("appid", "8675309".into()),
         ];
         assert_eq!(opts, expected);
+        Ok(())
+    }
+
+    #[cfg(feature = "cli")]
+    #[tokio::test]
+    async fn test_low_zip() -> Result<(), Error> {
+        let api_key = "95337ed3a8a87acae620d673fae85b11";
+        let api_endpoint = "api.openweathermap.org";
+        let api_path = "data/2.5/";
+        let geo_path = "geo/1.0/";
+
+        let api = WeatherApi::new(api_key, api_endpoint, api_path, geo_path);
+        let loc = WeatherLocation::from_zipcode(2134);
+
+        let (data, forecast) =
+            join(api.get_weather_data(&loc), api.get_weather_forecast(&loc)).await;
+        let (data, forecast) = (data?, forecast?);
+
+        assert_eq!(&data.name, "Allston");
+        let timezone: i32 = forecast.city.timezone.into_inner();
+        info!("{}", timezone);
+        info!("{:?}", forecast);
+        assert!(timezone == -18000 || timezone == -14400);
         Ok(())
     }
 }
