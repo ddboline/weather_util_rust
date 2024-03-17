@@ -153,7 +153,7 @@ impl WeatherLocation {
     pub async fn to_lat_lon(&self, api: &WeatherApi) -> Result<Self, Error> {
         match self {
             Self::CityName(city_name) => {
-                if let Some(loc) = api.get_direct_location(city_name).await?.get(0) {
+                if let Some(loc) = api.get_direct_location(city_name).await?.first() {
                     let (latitude, longitude) = loc.get_lat_lon()?;
                     Ok(Self::LatLon {
                         latitude,

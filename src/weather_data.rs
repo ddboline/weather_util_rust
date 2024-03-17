@@ -186,7 +186,7 @@ impl WeatherData {
         writeln!(
             output,
             "\tConditions: {}",
-            self.weather.get(0).map_or_else(|| "", |w| &w.description)
+            self.weather.first().map_or_else(|| "", |w| &w.description)
         )
         .unwrap_or(());
         writeln!(output, "\tSunrise: {sunrise}").unwrap_or(());
