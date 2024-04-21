@@ -128,7 +128,10 @@ impl WeatherLocation {
             } => {
                 let country_code = country_code.map_or("US", |c| c.alpha2());
                 let zipcode_str = format_string!("{zipcode:05}");
-                vec![("zip", zipcode_str.into()), ("country_code", country_code.into())]
+                vec![
+                    ("zip", zipcode_str.into()),
+                    ("country_code", country_code.into()),
+                ]
             }
             Self::CityName(city_name) => {
                 let city_name = city_name.into();

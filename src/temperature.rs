@@ -122,7 +122,8 @@ mod test {
         assert_eq!(
             t.err().unwrap().to_string(),
             format!(
-                "Invalid Value Error too small: {} is not a valid temperature in Celcius",
+                "Invalid Value Error Temperature is too small. The value must be greater or equal \
+                 to 0.0.: {} is not a valid temperature in Celcius",
                 -300.0
             )
         );
@@ -132,7 +133,8 @@ mod test {
         assert_eq!(
             t.err().unwrap().to_string(),
             format!(
-                "Invalid Value Error too small: {} is not a valid temperature in Fahrenheit",
+                "Invalid Value Error Temperature is too small. The value must be greater or equal \
+                 to 0.0.: {} is not a valid temperature in Fahrenheit",
                 -500.0
             )
         );
