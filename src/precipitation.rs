@@ -24,7 +24,7 @@ pub struct Precipitation(f64);
 
 impl Default for Precipitation {
     fn default() -> Self {
-        Self::new(0.0).unwrap()
+        Self::try_new(0.0).unwrap()
     }
 }
 
@@ -32,7 +32,7 @@ impl Add for Precipitation {
     type Output = Self;
 
     fn add(self, rhs: Self) -> Self::Output {
-        Self::new(self.into_inner().add(rhs.into_inner())).unwrap()
+        Self::try_new(self.into_inner().add(rhs.into_inner())).unwrap()
     }
 }
 
@@ -50,14 +50,14 @@ impl Precipitation {
     ///
     /// Will return error if input is less than zero
     pub fn from_millimeters(precip: f64) -> Result<Self, Error> {
-        Self::new(precip).map_err(Into::into)
+        Self::try_new(precip).map_err(Into::into)
     }
 
     /// # Errors
     ///
     /// Will return error if input is less than zero
     pub fn from_inches(precip: f64) -> Result<Self, Error> {
-        Self::new(precip * MM_PER_INCH).map_err(Into::into)
+        Self::try_new(precip * MM_PER_INCH).map_err(Into::into)
     }
 
     #[inline]
@@ -84,7 +84,7 @@ mod test {
 
     #[test]
     fn test_precipitation() -> Result<(), Error> {
-        let p = Precipitation::new(1.0)?;
+        let p = Precipitation::try_new(1.0)?;
         assert_eq!(p.millimeters(), 1.0);
         assert_eq!(p.inches(), 1.0 / MM_PER_INCH);
         let p2 = Precipitation::from_millimeters(1.0)?;

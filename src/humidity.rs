@@ -20,7 +20,7 @@ pub struct Humidity(i64);
 
 impl Default for Humidity {
     fn default() -> Self {
-        Self::new(0).unwrap()
+        Self::try_new(0).unwrap()
     }
 }
 
@@ -31,11 +31,11 @@ mod test {
 
     #[test]
     fn test_humidity() -> Result<(), Error> {
-        let h = Humidity::new(86)?;
+        let h = Humidity::try_new(86)?;
         let v: i64 = h.into_inner();
         assert_eq!(v, 86);
 
-        let h = Humidity::new(-86).map_err(Into::<Error>::into);
+        let h = Humidity::try_new(-86).map_err(Into::<Error>::into);
         assert_eq!(
             &format!("{h:?}"),
             "Err(HumidityError(GreaterOrEqualViolated))"

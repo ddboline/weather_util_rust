@@ -25,7 +25,7 @@ pub struct Distance(f64);
 
 impl Default for Distance {
     fn default() -> Self {
-        Self::new(0.0).unwrap()
+        Self::try_new(0.0).unwrap()
     }
 }
 

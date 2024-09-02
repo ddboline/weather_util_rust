@@ -39,7 +39,7 @@ pub struct WeatherOpts {
     /// Longitude (must also specify Latitude)
     #[clap(long)]
     lon: Option<Longitude>,
-    /// Api key (optional but either this or API_KEY environment variable must
+    /// Api key (optional but either this or `API_KEY` environment variable must
     /// exist)
     #[clap(short = 'k', long)]
     api_key: Option<ApiStringType>,
@@ -133,7 +133,7 @@ impl WeatherOpts {
 
     fn apply_defaults(&mut self, config: &Config) {
         if self.api_key.is_none() {
-            self.api_key = config.api_key.clone();
+            self.api_key.clone_from(&config.api_key);
         }
         if self.zipcode.is_none()
             && self.country_code.is_none()
@@ -141,8 +141,8 @@ impl WeatherOpts {
             && (self.lat.is_none() || self.lon.is_none())
         {
             self.zipcode = config.zipcode;
-            self.country_code = config.country_code.clone();
-            self.city_name = config.city_name.clone();
+            self.country_code.clone_from(&config.country_code);
+            self.city_name.clone_from(&config.city_name);
             if config.lat.is_some() && config.lon.is_some() {
                 self.lat = config.lat;
                 self.lon = config.lon;

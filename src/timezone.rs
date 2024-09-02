@@ -7,7 +7,7 @@ pub struct TimeZone(i32);
 
 impl Default for TimeZone {
     fn default() -> Self {
-        Self::new(0).unwrap()
+        Self::try_new(0).unwrap()
     }
 }
 
@@ -29,7 +29,7 @@ mod test {
 
     #[test]
     fn test_timezone() -> Result<(), Error> {
-        let t = TimeZone::new(4 * 3600)?;
+        let t = TimeZone::try_new(4 * 3600)?;
         let offset: i32 = t.into_inner();
         assert_eq!(offset, 4 * 3600);
         let offset: UtcOffset = t.into();

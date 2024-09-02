@@ -27,7 +27,7 @@ pub struct Temperature(f64);
 
 impl Default for Temperature {
     fn default() -> Self {
-        Self::new(0.0).unwrap()
+        Self::try_new(0.0).unwrap()
     }
 }
 
@@ -48,7 +48,7 @@ impl Temperature {
     ///
     /// Will return error if input is less than zero
     pub fn from_kelvin(t: f64) -> Result<Self, Error> {
-        Self::new(t).map_err(|e| {
+        Self::try_new(t).map_err(|e| {
             Error::InvalidValue(format_string!(
                 "{e}: {t} is not a valid temperature in Kelvin"
             ))
@@ -59,7 +59,7 @@ impl Temperature {
     ///
     /// Will return error if input is less than zero
     pub fn from_celcius(t: f64) -> Result<Self, Error> {
-        Self::new(t + FREEZING_POINT_KELVIN).map_err(|e| {
+        Self::try_new(t + FREEZING_POINT_KELVIN).map_err(|e| {
             Error::InvalidValue(format_string!(
                 "{e}: {t} is not a valid temperature in Celcius"
             ))
@@ -70,7 +70,7 @@ impl Temperature {
     ///
     /// Will return error if input is less than zero
     pub fn from_fahrenheit(t: f64) -> Result<Self, Error> {
-        Self::new((t + FAHRENHEIT_OFFSET) / FAHRENHEIT_FACTOR).map_err(|e| {
+        Self::try_new((t + FAHRENHEIT_OFFSET) / FAHRENHEIT_FACTOR).map_err(|e| {
             Error::InvalidValue(format_string!(
                 "{e}: {t} is not a valid temperature in Fahrenheit",
             ))
@@ -111,7 +111,7 @@ mod test {
         let t = Temperature::from_fahrenheit(15.0)?;
         assert_abs_diff_eq!(t.fahrenheit(), 15.0, epsilon = 0.0001);
 
-        let t = Temperature::new(300.0).map_err(|e| Error::InvalidValue(format_string!("{e}")))?;
+        let t = Temperature::try_new(300.0).map_err(|e| Error::InvalidValue(format_string!("{e}")))?;
         assert_abs_diff_eq!(t.kelvin(), 300.0);
 
         let t = Temperature::try_from(-15.0);

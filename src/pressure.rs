@@ -27,7 +27,7 @@ pub struct Pressure(f64);
 
 impl Default for Pressure {
     fn default() -> Self {
-        Self::new(0.0).unwrap()
+        Self::try_new(0.0).unwrap()
     }
 }
 
@@ -36,21 +36,21 @@ impl Pressure {
     ///
     /// Will return error if input is less than zero
     pub fn from_kpa(kpa: f64) -> Result<Self, Error> {
-        Self::new(kpa * HECTO / KILO).map_err(Into::into)
+        Self::try_new(kpa * HECTO / KILO).map_err(Into::into)
     }
 
     /// # Errors
     ///
     /// Will return error if input is less than zero
     pub fn from_hpa(hpa: f64) -> Result<Self, Error> {
-        Self::new(hpa).map_err(Into::into)
+        Self::try_new(hpa).map_err(Into::into)
     }
 
     /// # Errors
     ///
     /// Will return error if input is less than zero
     pub fn from_atmosphere(atm: f64) -> Result<Self, Error> {
-        Self::new(atm * ATM).map_err(Into::into)
+        Self::try_new(atm * ATM).map_err(Into::into)
     }
 
     /// # Errors
@@ -64,7 +64,7 @@ impl Pressure {
     ///
     /// Will return error if input is less than zero
     pub fn from_psi(psi: f64) -> Result<Self, Error> {
-        Self::new(psi / PSI).map_err(Into::into)
+        Self::try_new(psi / PSI).map_err(Into::into)
     }
 
     #[inline]

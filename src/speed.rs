@@ -25,7 +25,7 @@ pub struct Speed(f64);
 
 impl Default for Speed {
     fn default() -> Self {
-        Self::new(0.0).unwrap()
+        Self::try_new(0.0).unwrap()
     }
 }
 
@@ -34,14 +34,14 @@ impl Speed {
     ///
     /// Will return error if input is less than zero
     pub fn from_mps(mps: f64) -> Result<Self, Error> {
-        Self::new(mps).map_err(Into::into)
+        Self::try_new(mps).map_err(Into::into)
     }
 
     /// # Errors
     ///
     /// Will return error if input is less than zero
     pub fn from_mph(mph: f64) -> Result<Self, Error> {
-        Self::new(mph * METERS_PER_MILE / SECONDS_PER_HOUR).map_err(Into::into)
+        Self::try_new(mph * METERS_PER_MILE / SECONDS_PER_HOUR).map_err(Into::into)
     }
 
     #[inline]
