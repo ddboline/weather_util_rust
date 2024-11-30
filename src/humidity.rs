@@ -2,7 +2,7 @@ use nutype::nutype;
 
 /// Relative Humidity as Percent
 #[nutype(
-    validate(greater_or_equal = 0, less_or_equal = 100),
+    validate(greater_or_equal = 0, less_or_equal = 110),
     derive(
         Display,
         TryFrom,
