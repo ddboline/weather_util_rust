@@ -178,10 +178,12 @@ mod test {
     fn test_get_api() -> Result<(), Error> {
         let _env = TestEnvs::new(&["API_KEY", "API_ENDPOINT", "ZIPCODE", "API_PATH"]);
 
-        set_var("API_KEY", "1234567");
-        set_var("API_ENDPOINT", "test.local1");
-        set_var("ZIPCODE", "8675309");
-        set_var("API_PATH", "weather/");
+        unsafe {
+            set_var("API_KEY", "1234567");
+            set_var("API_ENDPOINT", "test.local1");
+            set_var("ZIPCODE", "8675309");
+            set_var("API_PATH", "weather/");    
+        }
 
         let config = Config::init_config(None)?;
         drop(_env);
@@ -206,11 +208,13 @@ mod test {
     fn test_apply_defaults() -> Result<(), Error> {
         let _env = TestEnvs::new(&["API_KEY", "API_ENDPOINT", "LAT", "LON", "API_PATH"]);
 
-        set_var("API_KEY", "1234567");
-        set_var("API_ENDPOINT", "test.local1");
-        set_var("LAT", "10.1");
-        set_var("LON", "11.1");
-        set_var("API_PATH", "weather/");
+        unsafe {
+            set_var("API_KEY", "1234567");
+            set_var("API_ENDPOINT", "test.local1");
+            set_var("LAT", "10.1");
+            set_var("LON", "11.1");
+            set_var("API_PATH", "weather/");    
+        }
 
         let config = Config::init_config(None)?;
         drop(_env);

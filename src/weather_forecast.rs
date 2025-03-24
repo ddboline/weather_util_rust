@@ -170,7 +170,7 @@ impl WeatherForecast {
     ///
     /// let buf = data.get_forecast().join("");
     ///
-    /// assert!(buf.starts_with("\nForecast:"), buf);
+    /// assert!(buf.starts_with("\nForecast:"), "{}", buf);
     /// assert!(buf.contains("2022-02-27 High: 38.5 F / 3.6 C"));
     /// assert!(buf.contains("Low: 35.3 F / 1.9 C"));
     /// # Ok(())

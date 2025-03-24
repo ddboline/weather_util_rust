@@ -1,8 +1,8 @@
 [package]
 name = "weather_util_rust"
-version = "0.16.18"
+version = "0.16.19"
 authors = ["Daniel Boline <ddboline@gmail.com>"]
-edition = "2018"
+edition = "2024"
 license-file = "LICENSE"
 description = "CLI tool to pull weather data from openweathermap.org, intended to replace the debian package weather-util"
 homepage = "https://github.com/ddboline/weather_util_rust"

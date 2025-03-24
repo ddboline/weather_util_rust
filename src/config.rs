@@ -81,8 +81,10 @@ impl Config {
     ///
     /// # fn main() -> Result<(), Error> {
     /// # let _env = TestEnvs::new(&["API_KEY", "API_ENDPOINT", "ZIPCODE", "API_PATH"]);
+    /// # unsafe {
     /// # set_var("API_KEY", "api_key_value");
     /// # set_var("API_ENDPOINT", "api.openweathermap.org");
+    /// # }
     /// let config = Config::init_config(None)?;
     /// # drop(_env);
     /// assert_eq!(config.api_key, Some("api_key_value".into()));
@@ -150,9 +152,13 @@ impl Drop for TestEnvs<'_> {
     fn drop(&mut self) {
         for (key, val) in &self.envs {
             if let Some(val) = val {
-                set_var(key, val);
+                unsafe {
+                    set_var(key, val);
+                }
             } else {
-                remove_var(key);
+                unsafe {
+                    remove_var(key);
+                }
             }
         }
     }
@@ -178,10 +184,12 @@ mod tests {
 
         let _env = TestEnvs::new(&["API_KEY", "API_ENDPOINT", "ZIPCODE", "API_PATH"]);
 
-        set_var("API_KEY", "fb2380d74189c9983ea52f55914da824");
-        set_var("API_ENDPOINT", "test.local");
-        set_var("ZIPCODE", "8675309");
-        set_var("API_PATH", "weather/");
+        unsafe {
+            set_var("API_KEY", "fb2380d74189c9983ea52f55914da824");
+            set_var("API_ENDPOINT", "test.local");
+            set_var("ZIPCODE", "8675309");
+            set_var("API_PATH", "weather/");    
+        }
 
         let conf = Config::init_config(None)?;
         drop(_env);
@@ -204,10 +212,12 @@ mod tests {
     #[test]
     fn test_config_file() -> Result<(), Error> {
         let _env = TestEnvs::new(&["API_KEY", "API_ENDPOINT", "ZIPCODE", "API_PATH"]);
-        remove_var("API_KEY");
-        remove_var("API_ENDPOINT");
-        remove_var("ZIPCODE");
-        remove_var("API_PATH");
+        unsafe {
+            remove_var("API_KEY");
+            remove_var("API_ENDPOINT");
+            remove_var("ZIPCODE");
+            remove_var("API_PATH");    
+        }
         let config_data = include_bytes!("../tests/config.env");
         let config_file = NamedTempFile::new()?;
         let config_path = config_file.path();
