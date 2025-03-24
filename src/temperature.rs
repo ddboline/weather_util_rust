@@ -43,7 +43,6 @@ impl Temperature {
     /// # Ok(())
     /// # }
     /// ```
-
     /// # Errors
     ///
     /// Will return error if input is less than zero

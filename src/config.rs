@@ -1,4 +1,4 @@
-use once_cell::sync::Lazy;
+use std::sync::LazyLock;
 use parking_lot::{Mutex, MutexGuard};
 use serde::Deserialize;
 use std::{
@@ -124,14 +124,14 @@ impl Deref for Config {
     }
 }
 
-static TEST_MUTEX: Lazy<Mutex<()>> = Lazy::new(|| Mutex::new(()));
+static TEST_MUTEX: LazyLock<Mutex<()>> = LazyLock::new(|| Mutex::new(()));
 
 pub struct TestEnvs<'a> {
     _guard: MutexGuard<'a, ()>,
     envs: Vec<(OsString, Option<OsString>)>,
 }
 
-impl<'a> TestEnvs<'a> {
+impl TestEnvs<'_> {
     #[allow(dead_code)]
     pub fn new(keys: &[impl AsRef<OsStr>]) -> Self {
         let guard = TEST_MUTEX.lock();
@@ -146,7 +146,7 @@ impl<'a> TestEnvs<'a> {
     }
 }
 
-impl<'a> Drop for TestEnvs<'a> {
+impl Drop for TestEnvs<'_> {
     fn drop(&mut self) {
         for (key, val) in &self.envs {
             if let Some(val) = val {

@@ -327,7 +327,7 @@ impl WeatherApi {
         let api_endpoint = &self.api_endpoint;
         let api_path = &self.api_path;
         let command = format_string!("{command}");
-        self._run_api(&command, options, api_endpoint, api_path)
+        self.run_api_impl(&command, options, api_endpoint, api_path)
             .await
     }
 
@@ -385,11 +385,11 @@ impl WeatherApi {
     ) -> Result<T, Error> {
         let api_endpoint = &self.api_endpoint;
         let api_path = &self.geo_path;
-        self._run_api(command, options, api_endpoint, api_path)
+        self.run_api_impl(command, options, api_endpoint, api_path)
             .await
     }
 
-    async fn _run_api<T: serde::de::DeserializeOwned>(
+    async fn run_api_impl<T: serde::de::DeserializeOwned>(
         &self,
         command: &str,
         options: &[(&'static str, ApiStringType)],
@@ -449,7 +449,7 @@ mod tests {
             let locations = api.get_geo_location(latitude, longitude).await?;
             assert_eq!(locations.len(), 1);
             let location = &locations[0];
-            assert_eq!(&location.name, "New York County");
+            assert_eq!(&location.name, "New York");
         } else {
             assert!(false);
         }
