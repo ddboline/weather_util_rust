@@ -102,7 +102,7 @@ impl Pressure {
 mod tests {
     use approx::assert_abs_diff_eq;
 
-    use crate::{pressure::Pressure, Error};
+    use crate::{Error, pressure::Pressure};
 
     #[test]
     fn test_pressure() -> Result<(), Error> {

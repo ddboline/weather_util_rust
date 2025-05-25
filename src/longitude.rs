@@ -2,7 +2,7 @@ use derive_more::{Display, FromStr, Into};
 use serde::{Deserialize, Serialize};
 use std::{convert::TryFrom, hash::Hash};
 
-use crate::{angle::Angle, Error};
+use crate::{Error, angle::Angle};
 
 /// Longitude in degrees, required be within the range -180.0 to 180.0
 #[derive(
@@ -47,7 +47,7 @@ mod test {
         hash::{Hash, Hasher},
     };
 
-    use crate::{longitude::Longitude, Error};
+    use crate::{Error, longitude::Longitude};
 
     #[test]
     fn test_longitude() -> Result<(), Error> {

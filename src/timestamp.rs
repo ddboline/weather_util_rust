@@ -1,4 +1,4 @@
-use serde::{self, de::Error, Deserialize, Deserializer, Serializer};
+use serde::{self, Deserialize, Deserializer, Serializer, de::Error};
 use time::OffsetDateTime;
 
 /// ! serialize function required by `#[serde(with=timestamp)]`

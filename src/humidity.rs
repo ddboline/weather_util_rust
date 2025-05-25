@@ -27,7 +27,7 @@ impl Default for Humidity {
 #[cfg(test)]
 mod test {
 
-    use crate::{humidity::Humidity, Error};
+    use crate::{Error, humidity::Humidity};
 
     #[test]
     fn test_humidity() -> Result<(), Error> {

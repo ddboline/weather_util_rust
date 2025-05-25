@@ -78,8 +78,8 @@ mod test {
     use std::convert::TryFrom;
 
     use crate::{
-        precipitation::{Precipitation, MM_PER_INCH},
         Error,
+        precipitation::{MM_PER_INCH, Precipitation},
     };
 
     #[test]

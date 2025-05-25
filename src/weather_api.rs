@@ -12,8 +12,8 @@ use crate::Error;
 use reqwest::{Client, Url};
 
 use crate::{
-    apistringtype_from_display, format_string, latitude::Latitude, longitude::Longitude,
-    weather_data::WeatherData, weather_forecast::WeatherForecast, ApiStringType, StringType,
+    ApiStringType, StringType, apistringtype_from_display, format_string, latitude::Latitude,
+    longitude::Longitude, weather_data::WeatherData, weather_forecast::WeatherForecast,
 };
 
 /// `WeatherApi` contains a `reqwest` Client and all the metadata required to
@@ -420,7 +420,7 @@ mod tests {
         hash::{Hash, Hasher},
     };
 
-    use crate::{weather_api::WeatherLocation, ApiStringType, Error};
+    use crate::{ApiStringType, Error, weather_api::WeatherLocation};
 
     #[cfg(feature = "cli")]
     use crate::weather_api::WeatherApi;

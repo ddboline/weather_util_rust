@@ -5,7 +5,7 @@ use std::{
     hash::Hash,
 };
 
-use crate::{angle::Angle, Error};
+use crate::{Error, angle::Angle};
 
 /// Latitude in degrees, required be within the range -90.0 to 90.0
 #[derive(
@@ -50,7 +50,7 @@ mod test {
         hash::{Hash, Hasher},
     };
 
-    use crate::{latitude::Latitude, Error};
+    use crate::{Error, latitude::Latitude};
 
     #[test]
     fn test_latitude() -> Result<(), Error> {

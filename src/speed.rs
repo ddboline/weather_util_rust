@@ -61,7 +61,7 @@ impl Speed {
 mod tests {
     use approx::assert_abs_diff_eq;
 
-    use crate::{speed::Speed, Error};
+    use crate::{Error, speed::Speed};
 
     #[test]
     fn test_speed() -> Result<(), Error> {

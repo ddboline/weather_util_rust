@@ -1,17 +1,17 @@
 use futures::future::join;
 use serde::{Deserialize, Serialize};
 
-use crate::{format_string, Error};
+use crate::{Error, format_string};
 
 #[cfg(feature = "cli")]
 use clap::{CommandFactory, Parser};
 
 #[cfg(feature = "cli")]
-use tokio::io::{stdout, AsyncWriteExt};
+use tokio::io::{AsyncWriteExt, stdout};
 
 use crate::{
-    config::Config, latitude::Latitude, longitude::Longitude, weather_api::WeatherLocation,
-    ApiStringType, StringType,
+    ApiStringType, StringType, config::Config, latitude::Latitude, longitude::Longitude,
+    weather_api::WeatherLocation,
 };
 
 #[cfg(feature = "cli")]
@@ -163,11 +163,11 @@ mod test {
     use std::{convert::TryFrom, env::set_var};
 
     use crate::{
+        Error,
         config::{Config, TestEnvs},
         latitude::Latitude,
         longitude::Longitude,
         weather_api::WeatherLocation,
-        Error,
     };
 
     #[cfg(feature = "cli")]
@@ -182,7 +182,7 @@ mod test {
             set_var("API_KEY", "1234567");
             set_var("API_ENDPOINT", "test.local1");
             set_var("ZIPCODE", "8675309");
-            set_var("API_PATH", "weather/");    
+            set_var("API_PATH", "weather/");
         }
 
         let config = Config::init_config(None)?;
@@ -213,7 +213,7 @@ mod test {
             set_var("API_ENDPOINT", "test.local1");
             set_var("LAT", "10.1");
             set_var("LON", "11.1");
-            set_var("API_PATH", "weather/");    
+            set_var("API_PATH", "weather/");
         }
 
         let config = Config::init_config(None)?;

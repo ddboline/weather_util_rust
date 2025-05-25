@@ -59,7 +59,7 @@ impl Distance {
 mod tests {
     use approx::assert_abs_diff_eq;
 
-    use crate::{distance::Distance, Error};
+    use crate::{Error, distance::Distance};
 
     #[test]
     fn test_distance() -> Result<(), Error> {

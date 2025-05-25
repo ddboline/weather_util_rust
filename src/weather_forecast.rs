@@ -6,7 +6,7 @@ use std::{
 use time::{Date, OffsetDateTime, UtcOffset};
 
 use crate::{
-    default_datetime, format_string,
+    StringType, default_datetime, format_string,
     humidity::Humidity,
     precipitation::Precipitation,
     pressure::Pressure,
@@ -14,7 +14,6 @@ use crate::{
     timestamp,
     timezone::TimeZone,
     weather_data::{Rain, Snow, WeatherCond},
-    StringType,
 };
 
 #[derive(Deserialize, Serialize, Debug, Clone, Copy, PartialEq)]
@@ -205,8 +204,8 @@ mod test {
     use time::macros::date;
 
     use crate::{
-        precipitation::Precipitation, temperature::Temperature, weather_forecast::WeatherForecast,
-        Error, StringType,
+        Error, StringType, precipitation::Precipitation, temperature::Temperature,
+        weather_forecast::WeatherForecast,
     };
 
     #[test]

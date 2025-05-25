@@ -1,4 +1,3 @@
-use std::sync::LazyLock;
 use parking_lot::{Mutex, MutexGuard};
 use serde::Deserialize;
 use std::{
@@ -6,10 +5,10 @@ use std::{
     ffi::{OsStr, OsString},
     ops::Deref,
     path::Path,
-    sync::Arc,
+    sync::{Arc, LazyLock},
 };
 
-use crate::{latitude::Latitude, longitude::Longitude, ApiStringType, Error, StringType};
+use crate::{ApiStringType, Error, StringType, latitude::Latitude, longitude::Longitude};
 
 /// Configuration data
 #[derive(Default, Debug, Deserialize, PartialEq, Eq)]
@@ -174,8 +173,8 @@ mod tests {
     use tempfile::NamedTempFile;
 
     use crate::{
-        config::{Config, TestEnvs},
         Error,
+        config::{Config, TestEnvs},
     };
 
     #[test]
@@ -188,7 +187,7 @@ mod tests {
             set_var("API_KEY", "fb2380d74189c9983ea52f55914da824");
             set_var("API_ENDPOINT", "test.local");
             set_var("ZIPCODE", "8675309");
-            set_var("API_PATH", "weather/");    
+            set_var("API_PATH", "weather/");
         }
 
         let conf = Config::init_config(None)?;
@@ -216,7 +215,7 @@ mod tests {
             remove_var("API_KEY");
             remove_var("API_ENDPOINT");
             remove_var("ZIPCODE");
-            remove_var("API_PATH");    
+            remove_var("API_PATH");
         }
         let config_data = include_bytes!("../tests/config.env");
         let config_file = NamedTempFile::new()?;

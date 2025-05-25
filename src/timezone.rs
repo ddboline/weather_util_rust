@@ -25,7 +25,7 @@ mod test {
     use std::convert::TryFrom;
     use time::UtcOffset;
 
-    use crate::{timezone::TimeZone, Error};
+    use crate::{Error, timezone::TimeZone};
 
     #[test]
     fn test_timezone() -> Result<(), Error> {

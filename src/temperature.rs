@@ -1,6 +1,6 @@
 use nutype::nutype;
 
-use crate::{format_string, Error};
+use crate::{Error, format_string};
 
 const FREEZING_POINT_KELVIN: f64 = 273.15;
 const FAHRENHEIT_OFFSET: f64 = 459.67;
@@ -100,7 +100,7 @@ mod test {
     use approx::assert_abs_diff_eq;
     use std::convert::TryFrom;
 
-    use crate::{format_string, temperature::Temperature, Error};
+    use crate::{Error, format_string, temperature::Temperature};
 
     #[test]
     fn test_temperature() -> Result<(), Error> {
@@ -110,7 +110,8 @@ mod test {
         let t = Temperature::from_fahrenheit(15.0)?;
         assert_abs_diff_eq!(t.fahrenheit(), 15.0, epsilon = 0.0001);
 
-        let t = Temperature::try_new(300.0).map_err(|e| Error::InvalidValue(format_string!("{e}")))?;
+        let t =
+            Temperature::try_new(300.0).map_err(|e| Error::InvalidValue(format_string!("{e}")))?;
         assert_abs_diff_eq!(t.kelvin(), 300.0);
 
         let t = Temperature::try_from(-15.0);

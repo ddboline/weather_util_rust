@@ -22,11 +22,7 @@ impl Angle {
     #[inline]
     #[must_use]
     fn sign(self) -> i8 {
-        if self.degree >= 0 {
-            1
-        } else {
-            -1
-        }
+        if self.degree >= 0 { 1 } else { -1 }
     }
 
     #[must_use]
@@ -142,7 +138,7 @@ mod tests {
     use approx::assert_abs_diff_eq;
     use std::{f64::consts::PI, mem::size_of};
 
-    use crate::{angle::Angle, Error};
+    use crate::{Error, angle::Angle};
 
     #[test]
     fn test_sizeof() {

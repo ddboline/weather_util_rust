@@ -1,5 +1,5 @@
 use anyhow::Error;
-use assert_cmd::{cargo::cargo_bin, Command};
+use assert_cmd::{Command, cargo::cargo_bin};
 use log::info;
 
 use weather_util_rust::config::TestEnvs;

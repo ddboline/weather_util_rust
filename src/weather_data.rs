@@ -3,9 +3,9 @@ use std::fmt::Write;
 use time::{OffsetDateTime, UtcOffset};
 
 use crate::{
-    default_datetime, direction::Direction, distance::Distance, humidity::Humidity,
+    StringType, default_datetime, direction::Direction, distance::Distance, humidity::Humidity,
     latitude::Latitude, longitude::Longitude, precipitation::Precipitation, pressure::Pressure,
-    speed::Speed, temperature::Temperature, timestamp, timezone::TimeZone, StringType,
+    speed::Speed, temperature::Temperature, timestamp, timezone::TimeZone,
 };
 
 #[derive(Serialize, Deserialize, Debug, Clone, Copy, Default, PartialEq, Eq)]
@@ -165,7 +165,7 @@ impl WeatherData {
         if let Some(country) = &self.sys.country {
             let name = &self.name;
             write!(output, "{name} {country} ").unwrap_or(());
-        };
+        }
         writeln!(output, "{:0.5}N {:0.5}E", self.coord.lat, self.coord.lon).unwrap_or(());
         writeln!(output, "Last Updated {dt}").unwrap_or(());
         writeln!(
@@ -198,7 +198,7 @@ impl WeatherData {
                 rain.one_hour.map_or(0.0, Precipitation::inches)
             )
             .unwrap_or(());
-        };
+        }
         if let Some(snow) = &self.snow {
             write!(
                 output,
@@ -206,7 +206,7 @@ impl WeatherData {
                 snow.one_hour.map_or(0.0, Precipitation::inches)
             )
             .unwrap_or(());
-        };
+        }
         output.push('\n');
         output
     }
@@ -215,10 +215,9 @@ impl WeatherData {
 #[cfg(test)]
 mod test {
     use crate::{
-        default_datetime,
+        Error, default_datetime,
         timezone::TimeZone,
         weather_data::{Coord, Sys, WeatherData, WeatherMain, Wind},
-        Error,
     };
     use log::info;
 

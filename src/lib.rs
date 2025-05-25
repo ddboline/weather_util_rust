@@ -63,7 +63,7 @@ pub mod weather_opts;
 pub mod error;
 
 pub use error::Error;
-use time::{macros::datetime, OffsetDateTime};
+use time::{OffsetDateTime, macros::datetime};
 
 #[must_use]
 pub fn default_datetime() -> OffsetDateTime {
