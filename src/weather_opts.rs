@@ -97,10 +97,10 @@ impl WeatherOpts {
         } else if let Some(city_name) = &self.city_name {
             WeatherLocation::from_city_name(city_name)
         } else {
-            if let Some(lat) = self.lat {
-                if let Some(lon) = self.lon {
-                    return Ok(WeatherLocation::from_lat_lon(lat, lon));
-                }
+            if let Some(lat) = self.lat
+                && let Some(lon) = self.lon
+            {
+                return Ok(WeatherLocation::from_lat_lon(lat, lon));
             }
             return Err(Error::InvalidInputError(format_string!(
                 "\nERROR: You must specify at least one option\n"
