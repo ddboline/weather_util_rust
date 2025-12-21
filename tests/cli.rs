@@ -1,5 +1,5 @@
 use anyhow::Error;
-use assert_cmd::{Command, cargo::cargo_bin};
+use assert_cmd::cargo;
 use log::info;
 
 use weather_util_rust::config::TestEnvs;
@@ -8,10 +8,10 @@ use weather_util_rust::config::TestEnvs;
 #[test]
 fn test_default() -> Result<(), Error> {
     let _env = TestEnvs::new(&["API_KEY", "API_ENDPOINT", "ZIPCODE", "API_PATH"]);
-    let bin = cargo_bin("weather-util-rust");
+    let bin = cargo::cargo_bin!("weather-util-rust");
     assert!(bin.exists());
 
-    let output = Command::cargo_bin("weather-util-rust")?
+    let output = cargo::cargo_bin_cmd!("weather-util-rust")
         .args(["-z", "10001"])
         .output()?;
 
